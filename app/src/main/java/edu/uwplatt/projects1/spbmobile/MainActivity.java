@@ -1,5 +1,6 @@
 package edu.uwplatt.projects1.spbmobile;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -20,6 +21,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
@@ -56,10 +59,14 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        isGooglePlayServicesAvailable();
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         setupGoogleSignIn();
+
+        updateAccountInformation(GoogleSignIn.getLastSignedInAccount(this));
 
     }
 
@@ -67,14 +74,16 @@ public class MainActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
 
-        updateAccountInformation(GoogleSignIn.getLastSignedInAccount(this));
+        //updateAccountInformation(GoogleSignIn.getLastSignedInAccount(this));
     }
 
     private void updateAccountInformation(GoogleSignInAccount lastSignedInAccount) {
         if(lastSignedInAccount != null)
         {
-            ((TextView)findViewById(R.id.user_name)).setText(lastSignedInAccount.getDisplayName());
-            ((TextView)findViewById(R.id.user_email)).setText(lastSignedInAccount.getEmail());
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+            View header = navigationView.getHeaderView(0);
+            ((TextView)header.findViewById(R.id.user_name)).setText(lastSignedInAccount.getDisplayName());
+            ((TextView)header.findViewById(R.id.user_email)).setText(lastSignedInAccount.getEmail());
         }
     }
 
@@ -189,5 +198,24 @@ public class MainActivity extends AppCompatActivity
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
             updateAccountInformation(null);
         }
+    }
+
+    /**
+     * Checks if the appropriate version of google play services is installed.
+     *
+     * If not an error is shown to the user.
+     * @return
+     */
+    private boolean isGooglePlayServicesAvailable() {
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+        Integer resultCode = googleApiAvailability.isGooglePlayServicesAvailable(this.getApplicationContext());
+        if (resultCode != ConnectionResult.SUCCESS) {
+            Dialog dialog = googleApiAvailability.getErrorDialog(this, resultCode, 0);
+            if (dialog != null) {
+                dialog.show();
+            }
+            return false;
+        }
+        return true;
     }
 }
