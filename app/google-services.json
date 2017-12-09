@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "968907067223",
+    "project_id": "spbmobile-188503"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:968907067223:android:eee08c447530728a",
+        "android_client_info": {
+          "package_name": "edu.uwplatt.projects1.spbmobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "968907067223-pi8qejnm2obnpv914up57b178qrv58nf.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "968907067223-57hk5jr3md7lne80jjjqm6o2rdffo3r4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.uwplatt.projects1.spbmobile",
+            "certificate_hash": "096f5627aa0407792ee79d05cdaf4df48aa36972"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfd2R9tc1BWRBM2RiYWuILw_AVzUcEME4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
