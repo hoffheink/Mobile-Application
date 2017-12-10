@@ -18,7 +18,11 @@ import java.util.List;
  */
 
 public class ApplianceListAdapter extends ArrayAdapter {
-
+    /**
+     * Testing things
+     * @param context
+     * @param resource
+     */
     public ApplianceListAdapter(@NonNull Context context, int resource) {
         super(context, resource);
 
