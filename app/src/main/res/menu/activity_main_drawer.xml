@@ -9,10 +9,10 @@
         android:id="@+id/nav_main_group"
         >
         <item
-            android:id="@+id/nav_devices"
+            android:id="@+id/nav_appliances"
             android:checkable="true"
             android:icon="@drawable/mug"
-            android:title="Devices"
+            android:title="Appliances"
             app:showAsAction="always" />
         <item
             android:id="@+id/notifications_switch"
@@ -20,9 +20,9 @@
             android:title="Notifications"
             app:actionLayout="@layout/switch_item" />
         <item
-            android:id="@+id/nav_add_device"
+            android:id="@+id/nav_register_appliance"
             android:icon="@drawable/magic_wand"
-            android:title="Add Device" />
+            android:title="Register Appliance" />
         <item
             android:id="@+id/nav_account"
             android:icon="@drawable/shield"

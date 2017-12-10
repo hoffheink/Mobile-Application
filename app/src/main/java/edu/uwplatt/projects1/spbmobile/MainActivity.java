@@ -2,10 +2,12 @@ package edu.uwplatt.projects1.spbmobile;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.util.Log;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,23 +21,15 @@ import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, ApplianceListFragment.OnFragmentInteractionListener {
 
+    protected DrawerLayout mDrawer;
 
-    private final String TAG = "GoogleSignInActivity";
-
-    private static final int RC_SIGN_IN = 9001;
-
-    private GoogleSignInClient mGoogleSignInClient;
+    private static final int RC_WELCOME_SCREEN = 9002;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,26 +58,34 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        setupGoogleSignIn();
 
-        updateAccountInformation(GoogleSignIn.getLastSignedInAccount(this));
+        mDrawer = findViewById(R.id.drawer_layout);
+    }
 
+    /**
+     * Creates an intent to show the welcome screen.
+     */
+    private void showWelcomeScreen() {
+        Intent openDevicesIntent = new Intent(this, WelcomeScreenActivity.class);
+        startActivityForResult(openDevicesIntent, RC_WELCOME_SCREEN);
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        //updateAccountInformation(GoogleSignIn.getLastSignedInAccount(this));
+        updateAccountInformation();
     }
 
-    private void updateAccountInformation(GoogleSignInAccount lastSignedInAccount) {
-        if(lastSignedInAccount != null)
-        {
+    private void updateAccountInformation() {
+        GoogleSignInAccount currentAccount = GoogleSignIn.getLastSignedInAccount(this);
+        if(currentAccount == null)
+            showWelcomeScreen();
+        else {
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
-            ((TextView)header.findViewById(R.id.user_name)).setText(lastSignedInAccount.getDisplayName());
-            ((TextView)header.findViewById(R.id.user_email)).setText(lastSignedInAccount.getEmail());
+            ((TextView)header.findViewById(R.id.user_name)).setText(currentAccount.getDisplayName());
+            ((TextView)header.findViewById(R.id.user_email)).setText(currentAccount.getEmail());
         }
     }
 
@@ -125,10 +127,18 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_devices) {
-            // Handle the camera action
-        } else if (id == R.id.nav_add_device) {
+        if (id == R.id.nav_appliances) {
+//            Intent openDevicesIntent = new Intent(this, ApplianceListFragment.class);
+//            startActivity(openDevicesIntent);
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
+            ApplianceListFragment fragment = new ApplianceListFragment();
+            fragmentTransaction.add(R.id.content_main, fragment);
+            fragmentTransaction.commit();
+        } else if (id == R.id.nav_register_appliance) {
+            Intent registerApplianceIntent = new Intent(this, RegisterApplianceActivity.class);
+            startActivity(registerApplianceIntent);
         } else if (id == R.id.nav_account) {
 
         } else if (id == R.id.nav_settings) {
@@ -140,64 +150,13 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    /**
-     * Constructs the Google Sign-In Options object and instantiates a Sign-In client.
-     */
-    private void setupGoogleSignIn() {
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        View includedView = findViewById(R.id.content_main);
-        SignInButton button = includedView.findViewById(R.id.sign_in_button_main);
-        button.setOnClickListener(this);
-    }
-
-    private void signIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.sign_in_button_main:
-                signIn();
-                break;
-            // ...
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
-        }
-    }
-
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
-            // Signed in successfully, show authenticated UI.
-            updateAccountInformation(account);
-        } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            updateAccountInformation(null);
-        }
+//        switch (v.getId()) {
+//            case R.id.sign_in_button_main:
+//                signIn();
+//                break;
+//        }
     }
 
     /**
@@ -217,5 +176,16 @@ public class MainActivity extends AppCompatActivity
             return false;
         }
         return true;
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == RC_WELCOME_SCREEN && resultCode == RESULT_OK) {
+            updateAccountInformation();
+        }
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }
