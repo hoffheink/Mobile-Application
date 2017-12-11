@@ -206,17 +206,14 @@ public class RegisterApplianceFragment extends Fragment {
     };
 
     private void connectTo(int index) {
-
         selectedNetwork = filteredResults.get(index);
-
         WifiConfiguration config = new WifiConfiguration();
         config.SSID = selectedNetwork.SSID;
         config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         int configID = wifiManager.addNetwork(config);
-
+        Log.d("connectTo", "configID: " + configID);
+        //TODO: Log errors so the user can see them
         wifiManager.enableNetwork(configID, true);
-
-
     }
 
     public void onPause() {
