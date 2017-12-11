@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.register_appliance_toolbar);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -126,19 +126,21 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         if (id == R.id.nav_appliances) {
-//            Intent openDevicesIntent = new Intent(this, ApplianceListFragment.class);
-//            startActivity(openDevicesIntent);
-            FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
             ApplianceListFragment fragment = new ApplianceListFragment();
             fragmentTransaction.add(R.id.content_main, fragment);
             fragmentTransaction.commit();
         } else if (id == R.id.nav_register_appliance) {
-            Intent registerApplianceIntent = new Intent(this, RegisterApplianceActivity.class);
-            startActivity(registerApplianceIntent);
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            RegisterApplianceFragment fragment = new RegisterApplianceFragment();
+            fragmentTransaction.add(R.id.content_main, fragment);
+            fragmentTransaction.commit();
+
         } else if (id == R.id.nav_account) {
 
         } else if (id == R.id.nav_settings) {

@@ -13,10 +13,11 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
@@ -35,7 +36,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
-public class RegisterApplianceActivity extends AppCompatActivity {
+public class RegisterApplianceFragment extends Fragment {
 
     public static final String NETWORK_PREFIX = "Mongoose";
     public static final String SSID_KEY = "SSID";
@@ -48,19 +49,24 @@ public class RegisterApplianceActivity extends AppCompatActivity {
     int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 5555;
     private List<ScanResult> unfilteredResults;
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        if (container != null) {
+            container.removeAllViews();
+        }
+        return inflater.inflate(R.layout.content_register_appliance, container, false);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register_appliance);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiManager.startScan();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                     PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
             //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
@@ -95,8 +101,8 @@ public class RegisterApplianceActivity extends AppCompatActivity {
     private View.OnClickListener sendNetworkInfoClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Spinner networkName = (Spinner) findViewById(R.id.network_name);
-            TextView networkPassword = (TextView) findViewById(R.id.network_password);
+            Spinner networkName = (Spinner) getActivity().findViewById(R.id.network_name);
+            TextView networkPassword = (TextView) getActivity().findViewById(R.id.network_password);
 
             Runnable sendNetworkInfoRunnable = new SendNetworkInfoRunnable(((HashMap<String, String>) networkName.getSelectedItem()).get(SSID_KEY), networkPassword.getText().toString());
             new Thread(sendNetworkInfoRunnable).start();
@@ -142,12 +148,12 @@ public class RegisterApplianceActivity extends AppCompatActivity {
     }
 
     private void showConfigurationSettings() {
-        findViewById(R.id.network_list).setVisibility(View.GONE);
-        findViewById(R.id.network_name).setVisibility(View.VISIBLE);
-        findViewById(R.id.network_password).setVisibility(View.VISIBLE);
-        findViewById(R.id.send_network_info_button).setVisibility(View.VISIBLE);
+        getActivity().findViewById(R.id.network_list).setVisibility(View.GONE);
+        getActivity().findViewById(R.id.network_name).setVisibility(View.VISIBLE);
+        getActivity().findViewById(R.id.network_password).setVisibility(View.VISIBLE);
+        getActivity().findViewById(R.id.send_network_info_button).setVisibility(View.VISIBLE);
 
-        ((Button) findViewById(R.id.send_network_info_button)).setOnClickListener(sendNetworkInfoClickListener);
+        ((Button) getActivity().findViewById(R.id.send_network_info_button)).setOnClickListener(sendNetworkInfoClickListener);
 
         ArrayList<HashMap<String, String>> networkList = new ArrayList<>();
         Set<String> usedNames = new HashSet<>();
@@ -160,13 +166,17 @@ public class RegisterApplianceActivity extends AppCompatActivity {
             }
         }
 
-        SimpleAdapter adapter = new SimpleAdapter(this, networkList, android.R.layout.simple_list_item_1, new String[]{SSID_KEY}, new int[]{android.R.id.text1});
-        ((Spinner) findViewById(R.id.network_name)).setAdapter(adapter);
+        SimpleAdapter adapter = new SimpleAdapter(getActivity(), networkList, android.R.layout.simple_list_item_1, new String[]{SSID_KEY}, new int[]{android.R.id.text1});
+        ((Spinner) getActivity().findViewById(R.id.network_name)).setAdapter(adapter);
 
 
     }
 
     private void resultsReceived(List<ScanResult> results) {
+
+        getActivity().findViewById(R.id.register_appliance_progress_bar).setVisibility(View.GONE);
+        getActivity().findViewById(R.id.network_list).setVisibility(View.VISIBLE);
+
         unfilteredResults = results;
         filteredResults = new ArrayList<>();
 
@@ -181,9 +191,9 @@ public class RegisterApplianceActivity extends AppCompatActivity {
             }
         }
 
-        SimpleAdapter adapter = new SimpleAdapter(this, filteredList, android.R.layout.simple_list_item_1, new String[]{SSID_KEY}, new int[]{android.R.id.text1});
-        ((ListView) findViewById(R.id.network_list)).setAdapter(adapter);
-        ((ListView) findViewById(R.id.network_list)).setOnItemClickListener(ssidClickListener);
+        SimpleAdapter adapter = new SimpleAdapter(getActivity(), filteredList, android.R.layout.simple_list_item_1, new String[]{SSID_KEY}, new int[]{android.R.id.text1});
+        ((ListView) getActivity().findViewById(R.id.network_list)).setAdapter(adapter);
+        ((ListView) getActivity().findViewById(R.id.network_list)).setOnItemClickListener(ssidClickListener);
     }
 
     AdapterView.OnItemClickListener ssidClickListener = new AdapterView.OnItemClickListener() {
@@ -209,19 +219,19 @@ public class RegisterApplianceActivity extends AppCompatActivity {
 
     }
 
-    protected void onPause() {
-        unregisterReceiver(wifiScanReceiver);
-        unregisterReceiver(wifiConnectReceiver);
+    public void onPause() {
+        getActivity().unregisterReceiver(wifiScanReceiver);
+        getActivity().unregisterReceiver(wifiConnectReceiver);
         super.onPause();
     }
 
-    protected void onResume() {
-        registerReceiver(
+    public void onResume() {
+        getActivity().registerReceiver(
                 wifiScanReceiver,
                 new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)
         );
 
-        registerReceiver(wifiConnectReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        getActivity().registerReceiver(wifiConnectReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         super.onResume();
     }
 
