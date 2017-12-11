@@ -17,30 +17,18 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
-public class LambdaInvokerActivity extends AppCompatActivity
-{
+public class LambdaInvokerActivity extends AppCompatActivity {
     private TextView view;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lambda_invoker);
 
-        view = (TextView)findViewById(R.id.tf);
-        final String _jsonShit = "{\"thingId\":\"charlieDevice1\",\"thingPin\":\"5000\"}";
+        view = (TextView) findViewById(R.id.tf);
+        final String jsonRequestParameters = "{\"thingId\":\"charlieDevice1\",\"thingPin\":\"5000\"}";
 
-
-        /*
-                final CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
-                this.getApplicationContext(), // get the context for the current activity
-                "955967187114", // your AWS Account id
-                        "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878",
-                "arn:aws:iam::955967187114:role/Cognito_IoTAppUnauth_Role",
-                        "arn:aws:iam::955967187114:role/Cognito_IoTAppAuth_Role ",
-                Regions.US_EAST_2 //Region
-        );*/
-       final CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
+        final CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(
                 getApplicationContext(),
                 "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878", // Identity pool ID
                 Regions.US_EAST_2 // Region
@@ -55,28 +43,23 @@ public class LambdaInvokerActivity extends AppCompatActivity
 
         new AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider>() {
             @Override
-            protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids)
-            {
+            protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
                 credentialsProvider.refresh();
                 return credentialsProvider;
             }
         }.execute(credentialsProvider);
 
 
-
-
         new AsyncTask<Void, Void, Void>() {
             @Override
-            protected Void doInBackground(Void... voids)
-            {
+            protected Void doInBackground(Void... voids) {
                 AWSLambdaClient client = (credentialsProvider == null) ? new AWSLambdaClient()
                         : new AWSLambdaClient(credentialsProvider);
                 client.setRegion(Region.getRegion(Regions.US_EAST_2));
-                try
-                {
+                try {
                     InvokeRequest invokeRequest = new InvokeRequest();
                     invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
-                    invokeRequest.setPayload(ByteBuffer.wrap(_jsonShit.getBytes()));
+                    invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
                     ByteBuffer b = client.invoke(invokeRequest).getPayload();
                     Log.e("Tag", byteBufferToString(b, Charset.forName("UTF-8")), null);
                 } catch (Exception e) {
