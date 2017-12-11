@@ -110,7 +110,7 @@ public class RegisterApplianceActivity extends AppCompatActivity {
         SimpleAdapter adapter = new SimpleAdapter(this, networkList, android.R.layout.simple_list_item_1, new String[]{SSID_KEY}, new int[]{android.R.id.text1});
         ((Spinner)findViewById(R.id.network_name)).setAdapter(adapter);
 
-        
+
     }
 
     private void resultsReceived(List<ScanResult> results) {
