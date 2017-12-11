@@ -48,6 +48,7 @@ public class LambdaInvokerActivity extends AppCompatActivity
 
         HashMap<String, String> logins = new HashMap<>();
         String accountID = MainActivity.account.getId();
+        Log.d("onCreate", "accountID: " + accountID);
         logins.put("accounts.google.com", accountID);
         credentialsProvider.setLogins(logins);
 
