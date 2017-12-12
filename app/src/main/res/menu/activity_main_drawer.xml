@@ -35,6 +35,10 @@
             android:id="@+id/nav_invoke_aws"
             android:icon="@drawable/cog"
             android:title="Invoke AWS" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/exit"
+            android:title="Logout" />
     </group>
 
 </menu>
