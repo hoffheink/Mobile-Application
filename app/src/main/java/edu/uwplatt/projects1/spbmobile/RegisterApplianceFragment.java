@@ -13,6 +13,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,7 +39,7 @@ import java.util.Set;
 
 public class RegisterApplianceFragment extends Fragment {
 
-    public static final String NETWORK_PREFIX = "Mongoose";
+    public static final String NETWORK_PREFIX = "";
     public static final String SSID_KEY = "SSID";
     WifiManager wifiManager;
     ArrayList<ScanResult> filteredResults;
@@ -46,7 +47,7 @@ public class RegisterApplianceFragment extends Fragment {
 
     String token;
 
-    int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 5555;
+    final int  PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 5555;
     private List<ScanResult> unfilteredResults;
 
 
@@ -67,7 +68,9 @@ public class RegisterApplianceFragment extends Fragment {
         wifiManager.startScan();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                     PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
             //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
 
@@ -230,6 +233,31 @@ public class RegisterApplianceFragment extends Fragment {
 
         getActivity().registerReceiver(wifiConnectReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         super.onResume();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 
 }
