@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity
 
     protected DrawerLayout mDrawer;
 
+    public static GoogleSignInAccount account;
+
     private static final int RC_WELCOME_SCREEN = 9002;
 
     @Override
@@ -78,14 +80,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateAccountInformation() {
-        GoogleSignInAccount currentAccount = GoogleSignIn.getLastSignedInAccount(this);
-        if(currentAccount == null)
+        account = GoogleSignIn.getLastSignedInAccount(this);
+        if(account == null)
             showWelcomeScreen();
         else {
             NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
-            ((TextView)header.findViewById(R.id.user_name)).setText(currentAccount.getDisplayName());
-            ((TextView)header.findViewById(R.id.user_email)).setText(currentAccount.getEmail());
+            ((TextView)header.findViewById(R.id.user_name)).setText(account.getDisplayName());
+            ((TextView)header.findViewById(R.id.user_email)).setText(account.getEmail());
         }
     }
 
