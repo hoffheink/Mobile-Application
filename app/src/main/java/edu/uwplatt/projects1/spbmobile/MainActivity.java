@@ -48,10 +48,8 @@ public class MainActivity extends AppCompatActivity
     protected DrawerLayout mDrawer;
     public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
-    private CognitoCachingCredentialsProvider credentialsProvider;
-    private final String jsonRequestParameters = "{\"thingId\":\"charlieDevice1\",\"thingPin\":\"5000\"}";
-    private final String serverClientId = "968907067223-pi8qejnm2obnpv914up57b178qrv58nf.apps.googleusercontent.com";
     private GoogleSignInClient mGoogleSignInClient;
+    private String jsonRequestParameters = "{\"thingId\":\"charlieDevice1\",\"thingPin\":\"5000\"}";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,73 +109,26 @@ public class MainActivity extends AppCompatActivity
             View header = navigationView.getHeaderView(0);
             ((TextView)header.findViewById(R.id.user_name)).setText(account.getDisplayName());
             ((TextView)header.findViewById(R.id.user_email)).setText(account.getEmail());
-            credentialsProvider = new CognitoCachingCredentialsProvider(
-                    getApplicationContext(),
-                    "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878", // Identity pool ID
-                    Regions.US_EAST_2 // Region
-            );
 
             HashMap<String, String> logins = new HashMap<>();
 
             String accountID = account.getIdToken();
             Log.d("onCreate", "accountID: " + accountID);
             logins.put("accounts.google.com", accountID);
-            credentialsProvider.setLogins(logins);
+            CloudDatasource.getInstance(getApplicationContext()).credentialsProvider.setLogins(logins);
 
-
-            task.execute(credentialsProvider);
-
-
-            try {
-                task2.execute().get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
-
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
+            invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
+            String response = CloudDatasource.getInstance(getApplicationContext()).invoke(invokeRequest);
         }
     }
 
-    private AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> task =  new AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider>() {
-        @Override
-        protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
-            credentialsProvider.refresh();
-            return credentialsProvider;
-        }
-    };
 
-    private AsyncTask<Void, Void, String> task2 = new AsyncTask<Void, Void, String>() {
-        @Override
-        protected String doInBackground(Void... voids) {
-            AWSLambdaClient client = (credentialsProvider == null) ? new AWSLambdaClient()
-                    : new AWSLambdaClient(credentialsProvider);
-            client.setRegion(Region.getRegion(Regions.US_EAST_2));
-            try {
-                InvokeRequest invokeRequest = new InvokeRequest();
-                invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
-                invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
-                ByteBuffer b = client.invoke(invokeRequest).getPayload();
-                String response = byteBufferToString(b, Charset.forName("UTF-8"));
-                Log.e("Tag", response, null);
-                return response;
-            } catch (Exception e) {
-                Log.e("Tag", "Failed to invoke nick", e);
-                return null;
-            }
-        }
-    };
 
-    public static String byteBufferToString(ByteBuffer buffer, Charset charset) {
-        byte[] bytes;
-        if (buffer.hasArray()) {
-            bytes = buffer.array();
-        } else {
-            bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-        }
-        return new String(bytes, charset);
-    }
+
+
+
 
     @Override
     public void onBackPressed() {
