@@ -22,39 +22,30 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.InvokeRequest;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, ApplianceListFragment.OnFragmentInteractionListener {
     protected DrawerLayout mDrawer;
     public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
-    private CognitoCachingCredentialsProvider credentialsProvider;
-    private final String jsonRequestParameters = "{\"thingId\":\"charlieDevice1\",\"thingPin\":\"5000\"}";
-    private final String serverClientId = "968907067223-pi8qejnm2obnpv914up57b178qrv58nf.apps.googleusercontent.com";
     private GoogleSignInClient mGoogleSignInClient;
+    private String jsonRequestParameters = "{\"thingId\":\"charlieDevice1\",\"thingPin\":\"5000\"}";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,73 +104,26 @@ public class MainActivity extends AppCompatActivity
             View header = navigationView.getHeaderView(0);
             ((TextView)header.findViewById(R.id.user_name)).setText(account.getDisplayName());
             ((TextView)header.findViewById(R.id.user_email)).setText(account.getEmail());
-            credentialsProvider = new CognitoCachingCredentialsProvider(
-                    getApplicationContext(),
-                    "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878", // Identity pool ID
-                    Regions.US_EAST_2 // Region
-            );
 
             HashMap<String, String> logins = new HashMap<>();
 
             String accountID = account.getIdToken();
             Log.d("onCreate", "accountID: " + accountID);
             logins.put("accounts.google.com", accountID);
-            credentialsProvider.setLogins(logins);
+            CloudDatasource.getInstance(getApplicationContext()).credentialsProvider.setLogins(logins);
 
-
-            task.execute(credentialsProvider);
-
-
-            try {
-                task2.execute().get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
-
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
+            invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
+            String response = CloudDatasource.getInstance(getApplicationContext()).invoke(invokeRequest);
         }
     }
 
-    private AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> task =  new AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider>() {
-        @Override
-        protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
-            credentialsProvider.refresh();
-            return credentialsProvider;
-        }
-    };
 
-    private AsyncTask<Void, Void, String> task2 = new AsyncTask<Void, Void, String>() {
-        @Override
-        protected String doInBackground(Void... voids) {
-            AWSLambdaClient client = (credentialsProvider == null) ? new AWSLambdaClient()
-                    : new AWSLambdaClient(credentialsProvider);
-            client.setRegion(Region.getRegion(Regions.US_EAST_2));
-            try {
-                InvokeRequest invokeRequest = new InvokeRequest();
-                invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
-                invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
-                ByteBuffer b = client.invoke(invokeRequest).getPayload();
-                String response = byteBufferToString(b, Charset.forName("UTF-8"));
-                Log.e("Tag", response, null);
-                return response;
-            } catch (Exception e) {
-                Log.e("Tag", "Failed to invoke nick", e);
-                return null;
-            }
-        }
-    };
 
-    public static String byteBufferToString(ByteBuffer buffer, Charset charset) {
-        byte[] bytes;
-        if (buffer.hasArray()) {
-            bytes = buffer.array();
-        } else {
-            bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-        }
-        return new String(bytes, charset);
-    }
+
+
+
 
     @Override
     public void onBackPressed() {

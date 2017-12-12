@@ -26,7 +26,7 @@ public class ApplianceListAdapter extends ArrayAdapter {
     public ApplianceListAdapter(@NonNull Context context, int resource) {
         super(context, resource);
 
-        this.addAll(CloudDatasource.getInstance().getDevices());
+        this.addAll(CloudDatasource.getInstance(context).getDevices());
     }
 
     public ApplianceListAdapter(@NonNull Context context, int resource, int textViewResourceId) {
