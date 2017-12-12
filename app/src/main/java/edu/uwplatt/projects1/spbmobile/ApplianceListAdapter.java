@@ -11,6 +11,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 import java.util.List;
 
 /**
@@ -23,10 +26,10 @@ public class ApplianceListAdapter extends ArrayAdapter {
      * @param context
      * @param resource
      */
-    public ApplianceListAdapter(@NonNull Context context, int resource) {
+    public ApplianceListAdapter(@NonNull Context context, int resource, GoogleSignInAccount account) {
         super(context, resource);
 
-        this.addAll(CloudDatasource.getInstance(context).getDevices());
+        this.addAll(CloudDatasource.getInstance(context, account).getDevices());
     }
 
     public ApplianceListAdapter(@NonNull Context context, int resource, int textViewResourceId) {

@@ -22,14 +22,22 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.amazonaws.services.lambda.model.InvokeRequest;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,7 +55,7 @@ public class RegisterApplianceFragment extends Fragment {
 
     String token;
 
-    final int  PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 5555;
+    final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 5555;
     private List<ScanResult> unfilteredResults;
 
 
@@ -126,7 +134,9 @@ public class RegisterApplianceFragment extends Fragment {
         public void run() {
             sendNetworkInfo(networkName, networkPassword);
         }
-    };
+    }
+
+    ;
 
     private void sendNetworkInfo(String networkName, String networkPassword) {
         URL applianceURL;
@@ -142,11 +152,54 @@ public class RegisterApplianceFragment extends Fragment {
             Scanner inputScanner = new Scanner(connection.getInputStream());
             token = inputScanner.next();
             Log.d("sendNetworkInfo", "Token is: " + token);
-
+            deviceAdded = false;
+            //TODO: Fix this damn name!
+            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, "name1", token);
+            for (int count = 0; !deviceAdded && count < 10; count++)
+            {
+                registrationTask.run();
+                Thread.sleep(5000);
+            }
+            if (!deviceAdded){
+                Log.e("sendNetworkInfo","Failed to add device!");
+                Toast.makeText(getContext(), "Failed to add device!", Toast.LENGTH_LONG).show();
+            }
         } catch (MalformedURLException e) {
             Log.e("sendNetworkInfo", e.getMessage());
         } catch (IOException e) {
             Log.e("sendNetworkInfo", e.getMessage());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean deviceAdded = false;
+
+    public class RegisterDeviceWithAWS implements Runnable {
+        private final String token;
+        private final String deviceName;
+        private final GoogleSignInAccount account;
+
+        public RegisterDeviceWithAWS(GoogleSignInAccount inAccount, String inDeviceName, String inToken) {
+            account = inAccount;
+            deviceName = inDeviceName;
+            token = inToken;
+        }
+
+        @Override
+        public void run() {
+            InvokeRequest invokeRequest = new InvokeRequest();
+            invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
+            Gson gson = new Gson();
+            String jsonRequestParameters = gson.toJson(new Object() {
+                String thingId = deviceName;
+                String thingPin = token;
+            });
+            invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
+            String response = CloudDatasource.getInstance(getActivity(), account).invoke(account, invokeRequest);
+            Log.d("RegisterDeviceWithAWS", "response: " + response);
+            if (!response.contains("errorMessage"))
+                deviceAdded = true;
         }
     }
 
@@ -161,7 +214,7 @@ public class RegisterApplianceFragment extends Fragment {
         ArrayList<HashMap<String, String>> networkList = new ArrayList<>();
         Set<String> usedNames = new HashSet<>();
         for (ScanResult result : unfilteredResults) {
-            if(!usedNames.contains(result.SSID)) {
+            if (!usedNames.contains(result.SSID)) {
                 usedNames.add(result.SSID);
                 HashMap item = new HashMap<String, String>();
                 item.put(SSID_KEY, result.SSID);
@@ -177,8 +230,12 @@ public class RegisterApplianceFragment extends Fragment {
 
     private void resultsReceived(List<ScanResult> results) {
 
-        getActivity().findViewById(R.id.register_appliance_progress_bar).setVisibility(View.GONE);
-        getActivity().findViewById(R.id.network_list).setVisibility(View.VISIBLE);
+        ProgressBar progressBar = getActivity().findViewById(R.id.register_appliance_progress_bar);
+        if (progressBar != null)
+            progressBar.setVisibility(View.GONE);
+        ListView networkListView = getActivity().findViewById(R.id.network_list);
+        if (networkListView != null)
+            networkListView.setVisibility(View.VISIBLE);
 
         unfilteredResults = results;
         filteredResults = new ArrayList<>();
@@ -195,8 +252,11 @@ public class RegisterApplianceFragment extends Fragment {
         }
 
         SimpleAdapter adapter = new SimpleAdapter(getActivity(), filteredList, android.R.layout.simple_list_item_1, new String[]{SSID_KEY}, new int[]{android.R.id.text1});
-        ((ListView) getActivity().findViewById(R.id.network_list)).setAdapter(adapter);
-        ((ListView) getActivity().findViewById(R.id.network_list)).setOnItemClickListener(ssidClickListener);
+        if (networkListView != null)
+        {
+            networkListView.setAdapter(adapter);
+            networkListView.setOnItemClickListener(ssidClickListener);
+        }
     }
 
     AdapterView.OnItemClickListener ssidClickListener = new AdapterView.OnItemClickListener() {

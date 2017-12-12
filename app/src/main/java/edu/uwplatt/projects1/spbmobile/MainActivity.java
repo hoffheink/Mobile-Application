@@ -26,6 +26,7 @@ import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity
     public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
     private GoogleSignInClient mGoogleSignInClient;
-    private String jsonRequestParameters = "{\"thingId\":\"charlieDevice1\",\"thingPin\":\"5000\"}";
+    private String jsonRequestParameters = "{\"thingId\":\"charlieDevice1\",\"thingPin\":\"1234\"}";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,17 +106,11 @@ public class MainActivity extends AppCompatActivity
             ((TextView)header.findViewById(R.id.user_name)).setText(account.getDisplayName());
             ((TextView)header.findViewById(R.id.user_email)).setText(account.getEmail());
 
-            HashMap<String, String> logins = new HashMap<>();
-
-            String accountID = account.getIdToken();
-            Log.d("onCreate", "accountID: " + accountID);
-            logins.put("accounts.google.com", accountID);
-            CloudDatasource.getInstance(getApplicationContext()).credentialsProvider.setLogins(logins);
-
             InvokeRequest invokeRequest = new InvokeRequest();
             invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
             invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
-            String response = CloudDatasource.getInstance(getApplicationContext()).invoke(invokeRequest);
+            String response = CloudDatasource.getInstance(getApplicationContext(), account).invoke(account, invokeRequest);
+            Log.d("updateAccountInformatin", "response: "+ response);
         }
     }
 

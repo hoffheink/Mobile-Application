@@ -9,9 +9,11 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.InvokeRequest;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -25,12 +27,14 @@ class CloudDatasource {
     private String[] appliances = {"One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen"};
 
 
-    static CloudDatasource getInstance(Context inContext) {
+    static CloudDatasource getInstance(Context inContext, GoogleSignInAccount account) {
         if(ourInstance == null || !ourContext.equals(inContext)) {
             ourInstance = new CloudDatasource(inContext);
             ourContext = inContext;
-
         }
+        addLoginsFromAccount(account);
+        task t = new task();
+        t.execute(ourInstance.credentialsProvider);
         return ourInstance;
     }
 
@@ -40,11 +44,6 @@ class CloudDatasource {
                 "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878", // Identity pool ID
                 Regions.US_EAST_2 // Region
         );
-        task t = new task();
-        t.execute(credentialsProvider);
-
-
-
     }
 
     public String[] getDevices() {
@@ -53,16 +52,18 @@ class CloudDatasource {
 
     public CognitoCachingCredentialsProvider credentialsProvider;
 
-    private class task extends AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> {
+    private static class task extends AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> {
         @Override
         protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
-            credentialsProvider.refresh();
-            return credentialsProvider;
+            Log.d("task", ourInstance.credentialsProvider.getLogins().toString());
+            ourInstance.credentialsProvider.refresh();
+            return ourInstance.credentialsProvider;
         }
     }
 
-    public String invoke(InvokeRequest request) {
+    public String invoke(GoogleSignInAccount account, InvokeRequest request) {
         try {
+            addLoginsFromAccount(account);
             return new Invoker(request).execute().get();
         } catch (InterruptedException e) {
             Log.d("invoke", "InterruptedException: " + e.getMessage(), e);
@@ -70,6 +71,15 @@ class CloudDatasource {
             Log.d("invoke", "ExecutionException: " + e.getMessage(), e);
         }
         return null;
+    }
+
+    private static void addLoginsFromAccount(GoogleSignInAccount account) {
+        HashMap<String, String> logins = new HashMap<>();
+
+        String accountID = account.getIdToken();
+        Log.d("onCreate", "accountID: " + accountID);
+        logins.put("accounts.google.com", accountID);
+        ourInstance.credentialsProvider.setLogins(logins);
     }
 
     private class Invoker extends AsyncTask<Void, Void, String> {

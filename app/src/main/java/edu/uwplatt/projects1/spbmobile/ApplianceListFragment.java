@@ -47,7 +47,7 @@ public class ApplianceListFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        ListAdapter applianceAdapter = new ApplianceListAdapter(getContext(), R.id.appliance_list);
+        ListAdapter applianceAdapter = new ApplianceListAdapter(getContext(), R.id.appliance_list, MainActivity.account);
         ((ListView)getView().findViewById(R.id.appliance_list)).setAdapter(applianceAdapter);
     }
 
