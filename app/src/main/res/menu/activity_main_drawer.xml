@@ -31,6 +31,10 @@
             android:id="@+id/nav_settings"
             android:icon="@drawable/cog"
             android:title="Settings" />
+        <item
+            android:id="@+id/nav_invoke_aws"
+            android:icon="@drawable/cog"
+            android:title="Invoke AWS" />
     </group>
 
 </menu>

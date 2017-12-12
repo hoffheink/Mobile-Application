@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.Task;
 public class WelcomeScreenActivity extends AppCompatActivity {
 
     private View mContentView;
+    public static GoogleSignInAccount account;
 
     /**
      * Used when logging with a Log.d method.
@@ -125,7 +126,8 @@ public class WelcomeScreenActivity extends AppCompatActivity {
      */
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            account = completedTask.getResult(ApiException.class);
+            Log.d("handleSignInResult", account.getIdToken());
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
@@ -142,6 +144,7 @@ public class WelcomeScreenActivity extends AppCompatActivity {
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
