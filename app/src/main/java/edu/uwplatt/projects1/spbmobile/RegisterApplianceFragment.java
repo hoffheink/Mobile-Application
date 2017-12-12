@@ -39,7 +39,7 @@ import java.util.Set;
 
 public class RegisterApplianceFragment extends Fragment {
 
-    public static final String NETWORK_PREFIX = "";
+    public static final String NETWORK_PREFIX = "SPB";
     public static final String SSID_KEY = "SSID";
     WifiManager wifiManager;
     ArrayList<ScanResult> filteredResults;
