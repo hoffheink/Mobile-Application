@@ -1,6 +1,5 @@
 package edu.uwplatt.projects1.spbmobile;
 
-import android.app.Application;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
