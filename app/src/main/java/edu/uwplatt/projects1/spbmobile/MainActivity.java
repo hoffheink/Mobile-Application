@@ -106,11 +106,11 @@ public class MainActivity extends AppCompatActivity
             ((TextView)header.findViewById(R.id.user_name)).setText(account.getDisplayName());
             ((TextView)header.findViewById(R.id.user_email)).setText(account.getEmail());
 
-            InvokeRequest invokeRequest = new InvokeRequest();
+            /*InvokeRequest invokeRequest = new InvokeRequest();
             invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
             invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
             String response = CloudDatasource.getInstance(getApplicationContext(), account).invoke(account, invokeRequest);
-            Log.d("updateAccountInformatin", "response: "+ response);
+            Log.d("updateAccountInformatin", "response: "+ response);*/
         }
     }
 

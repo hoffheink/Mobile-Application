@@ -56,7 +56,14 @@ class CloudDatasource {
         @Override
         protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
             Log.d("task", ourInstance.credentialsProvider.getLogins().toString());
-            ourInstance.credentialsProvider.refresh();
+            try
+            {
+                ourInstance.credentialsProvider.refresh();
+            }
+            catch (Exception e)
+            {
+                Log.d("invoke", "Exception: " + e.getMessage(), e);
+            }
             return ourInstance.credentialsProvider;
         }
     }
