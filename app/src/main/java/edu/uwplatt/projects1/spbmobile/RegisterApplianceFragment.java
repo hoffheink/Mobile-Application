@@ -202,8 +202,12 @@ public class RegisterApplianceFragment extends Fragment {
                 invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
                 String response = CloudDatasource.getInstance(getActivity(), account).invoke(account, invokeRequest);
                 Log.d("RegisterDeviceWithAWS", "response: " + response);
-                if (!response.contains("errorMessage"))
-                    deviceAdded = true;
+                if (response != null) {
+                    if (!response.contains("errorMessage")) {
+                        deviceAdded = true;
+                    }
+                } else
+                    Log.d("RegisterDeviceWithAWS", "Failed to register:");
             } catch (Exception e) {
                 Log.e("RegisterDeviceWithAWS", e.getMessage(), e);
             }
