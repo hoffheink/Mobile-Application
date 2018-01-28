@@ -20,7 +20,7 @@ public class Event {
     /**
      * Constructor
      * @param inId id of the device.
-     * @param inStatus Status of the device.
+     * @param inStatus status of the device.
      * @param inPriority event priority.
      */
     public Event(String inId, String inStatus, Priorities inPriority) {
@@ -30,8 +30,8 @@ public class Event {
     }
 
     /**
-     * Gets the ID.
-     * @return ID
+     * Gets the id.
+     * @return id
      */
     public String getId()
     {
@@ -39,7 +39,7 @@ public class Event {
     }
 
     /**
-     * Sets the ID.
+     * Sets the id.
      */
     public void setId(String inID)
     {
@@ -47,8 +47,8 @@ public class Event {
     }
 
     /**
-     * Gets the ID.
-     * @return Status
+     * Gets the status.
+     * @return status
      */
     public String getStatus()
     {
@@ -56,7 +56,7 @@ public class Event {
     }
 
     /**
-     * Sets teh status
+     * Sets the status
      * @param inStatus status
      */
     public void setStatus(String inStatus)
@@ -65,7 +65,7 @@ public class Event {
     }
 
     /**
-     * Gets the ID.
+     * Gets the id.
      * @return priority
      */
     public Priorities getPriority()
