@@ -15,13 +15,11 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
@@ -29,9 +27,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.amazonaws.services.lambda.model.EC2AccessDeniedException;
 import com.amazonaws.services.lambda.model.InvokeRequest;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.gson.Gson;
 
@@ -54,6 +50,7 @@ public class RegisterApplianceFragment extends Fragment {
     WifiManager wifiManager;
     ArrayList<ScanResult> filteredResults;
     ScanResult selectedNetwork;
+    Appliance appliance = null;
 
     String token;
 
@@ -138,8 +135,6 @@ public class RegisterApplianceFragment extends Fragment {
         }
     }
 
-    ;
-
     private void sendNetworkInfo(String networkName, String networkPassword) {
         URL applianceURL;
         try {
@@ -154,14 +149,13 @@ public class RegisterApplianceFragment extends Fragment {
             Scanner inputScanner = new Scanner(connection.getInputStream());
             token = inputScanner.next();
             Log.d("sendNetworkInfo", "Token is: " + token);
-            deviceAdded = false;
             //TODO: Fix this damn name!
             RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token);
-            for (int count = 0; !deviceAdded && count < 10; count++) {
+            for (int count = 0; appliance == null && count < 10; count++) {
                 registrationTask.run();
                 Thread.sleep(5000);
             }
-            if (!deviceAdded) {
+            if (appliance == null) {
                 Log.e("sendNetworkInfo", "Failed to add device!");
                 Toast.makeText(getContext(), "Failed to add device!", Toast.LENGTH_LONG).show();
             }
@@ -173,8 +167,6 @@ public class RegisterApplianceFragment extends Fragment {
             e.printStackTrace();
         }
     }
-
-    public boolean deviceAdded = false;
 
     public class RegisterDeviceWithAWS implements Runnable {
         private final String token;
@@ -204,7 +196,7 @@ public class RegisterApplianceFragment extends Fragment {
                 Log.d("RegisterDeviceWithAWS", "response: " + response);
                 if (response != null) {
                     if (!response.contains("errorMessage")) {
-                        deviceAdded = true;
+                        appliance = new Appliance(deviceName, deviceName);
                     }
                 } else
                     Log.d("RegisterDeviceWithAWS", "Failed to register:");
