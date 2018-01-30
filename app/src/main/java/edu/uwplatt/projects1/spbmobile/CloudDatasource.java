@@ -24,7 +24,7 @@ class CloudDatasource {
     private static CloudDatasource ourInstance;
     private static Context ourContext;
 
-    private String[] appliances = {"One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen"};
+    private Appliance[] appliances = {new Appliance("One", "One").setStatus("NotOK"), new Appliance("Two", "Two"), new Appliance("Three", "Three"), new Appliance("Four", "Four"), new Appliance("Five", "Five"), new Appliance("Six", "Six"), new Appliance("Seven", "Seven"), new Appliance("Eight", "Eight"), new Appliance("Nine", "Nine"), new Appliance("Ten", "Ten"), new Appliance("Eleven", "Eleven"), new Appliance("Twelve", "Twelve"), new Appliance("Thirteen", "Thirteen")};
 
 
     static CloudDatasource getInstance(Context inContext, GoogleSignInAccount account) {
@@ -46,7 +46,7 @@ class CloudDatasource {
         );
     }
 
-    public String[] getDevices() {
+    public Appliance[] getAppliances() {
         return appliances.clone();
     }
 

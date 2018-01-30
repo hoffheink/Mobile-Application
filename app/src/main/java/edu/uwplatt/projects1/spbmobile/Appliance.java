@@ -38,8 +38,9 @@ public class Appliance {
      * Sets the name.
      * @param inName the new name.
      */
-    public void setName(String inName) {
+    public Appliance setName(String inName) {
         name = inName;
+        return this;
     }
 
     /**
@@ -54,8 +55,9 @@ public class Appliance {
      * Sets the id.
      * @param inId the new id.
      */
-    public void setId(String inId) {
+    public Appliance setId(String inId) {
         id = inId;
+        return this;
     }
 
     /**
@@ -70,7 +72,8 @@ public class Appliance {
      * Sets the status.
      * @param inStatus the new status.
      */
-    public void setStatus(String inStatus) {
+    public Appliance setStatus(String inStatus) {
         status = inStatus;
+        return this;
     }
 }
