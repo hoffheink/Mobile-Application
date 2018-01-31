@@ -184,8 +184,8 @@ public class RegisterApplianceFragment extends Fragment {
             try {
                 InvokeRequest invokeRequest = new InvokeRequest();
                 invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
-                Gson gson = new Gson();
                 String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
+                //Gson gson = new Gson();
                 /*String jsonRequestParameters = gson.toJson(new Object() {
                     String thingId = deviceName;
                     String thingPin = token;

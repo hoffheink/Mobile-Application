@@ -7,14 +7,25 @@ import android.util.Log;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.iot.AWSIot;
+import com.amazonaws.services.iot.AWSIotClient;
+import com.amazonaws.services.iot.model.DescribeThingRequest;
+import com.amazonaws.services.iot.model.DescribeThingResult;
+import com.amazonaws.services.iot.model.ListThingsRequest;
+import com.amazonaws.services.iot.model.ListThingsResult;
+import com.amazonaws.services.iot.model.ThingAttribute;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import com.google.gson.Gson;
 
 /**
  * Created by dowster on 12/9/2017.
@@ -24,6 +35,8 @@ class CloudDatasource {
     private static CloudDatasource ourInstance;
     private static Context ourContext;
 
+
+    private List<Appliance> applianceList = new ArrayList<Appliance>();
     private Appliance[] appliances = {new Appliance("One", "One").setStatus("NotOK"), new Appliance("Two", "Two"), new Appliance("Three", "Three"), new Appliance("Four", "Four"), new Appliance("Five", "Five"), new Appliance("Six", "Six"), new Appliance("Seven", "Seven"), new Appliance("Eight", "Eight"), new Appliance("Nine", "Nine"), new Appliance("Ten", "Ten"), new Appliance("Eleven", "Eleven"), new Appliance("Twelve", "Twelve"), new Appliance("Thirteen", "Thirteen")};
 
 
@@ -46,8 +59,23 @@ class CloudDatasource {
         );
     }
 
-    public Appliance[] getAppliances() {
-        return appliances.clone();
+    public List<Appliance> getAppliances() {
+        applianceList = new ArrayList<>();
+        AWSLambdaClient client = (credentialsProvider == null) ? new AWSLambdaClient()
+                : new AWSLambdaClient(credentialsProvider);
+        client.setRegion(Region.getRegion(Regions.US_EAST_2));
+
+        AWSIot awsIot = new AWSIotClient(credentialsProvider);
+        awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
+        //DescribeThingResult describeThingResult = awsIot.describeThing(new DescribeThingRequest());
+        ListThingsResult listThingsResult = awsIot.listThings(new ListThingsRequest());
+        for (ThingAttribute o : listThingsResult.getThings()) {
+            Appliance appliance = new Appliance(o.getThingName(),o.getVersion().toString());
+applianceList.add(appliance);
+            //Gson gson = new Gson();
+            //Appliance appliance1 = gson.fromJson("", Appliance.class);
+        }
+        return applianceList;
     }
 
     public CognitoCachingCredentialsProvider credentialsProvider;
