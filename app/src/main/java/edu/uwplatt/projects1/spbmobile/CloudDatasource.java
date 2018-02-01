@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.amazonaws.AmazonWebServiceRequest;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -59,21 +60,33 @@ class CloudDatasource {
         );
     }
 
-    public List<Appliance> getAppliances() {
-        applianceList = new ArrayList<>();
-        AWSLambdaClient client = (credentialsProvider == null) ? new AWSLambdaClient()
-                : new AWSLambdaClient(credentialsProvider);
-        client.setRegion(Region.getRegion(Regions.US_EAST_2));
+    private class GetAppliancesRunnable implements Runnable
+    {
+        @Override
+        public void run() {
+            applianceList = new ArrayList<>();
+            if (credentialsProvider != null && credentialsProvider.getCredentials()!= null)
+            {
+                AWSIot awsIot = new AWSIotClient(credentialsProvider);
+                awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
+                ListThingsRequest listThingsRequest = new ListThingsRequest();
+                listThingsRequest.setRequestCredentials(credentialsProvider.getCredentials());
+                ListThingsResult listThingsResult = awsIot.listThings(listThingsRequest);
+                for (ThingAttribute o : listThingsResult.getThings()) {
+                    Appliance appliance = new Appliance(o.getThingName(),o.getVersion().toString());
+                    applianceList.add(appliance);
+                }
+            }
+        }
+    }
 
-        AWSIot awsIot = new AWSIotClient(credentialsProvider);
-        awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
-        //DescribeThingResult describeThingResult = awsIot.describeThing(new DescribeThingRequest());
-        ListThingsResult listThingsResult = awsIot.listThings(new ListThingsRequest());
-        for (ThingAttribute o : listThingsResult.getThings()) {
-            Appliance appliance = new Appliance(o.getThingName(),o.getVersion().toString());
-        applianceList.add(appliance);
-            //Gson gson = new Gson();
-            //Appliance appliance1 = gson.fromJson("", Appliance.class);
+    public List<Appliance> getAppliances() {
+        Runnable getAppliancesRunnable = new GetAppliancesRunnable();
+        Thread t = new Thread(getAppliancesRunnable);
+        t.start();
+        while (t.isAlive())
+        {
+
         }
         return applianceList;
     }
