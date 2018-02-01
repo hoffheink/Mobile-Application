@@ -71,7 +71,7 @@ class CloudDatasource {
         ListThingsResult listThingsResult = awsIot.listThings(new ListThingsRequest());
         for (ThingAttribute o : listThingsResult.getThings()) {
             Appliance appliance = new Appliance(o.getThingName(),o.getVersion().toString());
-applianceList.add(appliance);
+        applianceList.add(appliance);
             //Gson gson = new Gson();
             //Appliance appliance1 = gson.fromJson("", Appliance.class);
         }
