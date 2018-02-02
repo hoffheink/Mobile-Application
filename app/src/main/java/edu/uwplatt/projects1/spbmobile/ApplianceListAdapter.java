@@ -20,6 +20,10 @@ import java.util.List;
  */
 
 public class ApplianceListAdapter extends ArrayAdapter {
+
+    Context context;
+    GoogleSignInAccount account;
+
     /**
      * Testing things
      *
@@ -28,8 +32,33 @@ public class ApplianceListAdapter extends ArrayAdapter {
      */
     public ApplianceListAdapter(@NonNull Context context, int resource, GoogleSignInAccount account) {
         super(context, resource);
+        this.context = context;
+        this.account = account;
 
-        this.addAll(CloudDatasource.getInstance(context, account).getAppliances());
+
+        /*Runnable getAppliancesRunnable = new GetAppliancesRunnable();
+        Thread t = new Thread(getAppliancesRunnable);
+        t.start();*/
+        this.addAll(CloudDatasource.getAppliances(CloudDatasource.getInstance(context, account).credentialsProvider));
+    }
+
+    private class GetAppliancesRunnable implements Runnable {
+        @Override
+        public void run() {
+            CloudDatasource.GetAppliancesTask getAppliancesTask = new CloudDatasource.GetAppliancesTask(CloudDatasource.getInstance(context, account).credentialsProvider) {
+                @Override
+                protected void onPostExecute(List<Appliance> appliances) {
+                    super.onPostExecute(appliances);
+                    updateApplianceList(appliances);
+                }
+            };
+            getAppliancesTask.doInBackground();
+        }
+    }
+
+
+    public void updateApplianceList(List<Appliance> appliances) {
+        addAll(appliances);
     }
 
     public ApplianceListAdapter(@NonNull Context context, int resource, int textViewResourceId) {

@@ -1,17 +1,17 @@
 package edu.uwplatt.projects1.spbmobile;
 
 import android.content.Context;
+import android.net.wifi.hotspot2.pps.Credential;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.amazonaws.AmazonWebServiceRequest;
+import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.iot.AWSIot;
 import com.amazonaws.services.iot.AWSIotClient;
-import com.amazonaws.services.iot.model.DescribeThingRequest;
-import com.amazonaws.services.iot.model.DescribeThingResult;
 import com.amazonaws.services.iot.model.ListThingsRequest;
 import com.amazonaws.services.iot.model.ListThingsResult;
 import com.amazonaws.services.iot.model.ThingAttribute;
@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.google.gson.Gson;
-
 /**
  * Created by dowster on 12/9/2017.
  */
@@ -37,12 +35,11 @@ class CloudDatasource {
     private static Context ourContext;
 
 
-    private List<Appliance> applianceList = new ArrayList<Appliance>();
+    private static List<Appliance> applianceList = new ArrayList<Appliance>();
     private Appliance[] appliances = {new Appliance("One", "One").setStatus("NotOK"), new Appliance("Two", "Two"), new Appliance("Three", "Three"), new Appliance("Four", "Four"), new Appliance("Five", "Five"), new Appliance("Six", "Six"), new Appliance("Seven", "Seven"), new Appliance("Eight", "Eight"), new Appliance("Nine", "Nine"), new Appliance("Ten", "Ten"), new Appliance("Eleven", "Eleven"), new Appliance("Twelve", "Twelve"), new Appliance("Thirteen", "Thirteen")};
 
-
     static CloudDatasource getInstance(Context inContext, GoogleSignInAccount account) {
-        if(ourInstance == null || !ourContext.equals(inContext)) {
+        if (ourInstance == null || !ourContext.equals(inContext)) {
             ourInstance = new CloudDatasource(inContext);
             ourContext = inContext;
         }
@@ -60,35 +57,72 @@ class CloudDatasource {
         );
     }
 
-    private class GetAppliancesRunnable implements Runnable
-    {
+    private static class GetAppliancesRunnable implements Runnable {
+        @NonNull
+        CognitoCachingCredentialsProvider credentialsProvider;
+        GetAppliancesRunnable(CognitoCachingCredentialsProvider inCredentialsProvider)
+        {
+            credentialsProvider = inCredentialsProvider;
+        }
         @Override
         public void run() {
             applianceList = new ArrayList<>();
-            if (credentialsProvider != null && credentialsProvider.getCredentials()!= null)
-            {
+            if (credentialsProvider != null && credentialsProvider.getCredentials() != null) {
                 AWSIot awsIot = new AWSIotClient(credentialsProvider);
                 awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
                 ListThingsRequest listThingsRequest = new ListThingsRequest();
                 listThingsRequest.setRequestCredentials(credentialsProvider.getCredentials());
-                ListThingsResult listThingsResult = awsIot.listThings(listThingsRequest);
-                for (ThingAttribute o : listThingsResult.getThings()) {
-                    Appliance appliance = new Appliance(o.getThingName(),o.getVersion().toString());
-                    applianceList.add(appliance);
+                try {
+                    ListThingsResult listThingsResult = awsIot.listThings(listThingsRequest);
+                    for (ThingAttribute o : listThingsResult.getThings()) {
+                        Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
+                        applianceList.add(appliance);
+                    }
+                } catch (Exception e) {
+
                 }
             }
         }
     }
 
-    public List<Appliance> getAppliances() {
-        Runnable getAppliancesRunnable = new GetAppliancesRunnable();
+    public static List<Appliance> getAppliances(CognitoCachingCredentialsProvider inCredentialsProvider) {
+        Runnable getAppliancesRunnable = new GetAppliancesRunnable(inCredentialsProvider);
         Thread t = new Thread(getAppliancesRunnable);
         t.start();
-        while (t.isAlive())
-        {
+        while (t.isAlive()) {
 
         }
         return applianceList;
+    }
+
+    public static class GetAppliancesTask extends AsyncTask<Void, Void, List<Appliance>> {
+
+        @NonNull
+        CognitoCachingCredentialsProvider credentialsProvider;
+
+        public GetAppliancesTask(CognitoCachingCredentialsProvider inCredentialsProvider)
+        {
+            credentialsProvider = inCredentialsProvider;
+        }
+
+        @Override
+        protected List<Appliance> doInBackground(Void... voids) {
+            List<Appliance> appliances = new ArrayList<>();
+            AWSIot awsIot = new AWSIotClient(credentialsProvider);
+            awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
+            ListThingsRequest listThingsRequest = new ListThingsRequest();
+            listThingsRequest.setRequestCredentials(credentialsProvider.getCredentials());
+            try {
+                ListThingsResult listThingsResult = awsIot.listThings(listThingsRequest);
+                for (ThingAttribute o : listThingsResult.getThings()) {
+                    Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
+                    appliances.add(appliance);
+                }
+            } catch (Exception e) {
+                Log.d("GetAppliancesTask", e.getMessage(), e);
+            }
+            return appliances;
+        }
     }
 
     public CognitoCachingCredentialsProvider credentialsProvider;
@@ -97,12 +131,9 @@ class CloudDatasource {
         @Override
         protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
             Log.d("task", ourInstance.credentialsProvider.getLogins().toString());
-            try
-            {
+            try {
                 ourInstance.credentialsProvider.refresh();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Log.d("invoke", "Exception: " + e.getMessage(), e);
             }
             return ourInstance.credentialsProvider;
@@ -112,7 +143,7 @@ class CloudDatasource {
     public String invoke(GoogleSignInAccount account, InvokeRequest request) {
         try {
             addLoginsFromAccount(account);
-            return new Invoker(request).execute().get();
+            return new LambdaInvoker(request).execute().get();
         } catch (InterruptedException e) {
             Log.d("invoke", "InterruptedException: " + e.getMessage(), e);
         } catch (ExecutionException e) {
@@ -130,13 +161,14 @@ class CloudDatasource {
         ourInstance.credentialsProvider.setLogins(logins);
     }
 
-    private class Invoker extends AsyncTask<Void, Void, String> {
+    private class LambdaInvoker extends AsyncTask<Void, Void, String> {
 
         private final InvokeRequest invokeRequest;
-        public Invoker(InvokeRequest request)
-        {
+
+        public LambdaInvoker(InvokeRequest request) {
             invokeRequest = request;
         }
+
         @Override
         protected String doInBackground(Void... voids) {
             AWSLambdaClient client = (credentialsProvider == null) ? new AWSLambdaClient()
