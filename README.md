@@ -34,10 +34,10 @@ For this project [SemVer](http://semver.org) is usedfor versioning.
 
 ## Authors
 
-* **Jacob Ira** - *Initial work* - [jakeira11](https://atlas.ion.uwplatt.edu/bitbucket/jakeira11/)
-* **Nick Sosinski** - *Initial work* - [sosinskin](https://atlas.ion.uwplatt.edu/bitbucket/sosinskin/)
-* **Kyle Hoffhein** - *Initial work* - [hoffheink](https://atlas.ion.uwplatt.edu/bitbucket/hoffheink/)
-* **Alex Jacobs** - *Initial work* - [jacobsale](https://atlas.ion.uwplatt.edu/bitbucket/Jacobsale/)
+* **Jacob Ira** - *Initial work* - [iraj](https://atlas.ion.uwplatt.edu/jira/secure/ViewProfile.jspa?name=iraj)
+* **Nick Sosinski** - *Initial work* - [sosinskin](https://atlas.ion.uwplatt.edu/jira/secure/ViewProfile.jspa?name=sosinskin)
+* **Kyle Hoffhein** - *Initial work* - [hoffheink](https://atlas.ion.uwplatt.edu/jira/secure/ViewProfile.jspa?name=hoffheink)
+* **Alex Jacobs** - *Initial work* - [jacobsale](https://atlas.ion.uwplatt.edu/jira/secure/ViewProfile.jspa?name=jacobsale)
 
 ## License
 
