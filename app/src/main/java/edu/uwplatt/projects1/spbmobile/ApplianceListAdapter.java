@@ -35,27 +35,8 @@ public class ApplianceListAdapter extends ArrayAdapter {
         this.context = context;
         this.account = account;
 
-
-        /*Runnable getAppliancesRunnable = new GetAppliancesRunnable();
-        Thread t = new Thread(getAppliancesRunnable);
-        t.start();*/
-        this.addAll(CloudDatasource.getAppliances(CloudDatasource.getInstance(context, account).credentialsProvider));
+        this.addAll(CloudDatasource.applianceList);
     }
-
-    private class GetAppliancesRunnable implements Runnable {
-        @Override
-        public void run() {
-            CloudDatasource.GetAppliancesTask getAppliancesTask = new CloudDatasource.GetAppliancesTask(CloudDatasource.getInstance(context, account).credentialsProvider) {
-                @Override
-                protected void onPostExecute(List<Appliance> appliances) {
-                    super.onPostExecute(appliances);
-                    updateApplianceList(appliances);
-                }
-            };
-            getAppliancesTask.doInBackground();
-        }
-    }
-
 
     public void updateApplianceList(List<Appliance> appliances) {
         addAll(appliances);

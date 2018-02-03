@@ -1,12 +1,10 @@
 package edu.uwplatt.projects1.spbmobile;
 
 import android.content.Context;
-import android.net.wifi.hotspot2.pps.Credential;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -33,23 +31,30 @@ import java.util.concurrent.ExecutionException;
 class CloudDatasource {
     private static CloudDatasource ourInstance;
     private static Context ourContext;
+    private CognitoCachingCredentialsProvider credentialsProvider;
 
 
-    private static List<Appliance> applianceList = new ArrayList<Appliance>();
-    private Appliance[] appliances = {new Appliance("One", "One").setStatus("NotOK"), new Appliance("Two", "Two"), new Appliance("Three", "Three"), new Appliance("Four", "Four"), new Appliance("Five", "Five"), new Appliance("Six", "Six"), new Appliance("Seven", "Seven"), new Appliance("Eight", "Eight"), new Appliance("Nine", "Nine"), new Appliance("Ten", "Ten"), new Appliance("Eleven", "Eleven"), new Appliance("Twelve", "Twelve"), new Appliance("Thirteen", "Thirteen")};
+    public static List<Appliance> applianceList = new ArrayList<>();
 
-    static CloudDatasource getInstance(Context inContext, GoogleSignInAccount account) {
+    static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account) {
         if (ourInstance == null || !ourContext.equals(inContext)) {
             ourInstance = new CloudDatasource(inContext);
             ourContext = inContext;
         }
         addLoginsFromAccount(account);
-        task t = new task();
+        LoadCredentialsTask t = new LoadCredentialsTask();
         t.execute(ourInstance.credentialsProvider);
+        loadAppliances();
         return ourInstance;
     }
 
-    private CloudDatasource(Context inContext) {
+    private static void loadAppliances() {
+        Runnable getAppliancesRunnable = new GetAppliancesRunnable();
+        Thread t = new Thread(getAppliancesRunnable);
+        t.start();
+    }
+
+    private CloudDatasource(@NonNull Context inContext) {
         credentialsProvider = new CognitoCachingCredentialsProvider(
                 inContext,
                 "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878", // Identity pool ID
@@ -58,76 +63,29 @@ class CloudDatasource {
     }
 
     private static class GetAppliancesRunnable implements Runnable {
-        @NonNull
-        CognitoCachingCredentialsProvider credentialsProvider;
-        GetAppliancesRunnable(CognitoCachingCredentialsProvider inCredentialsProvider)
-        {
-            credentialsProvider = inCredentialsProvider;
-        }
         @Override
         public void run() {
-            applianceList = new ArrayList<>();
-            if (credentialsProvider != null && credentialsProvider.getCredentials() != null) {
-                AWSIot awsIot = new AWSIotClient(credentialsProvider);
+            ArrayList<Appliance> newApplianceList = new ArrayList<>();
+            if (ourInstance.credentialsProvider != null && ourInstance.credentialsProvider.getCredentials() != null) {
+                AWSIot awsIot = new AWSIotClient(ourInstance.credentialsProvider);
                 awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
                 ListThingsRequest listThingsRequest = new ListThingsRequest();
-                listThingsRequest.setRequestCredentials(credentialsProvider.getCredentials());
+                listThingsRequest.setRequestCredentials(ourInstance.credentialsProvider.getCredentials());
                 try {
                     ListThingsResult listThingsResult = awsIot.listThings(listThingsRequest);
                     for (ThingAttribute o : listThingsResult.getThings()) {
                         Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
-                        applianceList.add(appliance);
+                        newApplianceList.add(appliance);
                     }
                 } catch (Exception e) {
-
+                    Log.d("GetAppliancesRunnable", e.getMessage(), e);
                 }
             }
+            applianceList = newApplianceList;
         }
     }
 
-    public static List<Appliance> getAppliances(CognitoCachingCredentialsProvider inCredentialsProvider) {
-        Runnable getAppliancesRunnable = new GetAppliancesRunnable(inCredentialsProvider);
-        Thread t = new Thread(getAppliancesRunnable);
-        t.start();
-        while (t.isAlive()) {
-
-        }
-        return applianceList;
-    }
-
-    public static class GetAppliancesTask extends AsyncTask<Void, Void, List<Appliance>> {
-
-        @NonNull
-        CognitoCachingCredentialsProvider credentialsProvider;
-
-        public GetAppliancesTask(CognitoCachingCredentialsProvider inCredentialsProvider)
-        {
-            credentialsProvider = inCredentialsProvider;
-        }
-
-        @Override
-        protected List<Appliance> doInBackground(Void... voids) {
-            List<Appliance> appliances = new ArrayList<>();
-            AWSIot awsIot = new AWSIotClient(credentialsProvider);
-            awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
-            ListThingsRequest listThingsRequest = new ListThingsRequest();
-            listThingsRequest.setRequestCredentials(credentialsProvider.getCredentials());
-            try {
-                ListThingsResult listThingsResult = awsIot.listThings(listThingsRequest);
-                for (ThingAttribute o : listThingsResult.getThings()) {
-                    Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
-                    appliances.add(appliance);
-                }
-            } catch (Exception e) {
-                Log.d("GetAppliancesTask", e.getMessage(), e);
-            }
-            return appliances;
-        }
-    }
-
-    public CognitoCachingCredentialsProvider credentialsProvider;
-
-    private static class task extends AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> {
+    private static class LoadCredentialsTask extends AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> {
         @Override
         protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
             Log.d("task", ourInstance.credentialsProvider.getLogins().toString());

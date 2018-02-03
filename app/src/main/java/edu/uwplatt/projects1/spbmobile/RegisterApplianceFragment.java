@@ -132,6 +132,9 @@ public class RegisterApplianceFragment extends Fragment {
         @Override
         public void run() {
             sendNetworkInfo(networkName, networkPassword);
+            if (appliance != null) {
+                CloudDatasource.getInstance(getContext(), MainActivity.account); //Reloading the appliance list
+            }
         }
     }
 
@@ -150,7 +153,7 @@ public class RegisterApplianceFragment extends Fragment {
             token = inputScanner.next();
             Log.d("sendNetworkInfo", "Token is: " + token);
             //TODO: Fix this damn name!
-            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token);
+            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token, getContext());
             for (int count = 0; appliance == null && count < 10; count++) {
                 registrationTask.run();
                 Thread.sleep(5000);
@@ -172,11 +175,13 @@ public class RegisterApplianceFragment extends Fragment {
         private final String token;
         private final String deviceName;
         private final GoogleSignInAccount account;
+        private final Context context;
 
-        public RegisterDeviceWithAWS(GoogleSignInAccount inAccount, String inDeviceName, String inToken) {
+        public RegisterDeviceWithAWS(GoogleSignInAccount inAccount, String inDeviceName, String inToken, Context inContext) {
             account = inAccount;
             deviceName = inDeviceName;
             token = inToken;
+            context = inContext;
         }
 
         @Override
@@ -192,7 +197,7 @@ public class RegisterApplianceFragment extends Fragment {
                 });*/
                 Log.d("RegisterDeviceWithAWS", "jsonRequestParameters: " + jsonRequestParameters);
                 invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
-                String response = CloudDatasource.getInstance(getActivity(), account).invoke(account, invokeRequest);
+                String response = CloudDatasource.getInstance(context, account).invoke(account, invokeRequest);
                 Log.d("RegisterDeviceWithAWS", "response: " + response);
                 if (response != null) {
                     if (!response.contains("errorMessage")) {

@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity
         if(account == null)
             showWelcomeScreen();
         else {
+            CloudDatasource.getInstance(this, account); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
             ((TextView)header.findViewById(R.id.user_name)).setText(account.getDisplayName());
