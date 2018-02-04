@@ -38,10 +38,6 @@ public class ApplianceListAdapter extends ArrayAdapter {
         this.addAll(CloudDatasource.applianceList);
     }
 
-    public void updateApplianceList(List<Appliance> appliances) {
-        addAll(appliances);
-    }
-
     public ApplianceListAdapter(@NonNull Context context, int resource, int textViewResourceId) {
         super(context, resource, textViewResourceId);
     }
