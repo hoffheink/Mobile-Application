@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutionException;
 class CloudDatasource {
     private static CloudDatasource ourInstance;
     private static Context ourContext;
+    @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
 
 
@@ -43,12 +44,18 @@ class CloudDatasource {
         }
         addLoginsFromAccount(account);
         LoadCredentialsTask t = new LoadCredentialsTask();
-        t.execute(ourInstance.credentialsProvider);
-        loadAppliances();
+        try
+        {
+            t.execute(ourInstance.credentialsProvider);
+        }
+        catch (Exception e)
+        {
+            Log.e("getInstance", "Unable to load credentials", e);
+        }
         return ourInstance;
     }
 
-    private static void loadAppliances() {
+    public void loadAppliances() {
         Runnable getAppliancesRunnable = new GetAppliancesRunnable();
         Thread t = new Thread(getAppliancesRunnable);
         t.start();
@@ -88,11 +95,18 @@ class CloudDatasource {
     private static class LoadCredentialsTask extends AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> {
         @Override
         protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
-            Log.d("task", ourInstance.credentialsProvider.getLogins().toString());
-            try {
-                ourInstance.credentialsProvider.refresh();
-            } catch (Exception e) {
-                Log.d("invoke", "Exception: " + e.getMessage(), e);
+            if (ourInstance.credentialsProvider != null)
+            {
+                Log.d("task", ourInstance.credentialsProvider.getLogins().toString());
+                try {
+                    ourInstance.credentialsProvider.refresh();
+                } catch (Exception e) {
+                    Log.d("LoadCredentialsTask", "Exception: " + e.getMessage(), e);
+                }
+            }
+            else
+            {
+                Log.d("LoadCredentialsTask", "credentialsProvider was null");
             }
             return ourInstance.credentialsProvider;
         }

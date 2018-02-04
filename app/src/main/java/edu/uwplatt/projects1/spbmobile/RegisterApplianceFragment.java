@@ -133,7 +133,7 @@ public class RegisterApplianceFragment extends Fragment {
         public void run() {
             sendNetworkInfo(networkName, networkPassword);
             if (appliance != null) {
-                CloudDatasource.getInstance(getContext(), MainActivity.account); //Reloading the appliance list
+                CloudDatasource.getInstance(getContext(), MainActivity.account).loadAppliances(); //Reloading the appliance list
             }
         }
     }
