@@ -43,10 +43,10 @@ class CloudDatasource {
             ourContext = inContext;
         }
         addLoginsFromAccount(account);
-        LoadCredentialsTask t = new LoadCredentialsTask();
+        LoadCredentialsTask loadCredentialsTask = new LoadCredentialsTask();
         try
         {
-            t.execute(ourInstance.credentialsProvider);
+            loadCredentialsTask.execute(ourInstance.credentialsProvider);
         }
         catch (Exception e)
         {
@@ -57,8 +57,8 @@ class CloudDatasource {
 
     public void loadAppliances() {
         Runnable getAppliancesRunnable = new GetAppliancesRunnable();
-        Thread t = new Thread(getAppliancesRunnable);
-        t.start();
+        Thread thread = new Thread(getAppliancesRunnable);
+        thread.start();
     }
 
     private CloudDatasource(@NonNull Context inContext) {
@@ -147,8 +147,8 @@ class CloudDatasource {
                     : new AWSLambdaClient(credentialsProvider);
             client.setRegion(Region.getRegion(Regions.US_EAST_2));
             try {
-                ByteBuffer b = client.invoke(invokeRequest).getPayload();
-                String response = byteBufferToString(b, Charset.forName("UTF-8"));
+                ByteBuffer buffer = client.invoke(invokeRequest).getPayload();
+                String response = byteBufferToString(buffer, Charset.forName("UTF-8"));
                 Log.e("Tag", response, null);
                 return response;
             } catch (Exception e) {
