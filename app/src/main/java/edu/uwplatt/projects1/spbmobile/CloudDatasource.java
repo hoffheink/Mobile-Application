@@ -5,13 +5,15 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.iot.AWSIot;
 import com.amazonaws.services.iot.AWSIotClient;
+import com.amazonaws.services.iot.model.ListPrincipalPoliciesRequest;
 import com.amazonaws.services.iot.model.ListThingsRequest;
-import com.amazonaws.services.iot.model.ListThingsResult;
+import com.amazonaws.services.iot.model.Policy;
 import com.amazonaws.services.iot.model.ThingAttribute;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.InvokeRequest;
@@ -73,16 +75,29 @@ class CloudDatasource {
         @Override
         public void run() {
             ArrayList<Appliance> newApplianceList = new ArrayList<>();
-            if (ourInstance.credentialsProvider != null && ourInstance.credentialsProvider.getCredentials() != null) {
+            AWSSessionCredentials credentials = ourInstance.credentialsProvider.getCredentials();
+            if (ourInstance.credentialsProvider != null && credentials != null) {
                 AWSIot awsIot = new AWSIotClient(ourInstance.credentialsProvider);
                 awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
+                ListPrincipalPoliciesRequest listPrincipalPoliciesRequest = new ListPrincipalPoliciesRequest();
+                listPrincipalPoliciesRequest.setPrincipal(ourInstance.credentialsProvider.getIdentityId());
+                Log.d("cognitoIDID", ourInstance.credentialsProvider.getIdentityId());
+
                 ListThingsRequest listThingsRequest = new ListThingsRequest();
-                listThingsRequest.setRequestCredentials(ourInstance.credentialsProvider.getCredentials());
+                listThingsRequest.setRequestCredentials(credentials);
+
                 try {
-                    ListThingsResult listThingsResult = awsIot.listThings(listThingsRequest);
-                    for (ThingAttribute o : listThingsResult.getThings()) {
-                        Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
-                        newApplianceList.add(appliance);
+                    List<String> thingNames = new ArrayList<>();
+                    for (Policy policy : awsIot.listPrincipalPolicies(listPrincipalPoliciesRequest).getPolicies()) {
+                        String policyName =  policy.getPolicyName().replace("app-", "");
+                        thingNames.add(policyName);
+                    }
+                    for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
+                        if (thingNames.contains(o.getThingName()))
+                        {
+                            Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
+                            newApplianceList.add(appliance);
+                        }
                     }
                 } catch (Exception e) {
                     Log.d("GetAppliancesRunnable", e.getMessage(), e);
