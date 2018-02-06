@@ -3,14 +3,12 @@ package edu.uwplatt.projects1.spbmobile;
 import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -22,7 +20,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -30,15 +27,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import com.google.android.gms.common.Scopes;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-
-
-import java.nio.ByteBuffer;
-import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, ApplianceListFragment.OnFragmentInteractionListener {
@@ -46,16 +36,15 @@ public class MainActivity extends AppCompatActivity
     public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
     private GoogleSignInClient mGoogleSignInClient;
-    private String jsonRequestParameters = "{\"thingId\":\"charlieDevice1\",\"thingPin\":\"1234\"}";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.register_appliance_toolbar);
+        Toolbar toolbar = findViewById(R.id.register_appliance_toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,21 +53,20 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        isGooglePlayServicesAvailable();
+        testGooglePlayServicesAvailability();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView;
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        mDrawer = findViewById(R.id.drawer_layout);
-
-
+        mDrawer = drawer;
     }
 
     /**
@@ -98,32 +86,21 @@ public class MainActivity extends AppCompatActivity
 
     private void updateAccountInformation() {
         account = GoogleSignIn.getLastSignedInAccount(this);
-        if(account == null)
+        if (account == null)
             showWelcomeScreen();
         else {
             CloudDatasource.getInstance(this, account).loadAppliances(); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
-            ((TextView)header.findViewById(R.id.user_name)).setText(account.getDisplayName());
-            ((TextView)header.findViewById(R.id.user_email)).setText(account.getEmail());
-
-            /*InvokeRequest invokeRequest = new InvokeRequest();
-            invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
-            invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
-            String response = CloudDatasource.getInstance(getApplicationContext(), account).invoke(account, invokeRequest);
-            Log.d("updateAccountInformatin", "response: "+ response);*/
+            ((TextView) header.findViewById(R.id.user_name)).setText(account.getDisplayName());
+            ((TextView) header.findViewById(R.id.user_email)).setText(account.getEmail());
         }
     }
 
 
-
-
-
-
-
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -155,7 +132,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -191,14 +168,14 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-                    homeIntent.addCategory( Intent.CATEGORY_HOME );
+                    homeIntent.addCategory(Intent.CATEGORY_HOME);
                     homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(homeIntent);
                 }
             });
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -214,11 +191,10 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Checks if the appropriate version of google play services is installed.
-     *
+     * <p>
      * If not an error is shown to the user.
-     * @return
      */
-    private boolean isGooglePlayServicesAvailable() {
+    private void testGooglePlayServicesAvailability() {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         Integer resultCode = googleApiAvailability.isGooglePlayServicesAvailable(this.getApplicationContext());
         if (resultCode != ConnectionResult.SUCCESS) {
@@ -226,13 +202,11 @@ public class MainActivity extends AppCompatActivity
             if (dialog != null) {
                 dialog.show();
             }
-            return false;
         }
-        return true;
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == RC_WELCOME_SCREEN && resultCode == RESULT_OK) {
+        if (requestCode == RC_WELCOME_SCREEN && resultCode == RESULT_OK) {
             updateAccountInformation();
         }
     }
