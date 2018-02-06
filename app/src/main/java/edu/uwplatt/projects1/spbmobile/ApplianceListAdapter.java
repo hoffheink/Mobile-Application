@@ -66,6 +66,18 @@ public class ApplianceListAdapter extends ArrayAdapter {
             convertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.appliance_list_item, container, false);
         }
 
+        ImageView applianceType = (convertView.findViewById(R.id.appliance_type));
+        Drawable drawable;
+        switch (appliance.getApplianceType()) {
+            case CoffeeMaker:
+                drawable = ContextCompat.getDrawable(getContext(), R.drawable.mug);
+                break;
+            default:
+                drawable = ContextCompat.getDrawable(getContext(), R.drawable.question);
+                break;
+        }
+        applianceType.setImageDrawable(drawable);
+
         ImageView connectionIndicator = (convertView.findViewById(R.id.connection_indicator));
 
         if (position % 2 == 0) {

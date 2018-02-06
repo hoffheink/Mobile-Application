@@ -1,5 +1,7 @@
 package edu.uwplatt.projects1.spbmobile;
 
+import android.support.annotation.NonNull;
+
 import java.util.List;
 
 /**
@@ -14,6 +16,14 @@ public class Appliance {
     private String id;
     private String status;
     private List<ICommand> commands;
+    @NonNull
+    private ApplianceType applianceType = ApplianceType.Unknown;
+
+    public enum ApplianceType
+    {
+        CoffeeMaker,
+        Unknown
+    }
 
     /**
      * Constructor.
@@ -74,6 +84,23 @@ public class Appliance {
      */
     public Appliance setStatus(String inStatus) {
         status = inStatus;
+        return this;
+    }
+
+    /**
+     * Gets the appliance type.
+     * @return appliance type.
+     */
+    public ApplianceType getApplianceType() {
+        return applianceType;
+    }
+
+    /**
+     * Sets the appliance type.
+     * @param inApplianceType the new appliance type.
+     */
+    public Appliance setApplianceType(ApplianceType inApplianceType) {
+        applianceType = inApplianceType;
         return this;
     }
 }

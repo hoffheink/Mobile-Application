@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -13,28 +12,38 @@
         android:layout_marginStart="8dp"
         android:text="Appliance Name"
         android:textSize="24sp"
-        app:layout_constraintStart_toEndOf="@+id/connection_indicator"
-        app:layout_constraintTop_toTopOf="@+id/connection_indicator" />
+        app:layout_constraintStart_toEndOf="@+id/appliance_type"
+        app:layout_constraintTop_toTopOf="@+id/appliance_type" />
 
     <ImageView
         android:id="@+id/connection_indicator"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/connection" />
+
+    <ImageView
+        android:id="@+id/appliance_type"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/connection_indicator"
+        app:layout_constraintStart_toStartOf="@+id/connection_indicator"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/question" />
 
     <TextView
         android:id="@+id/appliance_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:layout_marginStart="8dp"
         android:text="Appliance Status"
-        app:layout_constraintBottom_toBottomOf="@+id/connection_indicator"
-        app:layout_constraintStart_toEndOf="@+id/connection_indicator" />
+        app:layout_constraintStart_toEndOf="@+id/appliance_type"
+        app:layout_constraintTop_toBottomOf="@+id/appliance_name" />
 
     <ImageView
         android:id="@+id/imageView2"

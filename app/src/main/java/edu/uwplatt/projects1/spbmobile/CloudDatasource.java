@@ -96,6 +96,12 @@ class CloudDatasource {
                         if (thingNames.contains(o.getThingName()))
                         {
                             Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
+                            switch (o.getThingTypeName())
+                            {
+                                case "coffee-maker":
+                                    appliance.setApplianceType(Appliance.ApplianceType.CoffeeMaker);
+                                    break;
+                            }
                             newApplianceList.add(appliance);
                         }
                     }
