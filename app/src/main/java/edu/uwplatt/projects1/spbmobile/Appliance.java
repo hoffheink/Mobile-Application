@@ -5,10 +5,6 @@ import android.support.annotation.NonNull;
 import java.util.List;
 
 /**
- * Created by dowster on 12/10/2017.
- */
-
-/**
  * This class represents an Appliance.
  */
 public class Appliance {
@@ -19,18 +15,21 @@ public class Appliance {
     @NonNull
     private ApplianceType applianceType = ApplianceType.Unknown;
 
-    public enum ApplianceType
-    {
+    /**
+     * Appliance types
+     */
+    public enum ApplianceType {
         CoffeeMaker,
         Unknown
     }
 
     /**
      * Constructor.
+     *
      * @param inName the Appliances name.
-     * @param inId the Appliances id.
+     * @param inId   the Appliances id.
      */
-    public Appliance(String inName, String inId) {
+    Appliance(String inName, String inId) {
         name = inName;
         id = inId;
         status = "OK";
@@ -38,6 +37,7 @@ public class Appliance {
 
     /**
      * Gets the name.
+     *
      * @return name.
      */
     public String getName() {
@@ -46,6 +46,7 @@ public class Appliance {
 
     /**
      * Sets the name.
+     *
      * @param inName the new name.
      */
     public Appliance setName(String inName) {
@@ -55,6 +56,7 @@ public class Appliance {
 
     /**
      * Gets the id.
+     *
      * @return id.
      */
     public String getId() {
@@ -63,6 +65,7 @@ public class Appliance {
 
     /**
      * Sets the id.
+     *
      * @param inId the new id.
      */
     public Appliance setId(String inId) {
@@ -72,14 +75,16 @@ public class Appliance {
 
     /**
      * Gets the status.
+     *
      * @return status.
      */
-    public String getStatus() {
+    String getStatus() {
         return status;
     }
 
     /**
      * Sets the status.
+     *
      * @param inStatus the new status.
      */
     public Appliance setStatus(String inStatus) {
@@ -89,18 +94,11 @@ public class Appliance {
 
     /**
      * Gets the appliance type.
+     *
      * @return appliance type.
      */
-    public ApplianceType getApplianceType() {
+    @NonNull
+    ApplianceType getApplianceType() {
         return applianceType;
-    }
-
-    /**
-     * Sets the appliance type.
-     * @param inApplianceType the new appliance type.
-     */
-    public Appliance setApplianceType(ApplianceType inApplianceType) {
-        applianceType = inApplianceType;
-        return this;
     }
 }
