@@ -2,7 +2,6 @@ package edu.uwplatt.projects1.spbmobile;
 
 import android.app.Dialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -31,11 +30,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, ApplianceListFragment.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     protected DrawerLayout mDrawer;
     public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
-    private GoogleSignInClient mGoogleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,7 +161,7 @@ public class MainActivity extends AppCompatActivity
                     .build();
 
             // Build a GoogleSignInClient with the options specified by gso.
-            mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+            GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
             mGoogleSignInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -211,8 +209,4 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
 }

@@ -11,72 +11,43 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
 
-import java.util.List;
-
-/**
- * Created by dowster on 12/9/2017.
- */
-
-public class ApplianceListAdapter extends ArrayAdapter {
-
-    Context context;
-    GoogleSignInAccount account;
-
-    /**
-     * Testing things
-     *
-     * @param context
-     * @param resource
-     */
-    public ApplianceListAdapter(@NonNull Context context, int resource, GoogleSignInAccount account) {
+    ApplianceListAdapter(@NonNull Context context, int resource) {
         super(context, resource);
-        this.context = context;
-        this.account = account;
-
-        this.addAll(CloudDatasource.applianceList);
+        addAll(CloudDatasource.applianceList);
     }
 
-    public ApplianceListAdapter(@NonNull Context context, int resource, int textViewResourceId) {
-        super(context, resource, textViewResourceId);
-    }
-
-    public ApplianceListAdapter(@NonNull Context context, int resource, @NonNull Object[] objects) {
-        super(context, resource, objects);
-    }
-
-    public ApplianceListAdapter(@NonNull Context context, int resource, int textViewResourceId, @NonNull Object[] objects) {
-        super(context, resource, textViewResourceId, objects);
-    }
-
-    public ApplianceListAdapter(@NonNull Context context, int resource, @NonNull List objects) {
-        super(context, resource, objects);
-    }
-
-    public ApplianceListAdapter(@NonNull Context context, int resource, int textViewResourceId, @NonNull List objects) {
-        super(context, resource, textViewResourceId, objects);
-    }
-
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup container) {
-        Appliance appliance = (Appliance) getItem(position);
+    public View getView(int position, View convertView, @NonNull ViewGroup container) {
+        Appliance appliance = getItem(position);
 
         if (convertView == null) {
-            convertView = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.appliance_list_item, container, false);
+            LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            if (layoutInflater == null) {
+                throw new NullPointerException("Layout Inflater was null");
+            }
+            convertView = layoutInflater.inflate(R.layout.appliance_list_item, container, false);
         }
 
         ImageView applianceType = (convertView.findViewById(R.id.appliance_type));
         Drawable drawable;
-        switch (appliance.getApplianceType()) {
-            case CoffeeMaker:
-                drawable = ContextCompat.getDrawable(getContext(), R.drawable.mug);
-                break;
-            default:
-                drawable = ContextCompat.getDrawable(getContext(), R.drawable.question);
-                break;
+        if (appliance != null) {
+            switch (appliance.getApplianceType()) {
+                case CoffeeMaker:
+                    drawable = ContextCompat.getDrawable(getContext(), R.drawable.mug);
+                    break;
+                default:
+                    drawable = ContextCompat.getDrawable(getContext(), R.drawable.question);
+                    break;
+            }
+            applianceType.setImageDrawable(drawable);
+            ((TextView) convertView.findViewById(R.id.appliance_status)).setText(appliance.getStatus());
+
+            ((TextView) convertView.findViewById(R.id.appliance_name))
+                    .setText(appliance.getName());
         }
-        applianceType.setImageDrawable(drawable);
 
         ImageView connectionIndicator = (convertView.findViewById(R.id.connection_indicator));
 
@@ -87,11 +58,6 @@ public class ApplianceListAdapter extends ArrayAdapter {
             Drawable connectionUnconnected = ContextCompat.getDrawable(getContext(), R.drawable.connection);
             connectionIndicator.setImageDrawable(connectionUnconnected);
         }
-
-        ((TextView) convertView.findViewById(R.id.appliance_status)).setText(appliance.getStatus());
-
-        ((TextView) convertView.findViewById(R.id.appliance_name))
-                .setText(appliance.getName());
         return convertView;
     }
 }

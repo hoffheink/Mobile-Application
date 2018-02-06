@@ -1,5 +1,6 @@
 package edu.uwplatt.projects1.spbmobile;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -26,18 +27,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Created by dowster on 12/9/2017.
- */
-
 class CloudDatasource {
+    @SuppressLint("StaticFieldLeak")
     private static CloudDatasource ourInstance;
+    @SuppressLint("StaticFieldLeak")
     private static Context ourContext;
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
 
 
-    public static List<Appliance> applianceList = new ArrayList<>();
+    static List<Appliance> applianceList = new ArrayList<>();
 
     static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account) {
         if (ourInstance == null || !ourContext.equals(inContext)) {
@@ -46,18 +45,15 @@ class CloudDatasource {
         }
         addLoginsFromAccount(account);
         LoadCredentialsTask loadCredentialsTask = new LoadCredentialsTask();
-        try
-        {
+        try {
             loadCredentialsTask.execute(ourInstance.credentialsProvider);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Log.e("getInstance", "Unable to load credentials", e);
         }
         return ourInstance;
     }
 
-    public void loadAppliances() {
+    void loadAppliances() {
         Runnable getAppliancesRunnable = new GetAppliancesRunnable();
         Thread thread = new Thread(getAppliancesRunnable);
         thread.start();
@@ -76,7 +72,7 @@ class CloudDatasource {
         public void run() {
             ArrayList<Appliance> newApplianceList = new ArrayList<>();
             AWSSessionCredentials credentials = ourInstance.credentialsProvider.getCredentials();
-            if (ourInstance.credentialsProvider != null && credentials != null) {
+            if (credentials != null) {
                 AWSIot awsIot = new AWSIotClient(ourInstance.credentialsProvider);
                 awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
                 ListPrincipalPoliciesRequest listPrincipalPoliciesRequest = new ListPrincipalPoliciesRequest();
@@ -89,15 +85,13 @@ class CloudDatasource {
                 try {
                     List<String> thingNames = new ArrayList<>();
                     for (Policy policy : awsIot.listPrincipalPolicies(listPrincipalPoliciesRequest).getPolicies()) {
-                        String policyName =  policy.getPolicyName().replace("app-", "");
+                        String policyName = policy.getPolicyName().replace("app-", "");
                         thingNames.add(policyName);
                     }
                     for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
-                        if (thingNames.contains(o.getThingName()))
-                        {
+                        if (thingNames.contains(o.getThingName())) {
                             Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
-                            switch (o.getThingTypeName())
-                            {
+                            switch (o.getThingTypeName()) {
                                 case "coffee-maker":
                                     appliance.setApplianceType(Appliance.ApplianceType.CoffeeMaker);
                                     break;
@@ -116,24 +110,17 @@ class CloudDatasource {
     private static class LoadCredentialsTask extends AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> {
         @Override
         protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
-            if (ourInstance.credentialsProvider != null)
-            {
-                Log.d("task", ourInstance.credentialsProvider.getLogins().toString());
-                try {
-                    ourInstance.credentialsProvider.refresh();
-                } catch (Exception e) {
-                    Log.d("LoadCredentialsTask", "Exception: " + e.getMessage(), e);
-                }
-            }
-            else
-            {
-                Log.d("LoadCredentialsTask", "credentialsProvider was null");
+            Log.d("task", ourInstance.credentialsProvider.getLogins().toString());
+            try {
+                ourInstance.credentialsProvider.refresh();
+            } catch (Exception e) {
+                Log.d("LoadCredentialsTask", "Exception: " + e.getMessage(), e);
             }
             return ourInstance.credentialsProvider;
         }
     }
 
-    public String invoke(GoogleSignInAccount account, InvokeRequest request) {
+    String invoke(GoogleSignInAccount account, InvokeRequest request) {
         try {
             addLoginsFromAccount(account);
             return new LambdaInvoker(request).execute().get();
@@ -154,18 +141,18 @@ class CloudDatasource {
         ourInstance.credentialsProvider.setLogins(logins);
     }
 
+    @SuppressLint("StaticFieldLeak")
     private class LambdaInvoker extends AsyncTask<Void, Void, String> {
 
         private final InvokeRequest invokeRequest;
 
-        public LambdaInvoker(InvokeRequest request) {
+        LambdaInvoker(InvokeRequest request) {
             invokeRequest = request;
         }
 
         @Override
         protected String doInBackground(Void... voids) {
-            AWSLambdaClient client = (credentialsProvider == null) ? new AWSLambdaClient()
-                    : new AWSLambdaClient(credentialsProvider);
+            AWSLambdaClient client = new AWSLambdaClient(credentialsProvider);
             client.setRegion(Region.getRegion(Regions.US_EAST_2));
             try {
                 ByteBuffer buffer = client.invoke(invokeRequest).getPayload();
@@ -180,7 +167,7 @@ class CloudDatasource {
         }
     }
 
-    public static String byteBufferToString(ByteBuffer buffer, Charset charset) {
+    private static String byteBufferToString(ByteBuffer buffer, Charset charset) {
         byte[] bytes;
         if (buffer.hasArray()) {
             bytes = buffer.array();

@@ -10,10 +10,12 @@ import java.util.List;
 public class Appliance {
     private String name;
     private String id;
+    @NonNull
     private String status;
     private List<ICommand> commands;
     @NonNull
     private ApplianceType applianceType = ApplianceType.Unknown;
+
 
     /**
      * Appliance types
@@ -78,6 +80,7 @@ public class Appliance {
      *
      * @return status.
      */
+    @NonNull
     String getStatus() {
         return status;
     }
@@ -87,7 +90,7 @@ public class Appliance {
      *
      * @param inStatus the new status.
      */
-    public Appliance setStatus(String inStatus) {
+    public Appliance setStatus(@NonNull String inStatus) {
         status = inStatus;
         return this;
     }
@@ -100,5 +103,14 @@ public class Appliance {
     @NonNull
     ApplianceType getApplianceType() {
         return applianceType;
+    }
+
+    /**
+     * Sets the appliance type.
+     *
+     * @param inApplianceType the new appliance type.
+     */
+    void setApplianceType(@NonNull ApplianceType inApplianceType) {
+        applianceType = inApplianceType;
     }
 }
