@@ -27,15 +27,28 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.iot.AWSIot;
+import com.amazonaws.services.iot.AWSIotClient;
+import com.amazonaws.services.iot.model.UpdateThingRequest;
+import com.amazonaws.services.iotdata.AWSIotData;
+import com.amazonaws.services.iotdata.AWSIotDataClient;
+import com.amazonaws.services.iotdata.model.UpdateThingShadowRequest;
+import com.amazonaws.services.iotdata.model.UpdateThingShadowResult;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.gson.Gson;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -151,6 +164,7 @@ public class RegisterApplianceFragment extends Fragment {
             Log.d("sendNetworkInfo", "Token is: " + token);
             //TODO: Fix this damn name!
             RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token);
+
             for (int count = 0; appliance == null && count < 10; count++) {
                 registrationTask.run();
                 Thread.sleep(5000);
@@ -271,6 +285,40 @@ public class RegisterApplianceFragment extends Fragment {
     };
 
     private static String thingName;
+
+
+    //WORK IN PROGRESS
+    public void sendCommand(String thingName, String pin) {
+        //Create Shadow JSON
+        JSONObject shadowParams = new JSONObject();
+
+        //Payload
+        String payload = "{\"state\": {\"reported\": {\"deviceName\":\"" + deviceName + "\",\"pin\":\"" + pin + "\",\"mobileDeviceType\":\"" + deviceType + "\",\"mobileDeviceVersion\":\"" + deviceVersion + "\"}}}";
+
+        //Create JSON
+        //Bad try catch
+        try {
+            shadowParams.put("payload", payload);
+            shadowParams.put("thingName", thingName);
+        }
+        catch(Exception e) {
+            Log.d("JSON_CREATION", e.toString());
+        }
+
+        AWSIotDataClient iotDataClient = new AWSIotDataClient(CloudDatasource.getInstance(getContext(), MainActivity.account).credentialsProvider);
+
+        //Create a shadow update request
+        UpdateThingShadowRequest updateThingShadowRequest = new UpdateThingShadowRequest();
+
+        //Bad try catch
+        try {
+            updateThingShadowRequest.setPayload(ByteBuffer.wrap(shadowParams.toString().getBytes("UTF-8")));
+            iotDataClient.updateThingShadow(updateThingShadowRequest);
+        }
+        catch(Exception e) {
+            Log.d("SHADOW_UPDATE", e.toString());
+        }
+    }
 
     private void connectTo(int index) {
         selectedNetwork = filteredResults.get(index);
