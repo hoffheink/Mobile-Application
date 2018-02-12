@@ -1,10 +1,8 @@
 package edu.uwplatt.projects1.spbmobile;
 
-import java.util.List;
+import android.support.annotation.NonNull;
 
-/**
- * Created by dowster on 12/10/2017.
- */
+import java.util.List;
 
 /**
  * This class represents an Appliance.
@@ -12,15 +10,28 @@ import java.util.List;
 public class Appliance {
     private String name;
     private String id;
+    @NonNull
     private String status;
     private List<ICommand> commands;
+    @NonNull
+    private ApplianceType applianceType = ApplianceType.Unknown;
+
+
+    /**
+     * Appliance types
+     */
+    public enum ApplianceType {
+        CoffeeMaker,
+        Unknown
+    }
 
     /**
      * Constructor.
+     *
      * @param inName the Appliances name.
-     * @param inId the Appliances id.
+     * @param inId   the Appliances id.
      */
-    public Appliance(String inName, String inId) {
+    Appliance(String inName, String inId) {
         name = inName;
         id = inId;
         status = "OK";
@@ -28,6 +39,7 @@ public class Appliance {
 
     /**
      * Gets the name.
+     *
      * @return name.
      */
     public String getName() {
@@ -36,14 +48,17 @@ public class Appliance {
 
     /**
      * Sets the name.
+     *
      * @param inName the new name.
      */
-    public void setName(String inName) {
+    public Appliance setName(String inName) {
         name = inName;
+        return this;
     }
 
     /**
      * Gets the id.
+     *
      * @return id.
      */
     public String getId() {
@@ -52,25 +67,50 @@ public class Appliance {
 
     /**
      * Sets the id.
+     *
      * @param inId the new id.
      */
-    public void setId(String inId) {
+    public Appliance setId(String inId) {
         id = inId;
+        return this;
     }
 
     /**
      * Gets the status.
+     *
      * @return status.
      */
-    public String getStatus() {
+    @NonNull
+    String getStatus() {
         return status;
     }
 
     /**
      * Sets the status.
+     *
      * @param inStatus the new status.
      */
-    public void setStatus(String inStatus) {
+    public Appliance setStatus(@NonNull String inStatus) {
         status = inStatus;
+        return this;
+    }
+
+    /**
+     * Gets the appliance type.
+     *
+     * @return appliance type.
+     */
+    @NonNull
+    ApplianceType getApplianceType() {
+        return applianceType;
+    }
+
+    /**
+     * Sets the appliance type.
+     *
+     * @param inApplianceType the new appliance type.
+     */
+    void setApplianceType(@NonNull ApplianceType inApplianceType) {
+        applianceType = inApplianceType;
     }
 }

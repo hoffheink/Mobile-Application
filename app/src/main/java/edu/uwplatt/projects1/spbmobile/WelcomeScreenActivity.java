@@ -1,6 +1,5 @@
 package edu.uwplatt.projects1.spbmobile;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -23,13 +22,7 @@ import com.google.android.gms.tasks.Task;
  */
 public class WelcomeScreenActivity extends AppCompatActivity {
 
-    private View mContentView;
     public static GoogleSignInAccount account;
-
-    /**
-     * Used when logging with a Log.d method.
-     */
-    private final String TAG = "WelcomeScreenActivity";
 
     /**
      * Used to identify the output of the google sign in task.
@@ -51,7 +44,7 @@ public class WelcomeScreenActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(false);
         }
 
-        mContentView = findViewById(android.R.id.content);
+        View mContentView = findViewById(android.R.id.content);
 
         mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -87,23 +80,12 @@ public class WelcomeScreenActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void hide() {
-        // Hide UI first
-
-    }
-
-    @SuppressLint("InlinedApi")
-    private void show() {
-        // Show the system bar
-
-    }
-
-
     /**
      * Handles return data from the google sign in activity
-     * @param requestCode
-     * @param resultCode
-     * @param data
+     *
+     * @param requestCode the request code
+     * @param resultCode the result code
+     * @param data the data
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -120,7 +102,7 @@ public class WelcomeScreenActivity extends AppCompatActivity {
 
     /**
      * Handles the sign in result from teh google sign in activity.
-     * @param completedTask
+     * @param completedTask the completed task
      */
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
@@ -129,6 +111,10 @@ public class WelcomeScreenActivity extends AppCompatActivity {
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            /*
+      Used when logging with a Log.d method.
+     */
+            String TAG = "WelcomeScreenActivity";
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
         } finally {
             finish();
