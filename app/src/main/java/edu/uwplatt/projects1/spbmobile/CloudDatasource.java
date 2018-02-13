@@ -67,11 +67,20 @@ class CloudDatasource {
         );
     }
 
+    private AWSSessionCredentials getCredentials() {
+        try {
+            return ourInstance.credentialsProvider.getCredentials();
+        } catch (Exception e) {
+            Log.e("getCredentials", e.getMessage(), e);
+            return null;
+        }
+    }
+
     private static class GetAppliancesRunnable implements Runnable {
         @Override
         public void run() {
             ArrayList<Appliance> newApplianceList = new ArrayList<>();
-            AWSSessionCredentials credentials = ourInstance.credentialsProvider.getCredentials();
+            AWSSessionCredentials credentials = ourInstance.getCredentials();
             if (credentials != null) {
                 AWSIot awsIot = new AWSIotClient(ourInstance.credentialsProvider);
                 awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
@@ -91,10 +100,13 @@ class CloudDatasource {
                     for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
                         if (thingNames.contains(o.getThingName())) {
                             Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
-                            switch (o.getThingTypeName()) {
-                                case "coffee-maker":
-                                    appliance.setApplianceType(Appliance.ApplianceType.CoffeeMaker);
-                                    break;
+                            String thingType = o.getThingTypeName();
+                            if (thingType != null) {
+                                switch (o.getThingTypeName()) {
+                                    case "coffee-maker":
+                                        appliance.setApplianceType(Appliance.ApplianceType.CoffeeMaker);
+                                        break;
+                                }
                             }
                             newApplianceList.add(appliance);
                         }
