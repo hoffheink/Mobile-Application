@@ -1,6 +1,5 @@
 package edu.uwplatt.projects1.spbmobile;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +18,7 @@ import com.google.android.gms.tasks.Task;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
+<<<<<<< HEAD
 public class WelcomeScreenActivity extends AppCompatActivity
 {
     private View mContentView;
@@ -31,6 +31,13 @@ public class WelcomeScreenActivity extends AppCompatActivity
     private final String TAG = "WelcomeScreenActivity";
 
     /**
+=======
+public class WelcomeScreenActivity extends AppCompatActivity {
+
+    public static GoogleSignInAccount account;
+
+    /**
+>>>>>>> dccee4b9f43991fd843f25f7dd146bdeef19469a
      * Used to identify the output of the google sign in task.
      */
     private static final int RC_SIGN_IN = 9001;
@@ -52,7 +59,7 @@ public class WelcomeScreenActivity extends AppCompatActivity
             actionBar.setDisplayHomeAsUpEnabled(false);
         }
 
-        mContentView = findViewById(android.R.id.content);
+        View mContentView = findViewById(android.R.id.content);
 
         mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -91,23 +98,12 @@ public class WelcomeScreenActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void hide() {
-        // Hide UI first
-
-    }
-
-    @SuppressLint("InlinedApi")
-    private void show() {
-        // Show the system bar
-
-    }
-
-
     /**
      * Handles return data from the google sign in activity
-     * @param requestCode
-     * @param resultCode
-     * @param data
+     *
+     * @param requestCode the request code
+     * @param resultCode the result code
+     * @param data the data
      */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -125,7 +121,7 @@ public class WelcomeScreenActivity extends AppCompatActivity
 
     /**
      * Handles the sign in result from teh google sign in activity.
-     * @param completedTask
+     * @param completedTask the completed task
      */
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask)
     {
@@ -138,6 +134,10 @@ public class WelcomeScreenActivity extends AppCompatActivity
         {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            /*
+      Used when logging with a Log.d method.
+     */
+            String TAG = "WelcomeScreenActivity";
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
         }
         finish();

@@ -12,6 +12,7 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -29,10 +30,8 @@ import android.widget.Toast;
 
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
@@ -72,14 +71,16 @@ public class RegisterApplianceFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        wifiManager.startScan();
+        if (wifiManager != null) {
+            wifiManager.startScan();
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                     PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
-            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
+            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overridden method
 
         }
     }
@@ -114,17 +115,25 @@ public class RegisterApplianceFragment extends Fragment {
             Spinner networkName = getActivity().findViewById(R.id.network_name);
             TextView networkPassword = getActivity().findViewById(R.id.network_password);
 
-            Runnable sendNetworkInfoRunnable = new SendNetworkInfoRunnable(((HashMap<String, String>) networkName.getSelectedItem()).get(SSID_KEY), networkPassword.getText().toString());
-            new Thread(sendNetworkInfoRunnable).start();
+            if (networkName != null && networkName.getSelectedItem() != null) {
+                String ssid = getSSID(networkName);
+                Runnable sendNetworkInfoRunnable = new SendNetworkInfoRunnable(ssid, networkPassword.getText().toString());
+                new Thread(sendNetworkInfoRunnable).start();
+            }
         }
     };
+
+    @SuppressWarnings("all")
+    private String getSSID(Spinner networkName) {
+        return ((HashMap<String, String>) networkName.getSelectedItem()).get(SSID_KEY);
+    }
 
     private class SendNetworkInfoRunnable implements Runnable {
 
         private final String networkName;
         private final String networkPassword;
 
-        public SendNetworkInfoRunnable(String networkName, String networkPassword) {
+        SendNetworkInfoRunnable(String networkName, String networkPassword) {
             this.networkName = networkName;
             this.networkPassword = networkPassword;
         }
@@ -132,6 +141,9 @@ public class RegisterApplianceFragment extends Fragment {
         @Override
         public void run() {
             sendNetworkInfo(networkName, networkPassword);
+            if (appliance != null) {
+                CloudDatasource.getInstance(getContext(), MainActivity.account).loadAppliances(); //Reloading the appliance list
+            }
         }
     }
 
@@ -150,7 +162,7 @@ public class RegisterApplianceFragment extends Fragment {
             token = inputScanner.next();
             Log.d("sendNetworkInfo", "Token is: " + token);
             //TODO: Fix this damn name!
-            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token);
+            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token, getContext());
             for (int count = 0; appliance == null && count < 10; count++) {
                 registrationTask.run();
                 Thread.sleep(5000);
@@ -159,8 +171,6 @@ public class RegisterApplianceFragment extends Fragment {
                 Log.e("sendNetworkInfo", "Failed to add device!");
                 Toast.makeText(getContext(), "Failed to add device!", Toast.LENGTH_LONG).show();
             }
-        } catch (MalformedURLException e) {
-            Log.e("sendNetworkInfo", e.getMessage(), e);
         } catch (IOException e) {
             Log.e("sendNetworkInfo", e.getMessage(), e);
         } catch (InterruptedException e) {
@@ -172,11 +182,13 @@ public class RegisterApplianceFragment extends Fragment {
         private final String token;
         private final String deviceName;
         private final GoogleSignInAccount account;
+        private final Context context;
 
-        public RegisterDeviceWithAWS(GoogleSignInAccount inAccount, String inDeviceName, String inToken) {
+        RegisterDeviceWithAWS(GoogleSignInAccount inAccount, String inDeviceName, String inToken, Context inContext) {
             account = inAccount;
             deviceName = inDeviceName;
             token = inToken;
+            context = inContext;
         }
 
         @Override
@@ -184,15 +196,10 @@ public class RegisterApplianceFragment extends Fragment {
             try {
                 InvokeRequest invokeRequest = new InvokeRequest();
                 invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
-                Gson gson = new Gson();
                 String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
-                /*String jsonRequestParameters = gson.toJson(new Object() {
-                    String thingId = deviceName;
-                    String thingPin = token;
-                });*/
                 Log.d("RegisterDeviceWithAWS", "jsonRequestParameters: " + jsonRequestParameters);
                 invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
-                String response = CloudDatasource.getInstance(getActivity(), account).invoke(account, invokeRequest);
+                String response = CloudDatasource.getInstance(context, account).invoke(account, invokeRequest);
                 Log.d("RegisterDeviceWithAWS", "response: " + response);
                 if (response != null) {
                     if (!response.contains("errorMessage")) {
@@ -219,7 +226,7 @@ public class RegisterApplianceFragment extends Fragment {
         for (ScanResult result : unfilteredResults) {
             if (!usedNames.contains(result.SSID)) {
                 usedNames.add(result.SSID);
-                HashMap item = new HashMap<String, String>();
+                HashMap<String, String> item = new HashMap<>();
                 item.put(SSID_KEY, result.SSID);
                 networkList.add(item);
             }
@@ -247,7 +254,7 @@ public class RegisterApplianceFragment extends Fragment {
 
         for (ScanResult result : results) {
             if (result.SSID.startsWith(NETWORK_PREFIX)) {
-                HashMap item = new HashMap<String, String>();
+                HashMap<String, String> item = new HashMap<>();
                 item.put(SSID_KEY, result.SSID);
                 filteredList.add(item);
                 filteredResults.add(result);
@@ -302,8 +309,8 @@ public class RegisterApplianceFragment extends Fragment {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -318,7 +325,6 @@ public class RegisterApplianceFragment extends Fragment {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
-                return;
             }
 
             // other 'case' lines to check for other
