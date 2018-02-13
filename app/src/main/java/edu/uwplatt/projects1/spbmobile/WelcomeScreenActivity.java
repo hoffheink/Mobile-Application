@@ -18,7 +18,6 @@ import com.google.android.gms.tasks.Task;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-<<<<<<< HEAD
 public class WelcomeScreenActivity extends AppCompatActivity
 {
     private View mContentView;
@@ -30,14 +29,8 @@ public class WelcomeScreenActivity extends AppCompatActivity
      */
     private final String TAG = "WelcomeScreenActivity";
 
-    /**
-=======
-public class WelcomeScreenActivity extends AppCompatActivity {
 
-    public static GoogleSignInAccount account;
-
-    /**
->>>>>>> dccee4b9f43991fd843f25f7dd146bdeef19469a
+	/*
      * Used to identify the output of the google sign in task.
      */
     private static final int RC_SIGN_IN = 9001;
