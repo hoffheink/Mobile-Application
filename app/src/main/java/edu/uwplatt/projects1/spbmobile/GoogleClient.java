@@ -11,14 +11,18 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 
 import java.util.concurrent.ExecutionException;
 
+//Google datasource
+//  get account method(check for valid account)
 
-public class GoogleClientWorkerThread {
+public class GoogleClient
+{
 
     private final Context context;
     private final GoogleSignInOptions googleSignInOptions;
 
 
-    public GoogleClientWorkerThread(Context context) {
+    public GoogleClient(Context context)
+    {
         this.context = context;
         googleSignInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(context.getString(R.string.default_web_client_id))
@@ -26,12 +30,14 @@ public class GoogleClientWorkerThread {
                 .build();
     }
 
-    public GoogleSignInAccount getAccount() throws ExecutionException, InterruptedException {
+    public GoogleSignInAccount getAccount() throws ExecutionException, InterruptedException
+    {
         SilentLoginWithGoogle silentLoginWithGoogle = new SilentLoginWithGoogle();
         return silentLoginWithGoogle.execute().get();
     }
 
-    private class SilentLoginWithGoogle extends AsyncTask<Void, Void, GoogleSignInAccount> {
+    private class SilentLoginWithGoogle extends AsyncTask<Void, Void, GoogleSignInAccount>
+    {
 
         @Override
         protected GoogleSignInAccount doInBackground(Void... voids) {
