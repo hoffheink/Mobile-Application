@@ -11,8 +11,6 @@ import android.support.v4.app.NavUtils;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
@@ -20,27 +18,37 @@ import com.google.android.gms.tasks.Task;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class WelcomeScreenActivity extends AppCompatActivity {
+public class WelcomeScreenActivity extends AppCompatActivity
+{
+    private View mContentView;
+    private GoogleProvider mGoogleProvider;
 
-    public static GoogleSignInAccount account;
 
     /**
+     * Used when logging an operation occurring in this activity.
+     */
+    private final String TAG = "WelcomeScreenActivity";
+
+
+	/*
      * Used to identify the output of the google sign in task.
      */
     private static final int RC_SIGN_IN = 9001;
 
     /**
-     * Used to perform google sign in functionality
+     * Initializes the data values used in the activity.
+     * @param savedInstanceState the state the system was saved in on the last usage.
      */
-    private GoogleSignInClient mGoogleSignInClient;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
+        mGoogleProvider.getInstance(this, this);
 
         setContentView(R.layout.activity_welcome_screen);
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
+        if (actionBar != null)
+        {
             actionBar.setDisplayHomeAsUpEnabled(false);
         }
 
@@ -53,19 +61,22 @@ public class WelcomeScreenActivity extends AppCompatActivity {
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 
-
-        setupGoogleSignIn();
-
         findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View view)
+            {
                 signIn();
             }
         });
     }
 
+    /**
+     * Post creation of current system state.
+     * @param savedInstanceState the state the system was saved in on the last usage.
+     */
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
+    protected void onPostCreate(Bundle savedInstanceState)
+    {
         super.onPostCreate(savedInstanceState);
     }
 
@@ -92,7 +103,8 @@ public class WelcomeScreenActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_SIGN_IN)
+        {
             // The Task returned from this call is always completed, no need to attach
             // a listener.
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -104,11 +116,15 @@ public class WelcomeScreenActivity extends AppCompatActivity {
      * Handles the sign in result from teh google sign in activity.
      * @param completedTask the completed task
      */
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            account = completedTask.getResult(ApiException.class);
-            Log.d("handleSignInResult", account.getIdToken());
-        } catch (ApiException e) {
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask)
+    {
+        try
+        {
+            mGoogleProvider.getInstance(this, this).setGoogleAccount(completedTask.getResult(ApiException.class));
+            Log.d("handleSignInResult", mGoogleProvider.getInstance(this, this).getAccount().getIdToken());
+        }
+        catch (ApiException e)
+        {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             /*
@@ -116,28 +132,13 @@ public class WelcomeScreenActivity extends AppCompatActivity {
      */
             String TAG = "WelcomeScreenActivity";
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-        } finally {
-            finish();
         }
+        finish();
     }
 
-    /**
-     * Constructs the Google Sign-In Options object and instantiates a Sign-In client.
-     */
-    private void setupGoogleSignIn() {
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-    }
-
-    private void signIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+    private void signIn()
+    {
+        Intent signInIntent = mGoogleProvider.getInstance(this, this).generateSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 }
