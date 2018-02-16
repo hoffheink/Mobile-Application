@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import static edu.uwplatt.projects1.spbmobile.MainActivity.region;
+
 public class RegisterApplianceFragment extends Fragment {
 
     public static final String NETWORK_PREFIX = "Mon";
@@ -142,7 +144,7 @@ public class RegisterApplianceFragment extends Fragment {
         public void run() {
             sendNetworkInfo(networkName, networkPassword);
             if (appliance != null) {
-                CloudDatasource.getInstance(getContext(), MainActivity.account).loadAppliances(); //Reloading the appliance list
+                CloudDatasource.getInstance(getContext(), MainActivity.account, region).loadAppliances(); //Reloading the appliance list
             }
         }
     }
@@ -199,7 +201,7 @@ public class RegisterApplianceFragment extends Fragment {
                 String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
                 Log.d("RegisterDeviceWithAWS", "jsonRequestParameters: " + jsonRequestParameters);
                 invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
-                String response = CloudDatasource.getInstance(context, account).invoke(account, invokeRequest);
+                String response = CloudDatasource.getInstance(context, account, region).invoke(account, invokeRequest);
                 Log.d("RegisterDeviceWithAWS", "response: " + response);
                 if (response != null) {
                     if (!response.contains("errorMessage")) {

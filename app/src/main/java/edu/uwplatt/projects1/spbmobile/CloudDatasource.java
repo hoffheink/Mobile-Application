@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Region;
@@ -28,20 +29,31 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 class CloudDatasource {
+    static final String US_EAST_1_IdentityPoolID = "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
+    static final String US_EAST_2_IdentityPoolID = "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878";
     @SuppressLint("StaticFieldLeak")
     private static CloudDatasource ourInstance;
     @SuppressLint("StaticFieldLeak")
     private static Context ourContext;
+    @SuppressLint("StaticFieldLeak")
+    private static RegionEnum ourRegion;
+
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
+
+    public enum RegionEnum {
+        US_EAST_1,
+        US_EAST_2
+    }
 
 
     static List<Appliance> applianceList = new ArrayList<>();
 
-    static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account) {
-        if (ourInstance == null || !ourContext.equals(inContext)) {
-            ourInstance = new CloudDatasource(inContext);
+    static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account, RegionEnum inRegion) {
+        if (ourInstance == null || !ourContext.equals(inContext) || !ourRegion.equals(inRegion)) {
+            ourInstance = new CloudDatasource(inContext, inRegion);
             ourContext = inContext;
+            ourRegion = inRegion;
         }
         addLoginsFromAccount(account);
         LoadCredentialsTask loadCredentialsTask = new LoadCredentialsTask();
@@ -59,12 +71,19 @@ class CloudDatasource {
         thread.start();
     }
 
-    private CloudDatasource(@NonNull Context inContext) {
-        credentialsProvider = new CognitoCachingCredentialsProvider(
-                inContext,
-                "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878", // Identity pool ID
-                Regions.US_EAST_2 // Region
-        );
+
+    private CloudDatasource(@NonNull Context inContext, @NonNull RegionEnum inRegion) {
+        switch (inRegion) {
+            case US_EAST_1:
+                credentialsProvider = new CognitoCachingCredentialsProvider(inContext,
+                        US_EAST_1_IdentityPoolID, Regions.US_EAST_1);
+                break;
+            case US_EAST_2:
+                credentialsProvider = new CognitoCachingCredentialsProvider(inContext,
+                        US_EAST_2_IdentityPoolID, Regions.US_EAST_2);
+                break;
+        }
+
     }
 
     private AWSSessionCredentials getCredentials() {
@@ -83,7 +102,14 @@ class CloudDatasource {
             AWSSessionCredentials credentials = ourInstance.getCredentials();
             if (credentials != null) {
                 AWSIot awsIot = new AWSIotClient(ourInstance.credentialsProvider);
-                awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
+                switch (ourRegion) {
+                    case US_EAST_1:
+                        awsIot.setRegion(Region.getRegion(Regions.US_EAST_1));
+                        break;
+                    case US_EAST_2:
+                        awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
+                        break;
+                }
                 ListPrincipalPoliciesRequest listPrincipalPoliciesRequest = new ListPrincipalPoliciesRequest();
                 listPrincipalPoliciesRequest.setPrincipal(ourInstance.credentialsProvider.getIdentityId());
                 Log.d("cognitoIDID", ourInstance.credentialsProvider.getIdentityId());
@@ -165,7 +191,14 @@ class CloudDatasource {
         @Override
         protected String doInBackground(Void... voids) {
             AWSLambdaClient client = new AWSLambdaClient(credentialsProvider);
-            client.setRegion(Region.getRegion(Regions.US_EAST_2));
+            switch (ourRegion) {
+                case US_EAST_1:
+                    client.setRegion(Region.getRegion(Regions.US_EAST_1));
+                    break;
+                case US_EAST_2:
+                    client.setRegion(Region.getRegion(Regions.US_EAST_2));
+                    break;
+            }
             try {
                 ByteBuffer buffer = client.invoke(invokeRequest).getPayload();
                 String response = byteBufferToString(buffer, Charset.forName("UTF-8"));

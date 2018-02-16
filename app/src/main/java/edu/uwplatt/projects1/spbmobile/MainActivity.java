@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity
     protected DrawerLayout mDrawer;
     public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
+    public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity
         if (account == null)
             showWelcomeScreen();
         else {
-            CloudDatasource.getInstance(this, account).loadAppliances(); //Loads appliance list
+            CloudDatasource.getInstance(this, account, region).loadAppliances(); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
             ((TextView) header.findViewById(R.id.user_name)).setText(account.getDisplayName());
