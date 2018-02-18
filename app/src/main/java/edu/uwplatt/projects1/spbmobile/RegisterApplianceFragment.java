@@ -16,8 +16,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -29,7 +34,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.services.lambda.model.InvokeRequest;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 import java.net.URL;
@@ -53,6 +63,8 @@ public class RegisterApplianceFragment extends Fragment {
     ScanResult selectedNetwork;
     Appliance appliance = null;
     String token;
+
+    Boolean config = false;
 
     final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 5555;
     private List<ScanResult> unfilteredResults;
@@ -166,6 +178,8 @@ public class RegisterApplianceFragment extends Fragment {
             if (appliance == null) {
                 Log.w("sendNetworkInfo", "Failed to add device!");
                 Toast.makeText(getContext(), "Failed to add device!", Toast.LENGTH_LONG).show();
+            } else {
+                goHome();
             }
         } catch (IOException e) {
             Log.e("sendNetworkInfo", "IOException: " + e.getMessage(), e);
@@ -210,53 +224,68 @@ public class RegisterApplianceFragment extends Fragment {
     }
 
     private void showConfigurationSettings() {
-        getActivity().findViewById(R.id.network_list).setVisibility(View.GONE);
-        getActivity().findViewById(R.id.network_name).setVisibility(View.VISIBLE);
-        getActivity().findViewById(R.id.network_password).setVisibility(View.VISIBLE);
-        getActivity().findViewById(R.id.send_network_info_button).setVisibility(View.VISIBLE);
+        if (!config) {
+            config = true;
+            getActivity().findViewById(R.id.network_list).setVisibility(View.GONE);
+            getActivity().findViewById(R.id.network_name).setVisibility(View.VISIBLE);
+            getActivity().findViewById(R.id.network_password).setVisibility(View.VISIBLE);
+            getActivity().findViewById(R.id.send_network_info_button).setVisibility(View.VISIBLE);
 
-        (getActivity().findViewById(R.id.send_network_info_button)).setOnClickListener(sendNetworkInfoClickListener);
+            (getActivity().findViewById(R.id.send_network_info_button)).setOnClickListener(sendNetworkInfoClickListener);
 
-        ArrayList<HashMap<String, String>> networkList = new ArrayList<>();
-        Set<String> usedNames = new HashSet<>();
-        for (ScanResult result : unfilteredResults) {
-            if (!usedNames.contains(result.SSID)) {
-                usedNames.add(result.SSID);
-                HashMap<String, String> item = new HashMap<>();
-                item.put(SSID_KEY, result.SSID);
-                networkList.add(item);
+            ArrayList<HashMap<String, String>> networkList = new ArrayList<>();
+            Set<String> usedNames = new HashSet<>();
+            for (ScanResult result : unfilteredResults) {
+                if (!usedNames.contains(result.SSID)) {
+                    usedNames.add(result.SSID);
+                    HashMap<String, String> item = new HashMap<>();
+                    item.put(SSID_KEY, result.SSID);
+                    networkList.add(item);
+                }
             }
-        }
 
-        SimpleAdapter adapter = new SimpleAdapter(getActivity(), networkList, android.R.layout.simple_list_item_1, new String[]{SSID_KEY}, new int[]{android.R.id.text1});
-        ((Spinner) getActivity().findViewById(R.id.network_name)).setAdapter(adapter);
+            SimpleAdapter adapter = new SimpleAdapter(getActivity(), networkList, android.R.layout.simple_list_item_1, new String[]{SSID_KEY}, new int[]{android.R.id.text1});
+            ((Spinner) getActivity().findViewById(R.id.network_name)).setAdapter(adapter);
+        }
+    }
+
+    private void goHome() {
+        FragmentManager fragmentManager = this.getFragmentManager();
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        ApplianceListFragment fragment = new ApplianceListFragment();
+        fragmentTransaction.add(R.id.content_main, fragment);
+        fragmentTransaction.commit();
     }
 
     private void resultsReceived(List<ScanResult> results) {
-        ProgressBar progressBar = getActivity().findViewById(R.id.register_appliance_progress_bar);
-        if (progressBar != null)
-            progressBar.setVisibility(View.GONE);
-        ListView networkListView = getActivity().findViewById(R.id.network_list);
-        if (networkListView != null)
-            networkListView.setVisibility(View.VISIBLE);
+        if (!config) {
+            ProgressBar progressBar = getActivity().findViewById(R.id.register_appliance_progress_bar);
+            if (progressBar != null)
+                progressBar.setVisibility(View.GONE);
+            ListView networkListView = getActivity().findViewById(R.id.network_list);
+            if (networkListView != null)
+                networkListView.setVisibility(View.VISIBLE);
 
-        unfilteredResults = results;
-        filteredResults = new ArrayList<>();
+            unfilteredResults = results;
+            filteredResults = new ArrayList<>();
 
-        ArrayList<HashMap<String, String>> filteredList = new ArrayList<>();
-        for (ScanResult result : results) {
-            if (result.SSID.startsWith(NETWORK_PREFIX)) {
-                HashMap<String, String> item = new HashMap<>();
-                item.put(SSID_KEY, result.SSID);
-                filteredList.add(item);
-                filteredResults.add(result);
+            ArrayList<HashMap<String, String>> filteredList = new ArrayList<>();
+            for (ScanResult result : results) {
+                if (result.SSID.startsWith(NETWORK_PREFIX)) {
+                    HashMap<String, String> item = new HashMap<>();
+                    item.put(SSID_KEY, result.SSID);
+                    filteredList.add(item);
+                    filteredResults.add(result);
+                }
             }
-        }
 
-        SimpleAdapter adapter = new SimpleAdapter(getActivity(), filteredList, android.R.layout.simple_list_item_1, new String[]{SSID_KEY}, new int[]{android.R.id.text1});
-        if (networkListView != null) {
-            networkListView.setAdapter(adapter);
-            networkListView.setOnItemClickListener(ssidClickListener);
+            SimpleAdapter adapter = new SimpleAdapter(getActivity(), filteredList, android.R.layout.simple_list_item_1, new String[]{SSID_KEY}, new int[]{android.R.id.text1});
+            if (networkListView != null) {
+                networkListView.setAdapter(adapter);
+                networkListView.setOnItemClickListener(ssidClickListener);
+            }
         }
     }
 
