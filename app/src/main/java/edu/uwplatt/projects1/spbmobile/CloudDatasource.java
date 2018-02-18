@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Region;
@@ -29,8 +28,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 class CloudDatasource {
-    static final String US_EAST_1_IdentityPoolID = "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
-    static final String US_EAST_2_IdentityPoolID = "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878";
+    private static final String US_EAST_1_IdentityPoolID = "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
+    private static final String US_EAST_2_IdentityPoolID = "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878";
     @SuppressLint("StaticFieldLeak")
     private static CloudDatasource ourInstance;
     @SuppressLint("StaticFieldLeak")
@@ -38,6 +37,7 @@ class CloudDatasource {
     @SuppressLint("StaticFieldLeak")
     private static RegionEnum ourRegion;
 
+    @SuppressWarnings("all")
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
 
@@ -45,7 +45,6 @@ class CloudDatasource {
         US_EAST_1,
         US_EAST_2
     }
-
 
     static List<Appliance> applianceList = new ArrayList<>();
 
@@ -71,7 +70,6 @@ class CloudDatasource {
         thread.start();
     }
 
-
     private CloudDatasource(@NonNull Context inContext, @NonNull RegionEnum inRegion) {
         switch (inRegion) {
             case US_EAST_1:
@@ -83,7 +81,6 @@ class CloudDatasource {
                         US_EAST_2_IdentityPoolID, Regions.US_EAST_2);
                 break;
         }
-
     }
 
     private AWSSessionCredentials getCredentials() {
@@ -112,7 +109,7 @@ class CloudDatasource {
                 }
                 ListPrincipalPoliciesRequest listPrincipalPoliciesRequest = new ListPrincipalPoliciesRequest();
                 listPrincipalPoliciesRequest.setPrincipal(ourInstance.credentialsProvider.getIdentityId());
-                Log.d("cognitoIDID", ourInstance.credentialsProvider.getIdentityId());
+                Log.i("GetAppliancesRunnable", "CognitoID: " + ourInstance.credentialsProvider.getIdentityId());
 
                 ListThingsRequest listThingsRequest = new ListThingsRequest();
                 listThingsRequest.setRequestCredentials(credentials);
@@ -138,7 +135,7 @@ class CloudDatasource {
                         }
                     }
                 } catch (Exception e) {
-                    Log.d("GetAppliancesRunnable", e.getMessage(), e);
+                    Log.e("GetAppliancesRunnable", e.getMessage(), e);
                 }
             }
             applianceList = newApplianceList;
@@ -148,11 +145,11 @@ class CloudDatasource {
     private static class LoadCredentialsTask extends AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> {
         @Override
         protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
-            Log.d("task", ourInstance.credentialsProvider.getLogins().toString());
+            Log.i("LoadCredentialsTask", ourInstance.credentialsProvider.getLogins().toString());
             try {
                 ourInstance.credentialsProvider.refresh();
             } catch (Exception e) {
-                Log.d("LoadCredentialsTask", "Exception: " + e.getMessage(), e);
+                Log.e("LoadCredentialsTask", "Exception: " + e.getMessage(), e);
             }
             return ourInstance.credentialsProvider;
         }
@@ -163,9 +160,9 @@ class CloudDatasource {
             addLoginsFromAccount(account);
             return new LambdaInvoker(request).execute().get();
         } catch (InterruptedException e) {
-            Log.d("invoke", "InterruptedException: " + e.getMessage(), e);
+            Log.e("invoke", "InterruptedException: " + e.getMessage(), e);
         } catch (ExecutionException e) {
-            Log.d("invoke", "ExecutionException: " + e.getMessage(), e);
+            Log.e("invoke", "ExecutionException: " + e.getMessage(), e);
         }
         return null;
     }
@@ -174,7 +171,7 @@ class CloudDatasource {
         HashMap<String, String> logins = new HashMap<>();
 
         String accountID = account.getIdToken();
-        Log.d("onCreate", "accountID: " + accountID);
+        Log.i("addLoginsFromAccount", "accountID: " + accountID);
         logins.put("accounts.google.com", accountID);
         ourInstance.credentialsProvider.setLogins(logins);
     }
@@ -202,13 +199,12 @@ class CloudDatasource {
             try {
                 ByteBuffer buffer = client.invoke(invokeRequest).getPayload();
                 String response = byteBufferToString(buffer, Charset.forName("UTF-8"));
-                Log.e("Tag", response, null);
+                Log.i("LambdaInvoker", response, null);
                 return response;
             } catch (Exception e) {
-                Log.e("Tag", "Failed to invoke AWS: " + e.getMessage(), e);
+                Log.e("LambdaInvoker", "Failed to invoke AWS: " + e.getMessage(), e);
                 return null;
             }
-
         }
     }
 

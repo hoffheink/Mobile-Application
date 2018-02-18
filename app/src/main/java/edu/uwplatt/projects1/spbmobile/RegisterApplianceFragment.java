@@ -52,12 +52,10 @@ public class RegisterApplianceFragment extends Fragment {
     ArrayList<ScanResult> filteredResults;
     ScanResult selectedNetwork;
     Appliance appliance = null;
-
     String token;
 
     final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 5555;
     private List<ScanResult> unfilteredResults;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,12 +76,10 @@ public class RegisterApplianceFragment extends Fragment {
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                     PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
             //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overridden method
-
         }
     }
 
@@ -103,7 +99,7 @@ public class RegisterApplianceFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (wifiManager != null) {
-                Log.d("wifiConnectReceiver", "Connected to network: " + wifiManager.getConnectionInfo());
+                Log.i("wifiConnectReceiver", "Connected to network: " + wifiManager.getConnectionInfo());
                 if (wifiManager.getConnectionInfo() != null && selectedNetwork != null && wifiManager.getConnectionInfo().getSSID().equals("\"" + selectedNetwork.SSID + "\"")) {
                     showConfigurationSettings();
                 }
@@ -116,7 +112,6 @@ public class RegisterApplianceFragment extends Fragment {
         public void onClick(View view) {
             Spinner networkName = getActivity().findViewById(R.id.network_name);
             TextView networkPassword = getActivity().findViewById(R.id.network_password);
-
             if (networkName != null && networkName.getSelectedItem() != null) {
                 String ssid = getSSID(networkName);
                 Runnable sendNetworkInfoRunnable = new SendNetworkInfoRunnable(ssid, networkPassword.getText().toString());
@@ -131,7 +126,6 @@ public class RegisterApplianceFragment extends Fragment {
     }
 
     private class SendNetworkInfoRunnable implements Runnable {
-
         private final String networkName;
         private final String networkPassword;
 
@@ -162,7 +156,7 @@ public class RegisterApplianceFragment extends Fragment {
 
             Scanner inputScanner = new Scanner(connection.getInputStream());
             token = inputScanner.next();
-            Log.d("sendNetworkInfo", "Token is: " + token);
+            Log.i("sendNetworkInfo", "Token is: " + token);
             //TODO: Fix this damn name!
             RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token, getContext());
             for (int count = 0; appliance == null && count < 10; count++) {
@@ -170,13 +164,13 @@ public class RegisterApplianceFragment extends Fragment {
                 Thread.sleep(5000);
             }
             if (appliance == null) {
-                Log.e("sendNetworkInfo", "Failed to add device!");
+                Log.w("sendNetworkInfo", "Failed to add device!");
                 Toast.makeText(getContext(), "Failed to add device!", Toast.LENGTH_LONG).show();
             }
         } catch (IOException e) {
-            Log.e("sendNetworkInfo", e.getMessage(), e);
+            Log.e("sendNetworkInfo", "IOException: " + e.getMessage(), e);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.e("sendNetworkInfo", "InterruptedException: " + e.getMessage(), e);
         }
     }
 
@@ -199,16 +193,16 @@ public class RegisterApplianceFragment extends Fragment {
                 InvokeRequest invokeRequest = new InvokeRequest();
                 invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
                 String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
-                Log.d("RegisterDeviceWithAWS", "jsonRequestParameters: " + jsonRequestParameters);
+                Log.i("RegisterDeviceWithAWS", "jsonRequestParameters: " + jsonRequestParameters);
                 invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
                 String response = CloudDatasource.getInstance(context, account, region).invoke(account, invokeRequest);
-                Log.d("RegisterDeviceWithAWS", "response: " + response);
+                Log.i("RegisterDeviceWithAWS", "response: " + response);
                 if (response != null) {
                     if (!response.contains("errorMessage")) {
                         appliance = new Appliance(deviceName, deviceName);
                     }
                 } else
-                    Log.d("RegisterDeviceWithAWS", "Failed to register:");
+                    Log.w("RegisterDeviceWithAWS", "Failed to register:");
             } catch (Exception e) {
                 Log.e("RegisterDeviceWithAWS", e.getMessage(), e);
             }
@@ -236,12 +230,9 @@ public class RegisterApplianceFragment extends Fragment {
 
         SimpleAdapter adapter = new SimpleAdapter(getActivity(), networkList, android.R.layout.simple_list_item_1, new String[]{SSID_KEY}, new int[]{android.R.id.text1});
         ((Spinner) getActivity().findViewById(R.id.network_name)).setAdapter(adapter);
-
-
     }
 
     private void resultsReceived(List<ScanResult> results) {
-
         ProgressBar progressBar = getActivity().findViewById(R.id.register_appliance_progress_bar);
         if (progressBar != null)
             progressBar.setVisibility(View.GONE);
@@ -253,7 +244,6 @@ public class RegisterApplianceFragment extends Fragment {
         filteredResults = new ArrayList<>();
 
         ArrayList<HashMap<String, String>> filteredList = new ArrayList<>();
-
         for (ScanResult result : results) {
             if (result.SSID.startsWith(NETWORK_PREFIX)) {
                 HashMap<String, String> item = new HashMap<>();
@@ -273,7 +263,7 @@ public class RegisterApplianceFragment extends Fragment {
     AdapterView.OnItemClickListener ssidClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            Log.d("ItemClick", filteredResults.get(i).SSID);
+            Log.i("ItemClick", filteredResults.get(i).SSID);
             connectTo(i);
 
         }
@@ -287,11 +277,11 @@ public class RegisterApplianceFragment extends Fragment {
         config.SSID = selectedNetwork.SSID;
         config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         int configID = wifiManager.addNetwork(config);
-        Log.d("connectTo", "configID: " + configID);
+        Log.i("connectTo", "configID: " + configID);
         //TODO: Log errors so the user can see them
         wifiManager.enableNetwork(configID, true);
         thingName = "esp8266_" + selectedNetwork.SSID.substring(selectedNetwork.SSID.length() - 6);
-        Log.d("connectTo", "thingName: " + thingName);
+        Log.i("connectTo", "thingName: " + thingName);
     }
 
     public void onPause() {
@@ -311,27 +301,23 @@ public class RegisterApplianceFragment extends Fragment {
     }
 
     @Override
+    @SuppressWarnings("all")
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
 
                 } else {
-
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
             }
-
             // other 'case' lines to check for other
             // permissions this app might request
         }
     }
-
 }

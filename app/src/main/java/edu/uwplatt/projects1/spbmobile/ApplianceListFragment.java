@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must
@@ -23,8 +22,6 @@ public class ApplianceListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
     }
 
     @Override
