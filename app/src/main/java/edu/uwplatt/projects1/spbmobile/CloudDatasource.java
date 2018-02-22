@@ -35,7 +35,6 @@ class CloudDatasource {
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
 
-
     static List<Appliance> applianceList = new ArrayList<>();
 
     static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account) {

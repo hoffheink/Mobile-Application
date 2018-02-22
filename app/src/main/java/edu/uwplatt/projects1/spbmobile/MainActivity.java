@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity
         super.onStart();
 
         updateAccountInformation();
+        Appliance nick = new Appliance("nick", "123456");
     }
 
     private void updateAccountInformation() {
