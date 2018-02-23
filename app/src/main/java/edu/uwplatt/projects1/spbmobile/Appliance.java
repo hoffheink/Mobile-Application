@@ -1,9 +1,12 @@
 package edu.uwplatt.projects1.spbmobile;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import edu.uwplatt.projects1.spbmobile.Command.Command;
@@ -20,6 +23,12 @@ public class Appliance {
     @NonNull
     private ApplianceType applianceType = ApplianceType.Unknown;
 
+    private static String VersionNumber;
+
+    static void setVersionNumber(String versionNumber)
+    {
+        VersionNumber = versionNumber;
+    }
 
     /**
      * Appliance types
@@ -47,11 +56,8 @@ public class Appliance {
         String inputSample = "[ { \"cmdName\": \"EchoCommand\", \"humanName\": \"Echo Command\", \"priority\": false, \"parameters\": [ { \"machineName\": \"echoText\", \"humanName\": \"Echo Text\", \"description\": \"Text that the device sends back to cloud.\", \"type\": \"string\", \"enumerations\": [] } ], \"states\": [ { \"value\": 4, \"text\": \"Echoing\" } ] }, { \"cmdName\": \"bakeCommand\", \"humanName\": \"Bake Command\", \"parameters\": [ { \"machineName\": \"temperature\", \"humanName\": \"Temperature\", \"description\": \"Temperature to bake at.\", \"type\": \"int\", \"enumerations\": [], \"range\": { \"min\": 100, \"max\": 600, \"step\": 5 }, \"units\": \"deg F\" }, { \"machineName\": \"mode\", \"humanName\": \"Oven Mode\", \"description\": \"\", \"type\": \"enum\", \"enumerations\": [ { \"value\": 1, \"name\": \"Bake\" }, { \"value\": 2, \"name\": \"Broil\" }, { \"value\": 3, \"name\": \"Bake (Convection)\" } ], \"range\": {}, \"units\": \"\" }, { \"machineName\": \"duration\", \"humanName\": \"Duration\", \"description\": \"Time to cook for.\", \"type\": \"duration\", \"enumerations\": [], \"range\": { \"min\": 0, \"max\": 86400, \"step\": 1 }, \"units\": \"\" } ], \"states\": [ { \"value\": 4, \"text\": \"Pre-Heating\" }, { \"value\": 5, \"text\": \"Bake\" }, { \"value\": 6, \"text\": \"Cooling\" } ] }]";
         Gson gson = new Gson();
         Command[] command = gson.fromJson(inputSample, Command[].class);
-
-
+        commands.addAll(Arrays.asList(command));
         String json = gson.toJson(command);
-        int i =7;
-
     }
 
     /**
