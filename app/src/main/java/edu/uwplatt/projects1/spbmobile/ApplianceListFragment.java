@@ -2,11 +2,17 @@ package edu.uwplatt.projects1.spbmobile;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import edu.uwplatt.projects1.spbmobile.Command.UIComponents.CommandListFragment;
 
 
 /**
@@ -47,8 +53,25 @@ public class ApplianceListFragment extends Fragment {
             ListView listView = view.findViewById(R.id.appliance_list);
             if (listView != null) {
                 listView.setAdapter(applianceAdapter);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        Log.wtf("onItemClick", "Item clicked");
+                        Appliance appliance = (Appliance) adapterView.getSelectedItem();
+                        CommandListFragment commandListFragment = new CommandListFragment();
+                        commandListFragment.appliance = appliance;
+
+                        FragmentManager fragmentManager = getFragmentManager();
+                        fragmentManager.popBackStack();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                        fragmentTransaction.add(commandListFragment, "tag");
+                        fragmentTransaction.commit();
+                    }
+                });
             }
         }
     }
+
     // TODO: Create method to respond to buttons, update argument and hook method into UI event
 }

@@ -1,13 +1,9 @@
-package edu.uwplatt.projects1.spbmobile;
+package edu.uwplatt.projects1.spbmobile.Command.UIComponents;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,21 +12,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import edu.uwplatt.projects1.spbmobile.Command.Command;
-import edu.uwplatt.projects1.spbmobile.Command.UIComponents.CommandListFragment;
+import edu.uwplatt.projects1.spbmobile.R;
 
-import static android.app.PendingIntent.getActivity;
+public class CommandListAdapter extends ArrayAdapter<Command> {
 
-public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
-
-    ApplianceListAdapter(@NonNull Context context, int resource) {
+    CommandListAdapter(@NonNull Context context, int resource) {
         super(context, resource);
-        addAll(CloudDatasource.applianceList);
+        addAll();
     }
 
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup container) {
-        final Appliance appliance = getItem(position);
+        /*Appliance appliance = getItem(position);
 
         if (convertView == null) {
             LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -66,8 +60,7 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
         } else {
             Drawable connectionUnconnected = ContextCompat.getDrawable(getContext(), R.drawable.connection);
             connectionIndicator.setImageDrawable(connectionUnconnected);
-        }
+        }*/
         return convertView;
     }
-
 }
