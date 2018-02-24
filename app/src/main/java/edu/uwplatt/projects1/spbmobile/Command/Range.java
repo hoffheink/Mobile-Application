@@ -3,7 +3,7 @@ package edu.uwplatt.projects1.spbmobile.Command;
 public class Range {
     public int min;
     public int max;
-    private int step;
+    public int step;
 
     public String[] getDisplayableValues() {
         String[] valueSet = new String[((max - min) / step) + 1];

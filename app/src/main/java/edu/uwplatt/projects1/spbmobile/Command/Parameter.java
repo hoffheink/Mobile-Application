@@ -10,14 +10,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Parameter {
-    public static Parameter[] parametersForList;
-    public String machinename;
+    //public static Parameter[] parametersForList;
+    public String machineName;
     public String humanName;
     public String description;
     public Types type;
     public Enumeration[] enumerations;
     public Range range;
     public String units;
+
+    public Object value;
 
     public ArrayAdapter<String> getSpinnerOptions(Context context)
     {
@@ -29,7 +31,6 @@ public class Parameter {
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         return arrayAdapter;
     }
-
 
     public enum Types {
         @SerializedName("int")

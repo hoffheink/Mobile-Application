@@ -6,21 +6,23 @@
     tools:context="edu.uwplatt.projects1.spbmobile.Command.UIComponents.ParameterListFragment">
 
     <RelativeLayout
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="horizontal">
-    <ListView
-        android:id="@+id/parameter_listView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:id="@+id/parameter_relativeLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal">
 
-    <ImageButton
+        <ListView
+            android:id="@+id/parameter_listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageButton
             android:id="@+id/parameter_execute_imageButton"
-            app:srcCompat="@drawable/play2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@id/parameter_listView"
-            android:layout_alignRight="@id/parameter_listView" />
+            android:layout_alignRight="@id/parameter_listView"
+            app:srcCompat="@drawable/play2" />
 
     </RelativeLayout>
 

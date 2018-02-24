@@ -58,8 +58,7 @@ public class CommandListFragment extends Fragment {
                 Command command = (Command) listView.getItemAtPosition(i);
                 ParameterListFragment parameterListFragment = new ParameterListFragment();
 
-                Parameter.parametersForList = command.parameters;
-                //commandListFragment.appliance = appliance;
+                Command.currentCommand = command;
 
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

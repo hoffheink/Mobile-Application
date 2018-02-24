@@ -64,8 +64,7 @@ public class ApplianceListFragment extends Fragment {
                 Appliance appliance = (Appliance) listView.getItemAtPosition(i);
                 CommandListFragment commandListFragment = new CommandListFragment();
 
-                Command.commandsForList = appliance.commands;
-                //commandListFragment.appliance = appliance;
+                Appliance.currentAppliance = appliance;
 
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import edu.uwplatt.projects1.spbmobile.Appliance;
 import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.R;
 
@@ -16,7 +17,7 @@ public class CommandListAdapter extends ArrayAdapter<Command> {
 
     CommandListAdapter(@NonNull Context context, int resource) {
         super(context, resource);
-        addAll(Command.commandsForList);
+        addAll(Appliance.currentAppliance.commands);
     }
 
     @NonNull

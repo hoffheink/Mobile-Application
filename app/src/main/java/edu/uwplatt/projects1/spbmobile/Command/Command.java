@@ -1,20 +1,25 @@
 package edu.uwplatt.projects1.spbmobile.Command;
 
-import edu.uwplatt.projects1.spbmobile.Appliance;
-
 public class Command {
-    public static Command[] commandsForList;
+    public static Command currentCommand;
     public String humanName;
     boolean priority;
     public Parameter[] parameters;
     State[] states;
     String cmdName;
-    /**
-     * Used to execute a command
-     *
-     * @param appliance The Appliance to execute the command on.
-     */
-    void execute(Appliance appliance) {
+
+    public static void executeCurrentCommand() {
 
     }
+
+
+    public static void setParameterOnCurrentCommand(String machineName, Object value) {
+        if (currentCommand != null) {
+            for (int i = 0; i < currentCommand.parameters.length; i++) {
+                if (currentCommand.parameters[i].machineName == machineName)
+                    currentCommand.parameters[i].value = value;
+            }
+        }
+    }
+
 }
