@@ -19,12 +19,69 @@ import android.widget.TextView;
 import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.Command.Enumeration;
 import edu.uwplatt.projects1.spbmobile.Command.Parameter;
+import edu.uwplatt.projects1.spbmobile.Command.Range;
 import edu.uwplatt.projects1.spbmobile.R;
 
+/**
+ * This class is used to load the Parameter from the current Command.
+ */
 public class ParameterListAdapter extends ArrayAdapter<Parameter> {
     ParameterListAdapter(@NonNull Context context, int resource) {
         super(context, resource);
         addAll(Command.currentCommand.parameters);
+    }
+
+    private NumberPicker getNumberPicker(final Parameter parameter) {
+        final Range range = parameter.range;
+        NumberPicker result = new NumberPicker(getContext());
+        result.setMinValue(0);
+        result.setMaxValue(range.getDisplayableValues().length - 1);
+        result.setDisplayedValues(range.getDisplayableValues());
+        result.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
+                int value = newValue * range.step + range.min;
+                Command.setParameterOnCurrentCommand(parameter.machineName, value);
+            }
+        });
+        return result;
+    }
+
+    private EditText getEditText(final Parameter parameter) {
+        EditText result = new EditText(getContext());
+        result.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Command.setParameterOnCurrentCommand(parameter.machineName, charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+        return result;
+    }
+
+    private Spinner getSpinner(final Parameter parameter) {
+        Spinner result = new Spinner(getContext());
+        result.setAdapter(parameter.getSpinnerOptions(getContext()));
+        result.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                for (Enumeration enumeration : parameter.enumerations)
+                    Command.setParameterOnCurrentCommand(parameter.humanName, enumeration.value);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+        result.setSelection(0);
+        return result;
     }
 
     @NonNull
@@ -43,58 +100,17 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
             if (frameLayout.getChildCount() == 0) {
                 switch (parameter.type) {
                     case IntType:
-                        Log.d("getView", "Adding NumberPicker");
-                        NumberPicker intTypeNumberPicker = new NumberPicker(getContext());
-                        intTypeNumberPicker.setMinValue(0);
-                        intTypeNumberPicker.setMaxValue(parameter.range.getDisplayableValues().length - 1);
-                        intTypeNumberPicker.setDisplayedValues(parameter.range.getDisplayableValues());
-                        intTypeNumberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-                            @Override
-                            public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
-                                int value = newValue * parameter.range.step + parameter.range.min;
-                                Command.setParameterOnCurrentCommand(parameter.machineName, value);
-                            }
-                        });
-                        frameLayout.addView(intTypeNumberPicker);
+                        frameLayout.addView(getNumberPicker(parameter));
                         Command.setParameterOnCurrentCommand(parameter.machineName, parameter.range.min);
                         break;
                     case StringType:
                         Log.d("getView", "Adding EditText");
-                        EditText stringTypeEditText = new EditText(getContext());
-                        stringTypeEditText.addTextChangedListener(new TextWatcher() {
-                            @Override
-                            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                            }
-
-                            @Override
-                            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                                Command.setParameterOnCurrentCommand(parameter.machineName, charSequence.toString());
-                            }
-
-                            @Override
-                            public void afterTextChanged(Editable editable) {
-                            }
-                        });
-                        frameLayout.addView(stringTypeEditText);
+                        frameLayout.addView(getEditText(parameter));
                         Command.setParameterOnCurrentCommand(parameter.machineName, "");
                         break;
                     case EnumType:
                         Log.d("getView", "EnumType");
-                        final Spinner spinner = new Spinner(getContext());
-                        spinner.setAdapter(parameter.getSpinnerOptions(getContext()));
-                        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                                for (Enumeration enumeration : parameter.enumerations)
-                                    Command.setParameterOnCurrentCommand(parameter.humanName, enumeration.value);
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> adapterView) {
-                            }
-                        });
-                        spinner.setSelection(0);
-                        frameLayout.addView(spinner);
+                        frameLayout.addView(getSpinner(parameter));
                         Command.setParameterOnCurrentCommand(parameter.machineName, parameter.enumerations[0].value);
                         break;
                     case DurationType:

@@ -9,13 +9,14 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 
 
 import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.R;
 
-
+/**
+ * This
+ */
 public class ParameterListFragment extends Fragment {
     public ParameterListFragment() {
     }
@@ -33,7 +34,6 @@ public class ParameterListFragment extends Fragment {
             container.removeAllViews();
         }
 
-
         return inflater.inflate(R.layout.fragment_parameter_list, container, false);
     }
 
@@ -42,19 +42,6 @@ public class ParameterListFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Command.executeCurrentCommand();
-                //View view1 = getView();
-                //RelativeLayout relativeLayout = view1.findViewById(R.id.parameter_relativeLayout);
-                /*if (relativeLayout != null) {
-                    ListView listView = relativeLayout.findViewById(R.id.parameter_listView);
-                    if (listView != null) {
-                        for (int i = 0; i < listView.getChildCount();i++)
-                        {
-                            View innerView = listView.getChildAt(i);
-                            Log.d("foundMore", "Found more");
-                        }
-                    }
-                }*/
-                //int i = 0;
             }
         });
     }

@@ -1,7 +1,6 @@
 package edu.uwplatt.projects1.spbmobile.Command.UIComponents;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +12,9 @@ import edu.uwplatt.projects1.spbmobile.Appliance;
 import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.R;
 
+/**
+ * This class is used to load the Commands from the current Appliance.
+ */
 public class CommandListAdapter extends ArrayAdapter<Command> {
 
     CommandListAdapter(@NonNull Context context, int resource) {
@@ -33,13 +35,8 @@ public class CommandListAdapter extends ArrayAdapter<Command> {
             convertView = layoutInflater.inflate(R.layout.command_list_item, container, false);
         }
 
-        Drawable drawable;
-        if (command != null) {
+        if (command != null)
             ((TextView) convertView.findViewById(R.id.command_name)).setText(command.humanName);
-            //((TextView) convertView.findViewById(R.id.appliance_status)).setText(appliance.getStatus());
-
-            //((TextView) convertView.findViewById(R.id.appliance_name)).setText(appliance.getName());
-        }
         return convertView;
     }
 }

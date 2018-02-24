@@ -1,14 +1,8 @@
 package edu.uwplatt.projects1.spbmobile;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.google.gson.Gson;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 import edu.uwplatt.projects1.spbmobile.Command.Command;
 
@@ -27,8 +21,7 @@ public class Appliance {
 
     private static String VersionNumber;
 
-    static void setVersionNumber(String versionNumber)
-    {
+    static void setVersionNumber(String versionNumber) {
         VersionNumber = versionNumber;
     }
 
@@ -53,8 +46,7 @@ public class Appliance {
         loadCommands();
     }
 
-    private void loadCommands()
-    {
+    private void loadCommands() {
         Gson gson = new Gson();
         String inputText = "[ { \"cmdName\": \"EchoCommand\", \"humanName\": \"Echo Command\", \"priority\": false, \"parameters\": [ { \"machineName\": \"echoText\", \"humanName\": \"Echo Text\", \"description\": \"Text that the device sends back to cloud.\", \"type\": \"string\", \"enumerations\": [], \"range\": {}, \"units\": \"\" } ], \"status\": { \"states\": [ { \"value\": 4, \"text\": \"Echoing\" } ] } }, { \"cmdName\": \"bakeCommand\", \"humanName\": \"Bake Command\", \"priority\": false, \"parameters\": [ { \"machineName\": \"temperature\", \"humanName\": \"Temperature\", \"description\": \"Temperature to bake at.\", \"type\": \"int\", \"enumerations\": [], \"range\": { \"min\": 100, \"max\": 600, \"step\": 5 }, \"units\": \"deg F\" }, { \"machineName\": \"mode\", \"humanName\": \"Oven Mode\", \"description\": \"\", \"priority\": false, \"type\": \"enum\", \"enumerations\": [ { \"value\": 1, \"name\": \"Bake\" }, { \"value\": 2, \"name\": \"Broil\" }, { \"value\": 3, \"name\": \"Bake (Convection)\" } ], \"range\": {}, \"units\": \"\" }, { \"machineName\": \"duration\", \"humanName\": \"Duration\", \"description\": \"Time to cook for.\", \"type\": \"duration\", \"enumerations\": [], \"range\": { \"min\": 0, \"max\": 86400, \"step\": 1 }, \"units\": \"\" } ], \"status\": { \"state\": [ { \"value\": 4, \"text\": \"Pre-Heating\" }, { \"value\": 5, \"text\": \"Bake\" }, { \"value\": 6, \"text\": \"Cooling\" } ], \"startTime\": 123 } }]";
         commands = gson.fromJson(inputText, Command[].class);

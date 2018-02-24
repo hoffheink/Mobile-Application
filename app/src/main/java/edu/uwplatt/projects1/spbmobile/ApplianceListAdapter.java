@@ -1,24 +1,15 @@
 package edu.uwplatt.projects1.spbmobile;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import edu.uwplatt.projects1.spbmobile.Command.Command;
-import edu.uwplatt.projects1.spbmobile.Command.UIComponents.CommandListFragment;
-
-import static android.app.PendingIntent.getActivity;
 
 public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
 

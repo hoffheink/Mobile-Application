@@ -12,7 +12,6 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.Command.UIComponents.CommandListFragment;
 
 
@@ -74,6 +73,4 @@ public class ApplianceListFragment extends Fragment {
             }
         });
     }
-
-    // TODO: Create method to respond to buttons, update argument and hook method into UI event
 }

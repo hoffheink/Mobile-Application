@@ -1,7 +1,6 @@
 package edu.uwplatt.projects1.spbmobile.Command.UIComponents;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,13 +10,14 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import edu.uwplatt.projects1.spbmobile.Appliance;
 import edu.uwplatt.projects1.spbmobile.Command.Command;
-import edu.uwplatt.projects1.spbmobile.Command.Parameter;
 import edu.uwplatt.projects1.spbmobile.R;
+
 import android.support.v4.app.Fragment;
 
-
+/**
+ * This class is used to display the list of Commands to the user.
+ */
 public class CommandListFragment extends Fragment {
 
     @Override
@@ -54,19 +54,13 @@ public class CommandListFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.wtf("onItemClick", "Item clicked");
-                Command command = (Command) listView.getItemAtPosition(i);
-                ParameterListFragment parameterListFragment = new ParameterListFragment();
-
-                Command.currentCommand = command;
-
-                FragmentManager fragmentManager = getFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.content_main, parameterListFragment, "newFragTag");
+                Log.d("onItemClick", "Item clicked in CommandListFragment");
+                Command.currentCommand = (Command) listView.getItemAtPosition(i);
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.content_main, new ParameterListFragment(), "parameterListFragment");
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }
         });
     }
-    // TODO: Create method to respond to buttons, update argument and hook method into UI event
 }

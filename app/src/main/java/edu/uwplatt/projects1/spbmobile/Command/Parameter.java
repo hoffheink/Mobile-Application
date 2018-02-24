@@ -5,12 +5,10 @@ import android.widget.ArrayAdapter;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Parameter {
-    //public static Parameter[] parametersForList;
     public String machineName;
     public String humanName;
     public String description;
