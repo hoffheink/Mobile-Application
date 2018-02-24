@@ -17,4 +17,5 @@
     <string name="title_activity_register_device">Register Device Activity</string>
 
     <string name="appVersion">2</string>
+    <string name="not_yet_implemented">Not yet implemented</string>
 </resources>

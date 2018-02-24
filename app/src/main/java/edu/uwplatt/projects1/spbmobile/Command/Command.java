@@ -3,9 +3,10 @@ package edu.uwplatt.projects1.spbmobile.Command;
 import edu.uwplatt.projects1.spbmobile.Appliance;
 
 public class Command {
-    String humanName;
+    public static Command[] commandsForList;
+    public String humanName;
     boolean priority;
-    Parameter[] parameters;
+    public Parameter[] parameters;
     State[] states;
     String cmdName;
     /**
