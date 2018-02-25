@@ -27,7 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-class CloudDatasource {
+import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+
+public class CloudDatasource {
     @SuppressLint("StaticFieldLeak")
     private static CloudDatasource ourInstance;
     @SuppressLint("StaticFieldLeak")
@@ -35,9 +37,9 @@ class CloudDatasource {
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
 
-    static List<Appliance> applianceList = new ArrayList<>();
+    public static List<Appliance> applianceList = new ArrayList<>();
 
-    static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account) {
+    public static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account) {
         if (ourInstance == null || !ourContext.equals(inContext)) {
             ourInstance = new CloudDatasource(inContext);
             ourContext = inContext;
@@ -52,7 +54,7 @@ class CloudDatasource {
         return ourInstance;
     }
 
-    void loadAppliances() {
+    public void loadAppliances() {
         Runnable getAppliancesRunnable = new GetAppliancesRunnable();
         Thread thread = new Thread(getAppliancesRunnable);
         thread.start();
@@ -131,7 +133,7 @@ class CloudDatasource {
         }
     }
 
-    String invoke(GoogleSignInAccount account, InvokeRequest request) {
+    public String invoke(GoogleSignInAccount account, InvokeRequest request) {
         try {
             addLoginsFromAccount(account);
             return new LambdaInvoker(request).execute().get();

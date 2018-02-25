@@ -1,4 +1,4 @@
-package edu.uwplatt.projects1.spbmobile;
+package edu.uwplatt.projects1.spbmobile.Appliance;
 
 import android.support.annotation.NonNull;
 
@@ -21,7 +21,7 @@ public class Appliance {
 
     private static String VersionNumber;
 
-    static void setVersionNumber(String versionNumber) {
+    public static void setVersionNumber(String versionNumber) {
         VersionNumber = versionNumber;
     }
 
@@ -39,7 +39,7 @@ public class Appliance {
      * @param inName the Appliances name.
      * @param inId   the Appliances id.
      */
-    Appliance(String inName, String inId) {
+    public Appliance(String inName, String inId) {
         name = inName;
         id = inId;
         status = "OK";
@@ -96,7 +96,7 @@ public class Appliance {
      * @return status.
      */
     @NonNull
-    String getStatus() {
+    public String getStatus() {
         return status;
     }
 
@@ -116,7 +116,7 @@ public class Appliance {
      * @return appliance type.
      */
     @NonNull
-    ApplianceType getApplianceType() {
+    public ApplianceType getApplianceType() {
         return applianceType;
     }
 
@@ -125,7 +125,7 @@ public class Appliance {
      *
      * @param inApplianceType the new appliance type.
      */
-    void setApplianceType(@NonNull ApplianceType inApplianceType) {
+    public void setApplianceType(@NonNull ApplianceType inApplianceType) {
         applianceType = inApplianceType;
     }
 }

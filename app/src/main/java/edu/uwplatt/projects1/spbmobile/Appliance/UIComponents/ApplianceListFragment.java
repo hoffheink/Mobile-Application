@@ -1,4 +1,4 @@
-package edu.uwplatt.projects1.spbmobile;
+package edu.uwplatt.projects1.spbmobile.Appliance.UIComponents;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,7 +12,10 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListAdapter;
 import edu.uwplatt.projects1.spbmobile.Command.UIComponents.CommandListFragment;
+import edu.uwplatt.projects1.spbmobile.R;
 
 
 /**
