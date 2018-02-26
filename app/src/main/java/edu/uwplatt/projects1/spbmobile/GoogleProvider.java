@@ -1,5 +1,6 @@
 package edu.uwplatt.projects1.spbmobile;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -13,7 +14,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 
 import java.util.concurrent.ExecutionException;
 
-
 /**
  * Maintains data objects and methods for using Google play services as an identity provider.
  */
@@ -21,12 +21,13 @@ public class GoogleProvider
 {
     private final String TAG = "GoogleProvider";
 
+    @SuppressLint("StaticFieldLeak")
     private static GoogleProvider ourInstance;
     private static Context applicationContext;
     private static GoogleSignInAccount account;
+    @SuppressLint("StaticFieldLeak")
     private static GoogleSignInClient googleSignInClient;
     private static GoogleSignInOptions gso;
-
 
     /**
      * Creates an instance of a GoogleProvider object.
@@ -34,7 +35,7 @@ public class GoogleProvider
      * @param active identity for the current UI activity that is being executed.
      * @return the instance of a GoogleProvider object.
      */
-    public static GoogleProvider getInstance(Context context, Activity active)
+    static GoogleProvider getInstance(Context context, Activity active)
     {
         if(ourInstance == null || context != applicationContext)
         {
@@ -51,7 +52,7 @@ public class GoogleProvider
      */
     private GoogleProvider(Context context, Activity active)
     {
-        this.applicationContext = context;
+        applicationContext = context;
         initializeGoogleClient(active);
     }
 
@@ -69,12 +70,11 @@ public class GoogleProvider
         googleSignInClient = GoogleSignIn.getClient(active, gso);
     }
 
-
     /**
      * Get currently authorized Google account that is signed in.
      * @return currently authorized Google account that is signed in.
      */
-    public GoogleSignInAccount getAccount()
+    GoogleSignInAccount getAccount()
     {
         return account;
     }
@@ -83,16 +83,16 @@ public class GoogleProvider
      * Set the currently logged in Google account.
      * @param account authorized Google account that is loged in.
      */
-    public void setGoogleAccount(GoogleSignInAccount account)
+    void setGoogleAccount(GoogleSignInAccount account)
     {
-        this.account = account;
+        GoogleProvider.account = account;
     }
 
     /**
      * Creates a login intent from Google that the user uses to authorize their account.
      * @return Google login intent.
      */
-    public Intent generateSignInIntent()
+    Intent generateSignInIntent()
     {
         return googleSignInClient.getSignInIntent();
     }
@@ -114,6 +114,7 @@ public class GoogleProvider
      * Asynchronous task that creates a controlled thread to connect to a Google Api
      * and attempt to login again.
      */
+    @SuppressLint("StaticFieldLeak")
     private class SilentLoginWithGoogle extends AsyncTask<Void, Void, GoogleSignInAccount>
     {
         /**
@@ -127,8 +128,7 @@ public class GoogleProvider
             try
             {
                 GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(applicationContext, gso);
-                GoogleSignInAccount googleSignInAccount = googleSignInClient.silentSignIn().getResult();
-                return googleSignInAccount;
+                return googleSignInClient.silentSignIn().getResult();
             }
             catch (Exception e)
             {
