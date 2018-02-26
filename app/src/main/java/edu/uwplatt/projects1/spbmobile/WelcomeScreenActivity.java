@@ -95,7 +95,6 @@ public class WelcomeScreenActivity extends AppCompatActivity {
     @SuppressLint("InlinedApi")
     private void show() {
         // Show the system bar
-
     }
 
 

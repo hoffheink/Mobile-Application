@@ -208,6 +208,7 @@ public class RegisterApplianceFragment extends Fragment {
                 invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
                 String response = CloudDatasource.getInstance(getActivity(), account).invoke(account, invokeRequest);
                 Log.d("RegisterDeviceWithAWS", "response: " + response);
+
                 if (response != null) {
                     if (!response.contains("errorMessage")) {
                         appliance = new Appliance(deviceName, deviceName);
@@ -217,6 +218,8 @@ public class RegisterApplianceFragment extends Fragment {
             } catch (Exception e) {
                 Log.e("RegisterDeviceWithAWS", e.getMessage(), e);
             }
+
+            CloudDatasource.getInstance(getActivity(), account).shadowUpdate();
         }
     }
 
@@ -234,6 +237,7 @@ public class RegisterApplianceFragment extends Fragment {
             if (!usedNames.contains(result.SSID)) {
                 usedNames.add(result.SSID);
                 HashMap item = new HashMap<String, String>();
+
                 item.put(SSID_KEY, result.SSID);
                 networkList.add(item);
             }
@@ -285,40 +289,6 @@ public class RegisterApplianceFragment extends Fragment {
     };
 
     private static String thingName;
-
-
-    //WORK IN PROGRESS
-    public void sendCommand(String thingName, String pin) {
-        //Create Shadow JSON
-        JSONObject shadowParams = new JSONObject();
-
-        //Payload
-        String payload = "{\"state\": {\"reported\": {\"deviceName\":\"" + deviceName + "\",\"pin\":\"" + pin + "\",\"mobileDeviceType\":\"" + deviceType + "\",\"mobileDeviceVersion\":\"" + deviceVersion + "\"}}}";
-
-        //Create JSON
-        //Bad try catch
-        try {
-            shadowParams.put("payload", payload);
-            shadowParams.put("thingName", thingName);
-        }
-        catch(Exception e) {
-            Log.d("JSON_CREATION", e.toString());
-        }
-
-        AWSIotDataClient iotDataClient = new AWSIotDataClient(CloudDatasource.getInstance(getContext(), MainActivity.account).credentialsProvider);
-
-        //Create a shadow update request
-        UpdateThingShadowRequest updateThingShadowRequest = new UpdateThingShadowRequest();
-
-        //Bad try catch
-        try {
-            updateThingShadowRequest.setPayload(ByteBuffer.wrap(shadowParams.toString().getBytes("UTF-8")));
-            iotDataClient.updateThingShadow(updateThingShadowRequest);
-        }
-        catch(Exception e) {
-            Log.d("SHADOW_UPDATE", e.toString());
-        }
-    }
 
     private void connectTo(int index) {
         selectedNetwork = filteredResults.get(index);

@@ -124,4 +124,9 @@ class CloudDatasource {
         }
         return new String(bytes, charset);
     }
+
+    public void shadowUpdate() {
+        AwsIotShadowCommand cmd = new AwsIotShadowCommand(credentialsProvider);
+        cmd.updateShadow("adam", "toaster","2222", "test", "true");
+    }
 }
