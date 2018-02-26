@@ -26,23 +26,35 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 
+
 public class CloudDatasource {
+    private static final String US_EAST_1_IdentityPoolID = "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
+    private static final String US_EAST_2_IdentityPoolID = "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878";
     @SuppressLint("StaticFieldLeak")
     private static CloudDatasource ourInstance;
     @SuppressLint("StaticFieldLeak")
     private static Context ourContext;
+    @SuppressLint("StaticFieldLeak")
+    private static RegionEnum ourRegion;
+
+    @SuppressWarnings("all")
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
 
-    public static List<Appliance> applianceList = new ArrayList<>();
+    public enum RegionEnum {
+        US_EAST_1,
+        US_EAST_2
+    }
 
-    public static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account) {
-        if (ourInstance == null || !ourContext.equals(inContext)) {
-            ourInstance = new CloudDatasource(inContext);
+    static List<Appliance> applianceList = new ArrayList<>();
+
+    static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account, RegionEnum inRegion) {
+        if (ourInstance == null || !ourContext.equals(inContext) || !ourRegion.equals(inRegion)) {
+            ourInstance = new CloudDatasource(inContext, inRegion);
             ourContext = inContext;
+            ourRegion = inRegion;
         }
         addLoginsFromAccount(account);
         LoadCredentialsTask loadCredentialsTask = new LoadCredentialsTask();
@@ -60,12 +72,17 @@ public class CloudDatasource {
         thread.start();
     }
 
-    private CloudDatasource(@NonNull Context inContext) {
-        credentialsProvider = new CognitoCachingCredentialsProvider(
-                inContext,
-                "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878", // Identity pool ID
-                Regions.US_EAST_2 // Region
-        );
+    private CloudDatasource(@NonNull Context inContext, @NonNull RegionEnum inRegion) {
+        switch (inRegion) {
+            case US_EAST_1:
+                credentialsProvider = new CognitoCachingCredentialsProvider(inContext,
+                        US_EAST_1_IdentityPoolID, Regions.US_EAST_1);
+                break;
+            case US_EAST_2:
+                credentialsProvider = new CognitoCachingCredentialsProvider(inContext,
+                        US_EAST_2_IdentityPoolID, Regions.US_EAST_2);
+                break;
+        }
     }
 
     private AWSSessionCredentials getCredentials() {
@@ -84,10 +101,17 @@ public class CloudDatasource {
             AWSSessionCredentials credentials = ourInstance.getCredentials();
             if (credentials != null) {
                 AWSIot awsIot = new AWSIotClient(ourInstance.credentialsProvider);
-                awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
+                switch (ourRegion) {
+                    case US_EAST_1:
+                        awsIot.setRegion(Region.getRegion(Regions.US_EAST_1));
+                        break;
+                    case US_EAST_2:
+                        awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
+                        break;
+                }
                 ListPrincipalPoliciesRequest listPrincipalPoliciesRequest = new ListPrincipalPoliciesRequest();
                 listPrincipalPoliciesRequest.setPrincipal(ourInstance.credentialsProvider.getIdentityId());
-                Log.d("cognitoIDID", ourInstance.credentialsProvider.getIdentityId());
+                Log.i("GetAppliancesRunnable", "CognitoID: " + ourInstance.credentialsProvider.getIdentityId());
 
                 ListThingsRequest listThingsRequest = new ListThingsRequest();
                 listThingsRequest.setRequestCredentials(credentials);
@@ -113,7 +137,7 @@ public class CloudDatasource {
                         }
                     }
                 } catch (Exception e) {
-                    Log.d("GetAppliancesRunnable", e.getMessage(), e);
+                    Log.e("GetAppliancesRunnable", e.getMessage(), e);
                 }
             }
             applianceList = newApplianceList;
@@ -123,11 +147,11 @@ public class CloudDatasource {
     private static class LoadCredentialsTask extends AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> {
         @Override
         protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
-            Log.d("task", ourInstance.credentialsProvider.getLogins().toString());
+            Log.i("LoadCredentialsTask", ourInstance.credentialsProvider.getLogins().toString());
             try {
                 ourInstance.credentialsProvider.refresh();
             } catch (Exception e) {
-                Log.d("LoadCredentialsTask", "Exception: " + e.getMessage(), e);
+                Log.e("LoadCredentialsTask", "Exception: " + e.getMessage(), e);
             }
             return ourInstance.credentialsProvider;
         }
@@ -138,9 +162,9 @@ public class CloudDatasource {
             addLoginsFromAccount(account);
             return new LambdaInvoker(request).execute().get();
         } catch (InterruptedException e) {
-            Log.d("invoke", "InterruptedException: " + e.getMessage(), e);
+            Log.e("invoke", "InterruptedException: " + e.getMessage(), e);
         } catch (ExecutionException e) {
-            Log.d("invoke", "ExecutionException: " + e.getMessage(), e);
+            Log.e("invoke", "ExecutionException: " + e.getMessage(), e);
         }
         return null;
     }
@@ -149,7 +173,7 @@ public class CloudDatasource {
         HashMap<String, String> logins = new HashMap<>();
 
         String accountID = account.getIdToken();
-        Log.d("onCreate", "accountID: " + accountID);
+        Log.i("addLoginsFromAccount", "accountID: " + accountID);
         logins.put("accounts.google.com", accountID);
         ourInstance.credentialsProvider.setLogins(logins);
     }
@@ -166,17 +190,23 @@ public class CloudDatasource {
         @Override
         protected String doInBackground(Void... voids) {
             AWSLambdaClient client = new AWSLambdaClient(credentialsProvider);
-            client.setRegion(Region.getRegion(Regions.US_EAST_2));
+            switch (ourRegion) {
+                case US_EAST_1:
+                    client.setRegion(Region.getRegion(Regions.US_EAST_1));
+                    break;
+                case US_EAST_2:
+                    client.setRegion(Region.getRegion(Regions.US_EAST_2));
+                    break;
+            }
             try {
                 ByteBuffer buffer = client.invoke(invokeRequest).getPayload();
                 String response = byteBufferToString(buffer, Charset.forName("UTF-8"));
-                Log.e("Tag", response, null);
+                Log.i("LambdaInvoker", response, null);
                 return response;
             } catch (Exception e) {
-                Log.e("Tag", "Failed to invoke AWS: " + e.getMessage(), e);
+                Log.e("LambdaInvoker", "Failed to invoke AWS: " + e.getMessage(), e);
                 return null;
             }
-
         }
     }
 

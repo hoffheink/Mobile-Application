@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity
     protected DrawerLayout mDrawer;
     public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
+    public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +66,6 @@ public class MainActivity extends AppCompatActivity
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
         mDrawer = drawer;
     }
 
@@ -92,14 +92,13 @@ public class MainActivity extends AppCompatActivity
         if (account == null)
             showWelcomeScreen();
         else {
-            CloudDatasource.getInstance(this, account).loadAppliances(); //Loads appliance list
+            CloudDatasource.getInstance(this, account, region).loadAppliances(); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
             ((TextView) header.findViewById(R.id.user_name)).setText(account.getDisplayName());
             ((TextView) header.findViewById(R.id.user_email)).setText(account.getEmail());
         }
     }
-
 
     @Override
     public void onBackPressed() {
@@ -125,12 +124,7 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -213,5 +207,4 @@ public class MainActivity extends AppCompatActivity
             updateAccountInformation();
         }
     }
-
 }
