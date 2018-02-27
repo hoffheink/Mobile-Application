@@ -4,8 +4,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
@@ -29,6 +27,10 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment;
+import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceFragment;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     protected DrawerLayout mDrawer;
@@ -43,14 +45,14 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.register_appliance_toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        /*FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -79,7 +81,10 @@ public class MainActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
 
+        Appliance.setVersionNumber(getString(R.string.appVersion));
         updateAccountInformation();
+        Appliance nick = new Appliance("nick", "123456");
+        int i = 7;
     }
 
     private void updateAccountInformation() {

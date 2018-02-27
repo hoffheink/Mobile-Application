@@ -1,4 +1,4 @@
-package edu.uwplatt.projects1.spbmobile;
+package edu.uwplatt.projects1.spbmobile.Appliance.UIComponents;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -68,6 +68,11 @@ import java.util.Set;
 import static edu.uwplatt.projects1.spbmobile.CloudDatasource.RegionEnum.US_EAST_1;
 import static edu.uwplatt.projects1.spbmobile.CloudDatasource.RegionEnum.US_EAST_2;
 import static edu.uwplatt.projects1.spbmobile.MainActivity.region;
+
+import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+import edu.uwplatt.projects1.spbmobile.CloudDatasource;
+import edu.uwplatt.projects1.spbmobile.MainActivity;
+import edu.uwplatt.projects1.spbmobile.R;
 
 public class RegisterApplianceFragment extends Fragment {
 

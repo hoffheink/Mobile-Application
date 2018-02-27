@@ -36,15 +36,5 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uwplatt.projects1.spbmobile.MainActivity" />
         </activity>
-        <activity
-            android:name=".RegisterApplianceFragment"
-            android:label="@string/title_activity_register_device"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.uwplatt.projects1.spbmobile.MainActivity" />
-        </activity>
     </application>
-
 </manifest>

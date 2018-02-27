@@ -27,7 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-class CloudDatasource {
+import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+
+
+public class CloudDatasource {
     private static final String US_EAST_1_IdentityPoolID = "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
     private static final String US_EAST_2_IdentityPoolID = "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878";
     @SuppressLint("StaticFieldLeak")
@@ -46,9 +49,9 @@ class CloudDatasource {
         US_EAST_2
     }
 
-    static List<Appliance> applianceList = new ArrayList<>();
+    public static List<Appliance> applianceList = new ArrayList<>();
 
-    static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account, RegionEnum inRegion) {
+    public static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account, RegionEnum inRegion) {
         if (ourInstance == null || !ourContext.equals(inContext) || !ourRegion.equals(inRegion)) {
             ourInstance = new CloudDatasource(inContext, inRegion);
             ourContext = inContext;
@@ -64,7 +67,7 @@ class CloudDatasource {
         return ourInstance;
     }
 
-    void loadAppliances() {
+    public void loadAppliances() {
         Runnable getAppliancesRunnable = new GetAppliancesRunnable();
         Thread thread = new Thread(getAppliancesRunnable);
         thread.start();
@@ -115,24 +118,24 @@ class CloudDatasource {
                 listThingsRequest.setRequestCredentials(credentials);
 
                 try {
-                    List<String> thingNames = new ArrayList<>();
+                    /*List<String> thingNames = new ArrayList<>();
                     for (Policy policy : awsIot.listPrincipalPolicies(listPrincipalPoliciesRequest).getPolicies()) {
                         String policyName = policy.getPolicyName().replace("app-", "");
                         thingNames.add(policyName);
-                    }
+                    }*/
                     for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
-                        if (thingNames.contains(o.getThingName())) {
-                            Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
-                            String thingType = o.getThingTypeName();
-                            if (thingType != null) {
-                                switch (o.getThingTypeName()) {
-                                    case "coffee-maker":
-                                        appliance.setApplianceType(Appliance.ApplianceType.CoffeeMaker);
-                                        break;
-                                }
+                        //if (thingNames.contains(o.getThingName())) {
+                        Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
+                        String thingType = o.getThingTypeName();
+                        if (thingType != null) {
+                            switch (o.getThingTypeName()) {
+                                case "coffee-maker":
+                                    appliance.setApplianceType(Appliance.ApplianceType.CoffeeMaker);
+                                    break;
                             }
-                            newApplianceList.add(appliance);
                         }
+                        newApplianceList.add(appliance);
+                        //}
                     }
                 } catch (Exception e) {
                     Log.e("GetAppliancesRunnable", e.getMessage(), e);
@@ -155,7 +158,7 @@ class CloudDatasource {
         }
     }
 
-    String invoke(GoogleSignInAccount account, InvokeRequest request) {
+    public String invoke(GoogleSignInAccount account, InvokeRequest request) {
         try {
             addLoginsFromAccount(account);
             return new LambdaInvoker(request).execute().get();

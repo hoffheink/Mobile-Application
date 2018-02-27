@@ -2,10 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment">
+    tools:context="edu.uwplatt.projects1.spbmobile.Command.UIComponents.CommandListFragment">
 
     <ListView
-        android:id="@+id/appliance_list"
+        android:id="@+id/command_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 </FrameLayout>

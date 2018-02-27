@@ -1,0 +1,29 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="edu.uwplatt.projects1.spbmobile.Command.UIComponents.ParameterListFragment">
+
+    <RelativeLayout
+        android:id="@+id/parameter_relativeLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal">
+
+        <ListView
+            android:id="@+id/parameter_listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageButton
+            android:id="@+id/parameter_execute_imageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/parameter_listView"
+            android:layout_alignRight="@id/parameter_listView"
+            app:srcCompat="@drawable/play2" />
+
+    </RelativeLayout>
+
+</FrameLayout>
