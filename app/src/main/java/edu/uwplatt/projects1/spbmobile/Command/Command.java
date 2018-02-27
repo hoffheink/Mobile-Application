@@ -16,7 +16,7 @@ public class Command {
     }
 
     /**
-     * Sets the parameters on th current command.
+     * Sets the parameters on the current command.
      * @param machineName this is the name that the argument should be sent as.
      * @param value the value being inputted.
      */
