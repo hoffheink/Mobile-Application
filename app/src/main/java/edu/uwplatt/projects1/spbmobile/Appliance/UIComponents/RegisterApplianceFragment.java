@@ -18,11 +18,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -34,12 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amazonaws.services.lambda.model.InvokeRequest;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 import java.net.URL;
@@ -56,6 +48,7 @@ import static edu.uwplatt.projects1.spbmobile.MainActivity.region;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
+import edu.uwplatt.projects1.spbmobile.GoogleProvider;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
 
@@ -155,7 +148,7 @@ public class RegisterApplianceFragment extends Fragment {
         public void run() {
             sendNetworkInfo(networkName, networkPassword);
             if (appliance != null) {
-                CloudDatasource.getInstance(getContext(), MainActivity.account.getAccount(), region).loadAppliances(); //Reloading the appliance list
+                CloudDatasource.getInstance(getContext(), GoogleProvider.getAccount(), region).loadAppliances(); //Reloading the appliance list
             }
         }
     }
@@ -175,7 +168,7 @@ public class RegisterApplianceFragment extends Fragment {
             token = inputScanner.next();
             Log.i("sendNetworkInfo", "Token is: " + token);
             //TODO: Fix this damn name!
-            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account.getAccount(), thingName, token, getContext());
+            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(GoogleProvider.getAccount(), thingName, token, getContext());
             for (int count = 0; appliance == null && count < 10; count++) {
                 registrationTask.run();
                 Thread.sleep(5000);

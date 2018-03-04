@@ -17,14 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment;
@@ -33,7 +27,6 @@ import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceF
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     protected DrawerLayout mDrawer;
-    public static GoogleProvider account;
     private static final int RC_WELCOME_SCREEN = 9002;
     public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_1;
 
@@ -87,17 +80,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateAccountInformation() {
-        account =  GoogleProvider.getInstance(this, this);
-        account.getLastSignedIn(this);
+        GoogleProvider.getLastSignedIn(this);
 
-        if (account.getAccount() == null)
+        if (GoogleProvider.getAccount() == null)
             showWelcomeScreen();
         else {
-            CloudDatasource.getInstance(this, account.getAccount(), region).loadAppliances(); //Loads appliance list
+            CloudDatasource.getInstance(this, GoogleProvider.getAccount(), region).loadAppliances(); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
-            ((TextView) header.findViewById(R.id.user_name)).setText(account.getDispName());
-            ((TextView) header.findViewById(R.id.user_email)).setText(account.getEmail());
+            ((TextView) header.findViewById(R.id.user_name)).setText(GoogleProvider.getDispName());
+            ((TextView) header.findViewById(R.id.user_email)).setText(GoogleProvider.getEmail());
         }
     }
 
@@ -155,7 +147,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_invoke_aws) {
 
         } else if (id == R.id.nav_logout) {
-            account.signOut(this);
+            GoogleProvider.signOut(this);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

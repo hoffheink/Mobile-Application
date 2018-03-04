@@ -77,7 +77,7 @@ public class GoogleProvider
      * Get currently authorized Google account that is signed in.
      * @return currently authorized Google account that is signed in.
      */
-    public GoogleSignInAccount getAccount()
+    public static GoogleSignInAccount getAccount()
     {
         return account;
     }
@@ -117,7 +117,7 @@ public class GoogleProvider
      * Signs out of activity
      *
      */
-    public void signOut(Activity activity) {
+    public static void signOut(Activity activity) {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(applicationContext.getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -141,7 +141,7 @@ public class GoogleProvider
      * Gets the account of the last signed in
      *
      */
-    public void getLastSignedIn(Context context) {
+    public static void getLastSignedIn(Context context) {
         account = GoogleSignIn.getLastSignedInAccount(context);
     }
 
@@ -149,7 +149,7 @@ public class GoogleProvider
      * Gets the account display name
      *
      */
-    public String getDispName() {
+    public static String getDispName() {
         return account.getDisplayName();
     }
 
@@ -157,7 +157,7 @@ public class GoogleProvider
      * Gets the account email
      *
      */
-    public String getEmail() {
+    public static String getEmail() {
         return account.getEmail();
     }
 
