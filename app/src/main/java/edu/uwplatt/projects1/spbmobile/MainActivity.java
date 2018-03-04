@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity
     protected DrawerLayout mDrawer;
     public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
-    public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_2;
+    public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
