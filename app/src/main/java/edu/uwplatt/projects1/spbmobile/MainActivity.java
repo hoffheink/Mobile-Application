@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -34,7 +33,7 @@ import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceF
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     protected DrawerLayout mDrawer;
-    public static GoogleSignInAccount account;
+    public static GoogleProvider account;
     private static final int RC_WELCOME_SCREEN = 9002;
     public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_2;
 
@@ -88,14 +87,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateAccountInformation() {
-        account = GoogleSignIn.getLastSignedInAccount(this);
-        if (account == null)
+        account =  GoogleProvider.getInstance(this, this);
+        account.getLastSignedIn(this);
+
+        if (account.getAccount() == null)
             showWelcomeScreen();
         else {
-            CloudDatasource.getInstance(this, account, region).loadAppliances(); //Loads appliance list
+            CloudDatasource.getInstance(this, account.getAccount(), region).loadAppliances(); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
-            ((TextView) header.findViewById(R.id.user_name)).setText(account.getDisplayName());
+            ((TextView) header.findViewById(R.id.user_name)).setText(account.getDispName());
             ((TextView) header.findViewById(R.id.user_email)).setText(account.getEmail());
         }
     }

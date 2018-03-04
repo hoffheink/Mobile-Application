@@ -74,7 +74,7 @@ public class GoogleProvider
      * Get currently authorized Google account that is signed in.
      * @return currently authorized Google account that is signed in.
      */
-    GoogleSignInAccount getAccount()
+    public GoogleSignInAccount getAccount()
     {
         return account;
     }
@@ -108,6 +108,30 @@ public class GoogleProvider
     {
         GoogleProvider.SilentLoginWithGoogle silentLoginWithGoogle = new GoogleProvider.SilentLoginWithGoogle();
         return silentLoginWithGoogle.execute().get();
+    }
+
+    /**
+     * Gets the account of the last signed in
+     *
+     */
+    public void getLastSignedIn(Context context) {
+        account = GoogleSignIn.getLastSignedInAccount(context);
+    }
+
+    /**
+     * Gets the account of the last signed in
+     *
+     */
+    public String getDispName() {
+        return account.getDisplayName();
+    }
+
+    /**
+     * Gets the account of the last signed in
+     *
+     */
+    public String getEmail() {
+        return account.getEmail();
     }
 
     /**

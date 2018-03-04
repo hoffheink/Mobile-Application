@@ -155,7 +155,7 @@ public class RegisterApplianceFragment extends Fragment {
         public void run() {
             sendNetworkInfo(networkName, networkPassword);
             if (appliance != null) {
-                CloudDatasource.getInstance(getContext(), MainActivity.account, region).loadAppliances(); //Reloading the appliance list
+                CloudDatasource.getInstance(getContext(), MainActivity.account.getAccount(), region).loadAppliances(); //Reloading the appliance list
             }
         }
     }
@@ -175,7 +175,7 @@ public class RegisterApplianceFragment extends Fragment {
             token = inputScanner.next();
             Log.i("sendNetworkInfo", "Token is: " + token);
             //TODO: Fix this damn name!
-            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token, getContext());
+            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account.getAccount(), thingName, token, getContext());
             for (int count = 0; appliance == null && count < 10; count++) {
                 registrationTask.run();
                 Thread.sleep(5000);
