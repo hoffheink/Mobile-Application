@@ -5,12 +5,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.concurrent.ExecutionException;
 
@@ -111,6 +114,30 @@ public class GoogleProvider
     }
 
     /**
+     * Signs out of activity
+     *
+     */
+    public void signOut(Activity activity) {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(applicationContext.getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(activity, gso);
+
+        mGoogleSignInClient.signOut().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+                homeIntent.addCategory(Intent.CATEGORY_HOME);
+                homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                applicationContext.startActivity(homeIntent);
+            }
+        });
+    }
+
+    /**
      * Gets the account of the last signed in
      *
      */
@@ -119,7 +146,7 @@ public class GoogleProvider
     }
 
     /**
-     * Gets the account of the last signed in
+     * Gets the account display name
      *
      */
     public String getDispName() {
@@ -127,7 +154,7 @@ public class GoogleProvider
     }
 
     /**
-     * Gets the account of the last signed in
+     * Gets the account email
      *
      */
     public String getEmail() {
