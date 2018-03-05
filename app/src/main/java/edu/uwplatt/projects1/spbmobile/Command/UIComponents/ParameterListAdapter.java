@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -84,6 +86,11 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         return result;
     }
 
+    private DurationPicker getDurationPicker(Parameter parameter) {
+        DurationPicker result = new DurationPicker(getContext());
+        return result;
+    }
+
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup container) {
@@ -115,6 +122,7 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
                         break;
                     case DurationType:
                         Log.d("getView", "DurationType");
+                        frameLayout.addView(getDurationPicker(parameter));
                         TextView durationTypeTextView = new TextView(getContext());
                         durationTypeTextView.setText(R.string.not_yet_implemented);
                         frameLayout.addView(durationTypeTextView);
@@ -124,5 +132,31 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
             ((TextView) convertView.findViewById(R.id.parameter_name_textView)).setText(parameter.humanName);
         }
         return convertView;
+    }
+
+
+
+    private class DurationPicker extends RelativeLayout {
+        private NumberPicker hours;
+        private NumberPicker minutes;
+        private NumberPicker seconds;
+
+        /**
+         * The maximum time in seconds
+         */
+        private int maxTime = 3600;
+
+        public DurationPicker(Context context) {
+            super(context);
+            hours = new NumberPicker(context);
+            minutes = new NumberPicker(context);
+            seconds = new NumberPicker(context);
+            LayoutParams layoutParams = new LayoutParams()
+            hours.setLayoutParams();
+            this.addView(hours);
+            this.addView(minutes);
+            this.addView(seconds);
+        }
+
     }
 }
