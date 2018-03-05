@@ -35,9 +35,7 @@ public class AwsIotShadowClient
     public static AwsIotShadowClient getInstance(@NotNull CognitoCachingCredentialsProvider credentials)
     {
         if(ourInstance == null)
-        {
             ourInstance = new AwsIotShadowClient(credentials);
-        }
         return ourInstance;
     }
 
