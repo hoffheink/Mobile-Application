@@ -21,15 +21,32 @@ public class AwsIotShadowClient
     private static final String TAG = AwsIotShadowClient.class.getCanonicalName();
     private static final String customerSpecificEP = "a121odz0gmuc20.iot.us-east-1.amazonaws.com";
 
+    private static AwsIotShadowClient ourInstance;
+
     CognitoCachingCredentialsProvider credentialsProvider;
     AWSIotDataClient awsIotDataClient;
+
+    /**
+     * Creates an instance of the AwsIotShadowClient is there is no instance, otherwise
+     * it returns the instance of a AwsShadowClient.
+     * @param credentials credentials provided by the AWS cognito authentication.
+     * @return the instance of AwsShadowClient.
+     */
+    public static AwsIotShadowClient getInstance(@NotNull CognitoCachingCredentialsProvider credentials)
+    {
+        if(ourInstance == null)
+        {
+            ourInstance = new AwsIotShadowClient(credentials);
+        }
+        return ourInstance;
+    }
 
 
     /**
      * Constructor used to initialize a AwsIotShadowClient.
      * @param credentials credentials provided by the AWS cognito authentication.
      */
-    public AwsIotShadowClient(@NotNull CognitoCachingCredentialsProvider credentials)
+    private AwsIotShadowClient(@NotNull CognitoCachingCredentialsProvider credentials)
     {
         updateShadowAuthentication(credentials);
     }
