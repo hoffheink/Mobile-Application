@@ -14,20 +14,26 @@ import com.amazonaws.services.iot.AWSIot;
 import com.amazonaws.services.iot.AWSIotClient;
 import com.amazonaws.services.iot.model.ListPrincipalPoliciesRequest;
 import com.amazonaws.services.iot.model.ListThingsRequest;
-import com.amazonaws.services.iot.model.Policy;
 import com.amazonaws.services.iot.model.ThingAttribute;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
 
 
 public class CloudDatasource {
@@ -42,7 +48,15 @@ public class CloudDatasource {
 
     @SuppressWarnings("all")
     @NonNull
-    private CognitoCachingCredentialsProvider credentialsProvider;
+    public CognitoCachingCredentialsProvider credentialsProvider;
+
+
+    public static String getUTCTime(@NotNull Date date)
+    {
+        SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T' HH:mm:ss.SSS", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat.format(date);
+    }
 
     public enum RegionEnum {
         US_EAST_1,
@@ -223,7 +237,7 @@ public class CloudDatasource {
     }
 
     public void shadowUpdate() {
-        AwsIotShadowCommand cmd = new AwsIotShadowCommand(credentialsProvider);
-        cmd.updateShadow("adam", "toaster","2222", "test", "true");
+        AwsIotShadowClient cmd = new AwsIotShadowClient(credentialsProvider);
+        //cmd.updateShadow("adam", "toaster","2222", "test", "true");
     }
 }
