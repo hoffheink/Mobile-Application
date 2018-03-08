@@ -30,6 +30,7 @@ public class Appliance {
      */
     public enum ApplianceType {
         CoffeeMaker,
+        Test,
         Unknown
     }
 

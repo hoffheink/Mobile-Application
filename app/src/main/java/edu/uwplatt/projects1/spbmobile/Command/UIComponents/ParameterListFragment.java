@@ -41,7 +41,7 @@ public class ParameterListFragment extends Fragment {
         executeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Command.executeCurrentCommand();
+                Command.executeCurrentCommand(getContext());
             }
         });
     }

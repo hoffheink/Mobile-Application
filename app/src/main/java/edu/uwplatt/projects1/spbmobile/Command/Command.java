@@ -1,5 +1,16 @@
 package edu.uwplatt.projects1.spbmobile.Command;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
+
+import com.google.gson.Gson;
+
+import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+import edu.uwplatt.projects1.spbmobile.CloudDatasource;
+import edu.uwplatt.projects1.spbmobile.MainActivity;
+import edu.uwplatt.projects1.spbmobile.R;
+import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
+
 /**
  * This class is used to model Commands.
  */
@@ -11,8 +22,12 @@ public class Command {
     State[] states;
     String cmdName;
 
-    public static void executeCurrentCommand() {
-
+    public static void executeCurrentCommand(@NonNull Context context)
+    {
+        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,MainActivity.account,
+                MainActivity.region).credentialsProvider).updateCommandShadow(Appliance.currentAppliance.getName(),
+                Appliance.currentAppliance.getApplianceType().toString(),
+                context.getString(R.string.appVersion), "LED", "ON");
     }
 
     /**

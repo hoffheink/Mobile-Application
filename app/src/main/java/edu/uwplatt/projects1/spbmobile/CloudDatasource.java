@@ -146,6 +146,9 @@ public class CloudDatasource {
                                 case "coffee-maker":
                                     appliance.setApplianceType(Appliance.ApplianceType.CoffeeMaker);
                                     break;
+                                case "test":
+                                    appliance.setApplianceType(Appliance.ApplianceType.Test);
+                                    break;
                             }
                         }
                         newApplianceList.add(appliance);
@@ -237,7 +240,7 @@ public class CloudDatasource {
     }
 
     public void shadowUpdate() {
-        AwsIotShadowClient cmd = new AwsIotShadowClient(credentialsProvider);
+        AwsIotShadowClient cmd = AwsIotShadowClient.getInstance(credentialsProvider);
         //cmd.updateShadow("adam", "toaster","2222", "test", "true");
     }
 }

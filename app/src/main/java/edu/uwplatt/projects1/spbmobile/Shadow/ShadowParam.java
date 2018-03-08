@@ -20,7 +20,7 @@ public class ShadowParam
     private final String DEV_NAME = "deviceName";
     private final String DEV_TYPE = "mobileDeviceType";
     private final String DEV_VERSION = "mobileDeviceVersion";
-    private final String DESIRED_STATE = "desired";
+    private final String DESIRED_STATE = "state";
     private final String UTC_TIME = "utcSendTime";
 
 

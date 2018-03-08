@@ -71,7 +71,7 @@ public class AwsIotShadowClient
      */
     public void updateCommandShadow(String deviceName, String deviceType, String deviceVersion, String command, String stateChange)
     {
-        getShadow(deviceName);
+        //getShadow(deviceName);
         ShadowParam sp = new ShadowParam();
         String payload = sp.armCommandParams(deviceName, deviceType, deviceVersion, command, stateChange);
         UpdateShadowTask updateShadowTask = new UpdateShadowTask(deviceName, payload, credentialsProvider.getCredentials());
