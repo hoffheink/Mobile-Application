@@ -56,6 +56,7 @@ public class GoogleProvider
     private GoogleProvider(Context context, Activity active)
     {
         applicationContext = context;
+        googleSignInClient = GoogleSignIn.getClient(active, gso);
         initializeGoogleClient(active);
 
     }
@@ -120,7 +121,6 @@ public class GoogleProvider
      */
     public static void signOut(Activity activity) {
         // Build a GoogleSignInClient with the options specified by gso.
-        googleSignInClient = GoogleSignIn.getClient(activity, gso);
 
         googleSignInClient.signOut().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
             @Override
