@@ -133,10 +133,10 @@ public class GoogleProvider
     }
 
     /**
-     * Gets the account of the last signed in
+     * Sets the account to the last signed in
      *
      */
-    public static void getLastSignedIn(Context context) {
+    public static void setAccountToLastSignedIn(Context context) {
         account = GoogleSignIn.getLastSignedInAccount(context);
     }
 

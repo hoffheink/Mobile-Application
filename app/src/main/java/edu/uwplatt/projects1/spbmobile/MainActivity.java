@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateAccountInformation() {
-        GoogleProvider.getLastSignedIn(this);
+        GoogleProvider.setAccountToLastSignedIn(this);
 
         if (GoogleProvider.getAccount() == null)
             showWelcomeScreen();
