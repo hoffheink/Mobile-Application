@@ -57,6 +57,7 @@ public class GoogleProvider
     {
         applicationContext = context;
         initializeGoogleClient(active);
+
     }
 
     /**
@@ -118,15 +119,10 @@ public class GoogleProvider
      *
      */
     public static void signOut(Activity activity) {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(applicationContext.getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
         // Build a GoogleSignInClient with the options specified by gso.
-        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(activity, gso);
+        googleSignInClient = GoogleSignIn.getClient(activity, gso);
 
-        mGoogleSignInClient.signOut().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+        googleSignInClient.signOut().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Intent homeIntent = new Intent(Intent.ACTION_MAIN);
