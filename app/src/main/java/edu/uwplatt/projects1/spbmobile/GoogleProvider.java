@@ -56,7 +56,6 @@ public class GoogleProvider
     private GoogleProvider(Context context, Activity active)
     {
         applicationContext = context;
-        googleSignInClient = GoogleSignIn.getClient(active, gso);
         initializeGoogleClient(active);
 
     }
