@@ -22,12 +22,15 @@ public class Command {
     State[] states;
     String cmdName;
 
+    static boolean onOff = true;
+
     public static void executeCurrentCommand(@NonNull Context context)
     {
         AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,MainActivity.account,
                 MainActivity.region).credentialsProvider).updateCommandShadow(Appliance.currentAppliance.getName(),
                 Appliance.currentAppliance.getApplianceType().toString(),
-                context.getString(R.string.appVersion), "LED", "ON");
+                context.getString(R.string.appVersion), "ledOn", String.valueOf(onOff)); //Todo: Change from hardcode
+        onOff = !onOff;
     }
 
     /**
@@ -35,7 +38,8 @@ public class Command {
      * @param machineName this is the name that the argument should be sent as.
      * @param value the value being inputted.
      */
-    public static void setParameterOnCurrentCommand(String machineName, Object value) {
+    public static void setParameterOnCurrentCommand(String machineName, Object value)
+    {
         if (currentCommand != null)
             for (int i = 0; i < currentCommand.parameters.length; i++)
                 if (currentCommand.parameters[i].machineName.equals(machineName))

@@ -1,6 +1,7 @@
 package edu.uwplatt.projects1.spbmobile.Shadow;
 
 import android.os.AsyncTask;
+import android.os.StrictMode;
 import android.util.Log;
 
 import com.amazonaws.auth.AWSSessionCredentials;
@@ -16,8 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 
 
-public class AwsIotShadowClient
-{
+public class AwsIotShadowClient {
     private static final String TAG = AwsIotShadowClient.class.getCanonicalName();
     private static final String customerSpecificEP = "a121odz0gmuc20.iot.us-east-1.amazonaws.com";
 
@@ -29,12 +29,12 @@ public class AwsIotShadowClient
     /**
      * Creates an instance of the AwsIotShadowClient is there is no instance, otherwise
      * it returns the instance of a AwsShadowClient.
+     *
      * @param credentials credentials provided by the AWS cognito authentication.
      * @return the instance of AwsShadowClient.
      */
-    public static AwsIotShadowClient getInstance(@NotNull CognitoCachingCredentialsProvider credentials)
-    {
-        if(ourInstance == null)
+    public static AwsIotShadowClient getInstance(@NotNull CognitoCachingCredentialsProvider credentials) {
+        if (ourInstance == null)
             ourInstance = new AwsIotShadowClient(credentials);
         return ourInstance;
     }
@@ -42,20 +42,20 @@ public class AwsIotShadowClient
 
     /**
      * Constructor used to initialize a AwsIotShadowClient.
+     *
      * @param credentials credentials provided by the AWS cognito authentication.
      */
-    private AwsIotShadowClient(@NotNull CognitoCachingCredentialsProvider credentials)
-    {
+    private AwsIotShadowClient(@NotNull CognitoCachingCredentialsProvider credentials) {
         updateShadowAuthentication(credentials);
     }
 
     /**
      * Sets the credentials used to communicate with a shadow object and rebuilds the
      * necessary shadow client.
+     *
      * @param credentials credentials provided by the AWS cognito authentication.
      */
-    public void updateShadowAuthentication(@NotNull CognitoCachingCredentialsProvider credentials)
-    {
+    public void updateShadowAuthentication(@NotNull CognitoCachingCredentialsProvider credentials) {
         awsIotDataClient = new AWSIotDataClient(credentials);
         awsIotDataClient.setEndpoint(customerSpecificEP);
         this.credentialsProvider = credentials;
@@ -63,28 +63,45 @@ public class AwsIotShadowClient
 
     /**
      * Updates a shadow object.
-     * @param deviceName name of the appliance.
-     * @param deviceType appliance type.
+     *
+     * @param deviceName    name of the appliance.
+     * @param deviceType    appliance type.
      * @param deviceVersion appliance version.
-     * @param command object in the appliance that is going to be changed.
-     * @param stateChange state of object in appliance that is being requested.
+     * @param command       object in the appliance that is going to be changed.
+     * @param stateChange   state of object in appliance that is being requested.
      */
     public void updateCommandShadow(String deviceName, String deviceType, String deviceVersion, String command, String stateChange)
     {
-        //getShadow(deviceName);
-        ShadowParam sp = new ShadowParam();
-        String payload = sp.armCommandParams(deviceName, deviceType, deviceVersion, command, stateChange);
-        UpdateShadowTask updateShadowTask = new UpdateShadowTask(deviceName, payload, credentialsProvider.getCredentials());
-        updateShadowTask.execute();
+        try
+        {
+            getShadow(deviceName);
+            ShadowParam sp = new ShadowParam();
+            String payload = sp.armCommandParams(deviceName, deviceType, deviceVersion, command, stateChange);
+            UpdateShadowTask updateShadowTask = new UpdateShadowTask(deviceName, payload, credentialsProvider.getCredentials());
+            updateShadowTask.execute();
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, "UpdateShadowCall", e);
+        }
     }
 
     /**
      * Gets a shadow object.
+     *
      * @param deviceName name of the appliance that is going to be changed.
      */
     private void getShadow(String deviceName)
     {
-        GetShadowTask getShadowTask = new GetShadowTask(deviceName, credentialsProvider.getCredentials());
+        try
+        {
+            GetShadowTask getShadowTask = new GetShadowTask(deviceName, credentialsProvider.getCredentials());
+            getShadowTask.execute();
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, "GetShadowCaller", e);
+        }
     }
 
     /**
@@ -95,8 +112,7 @@ public class AwsIotShadowClient
         private final String thingName;
         private final AWSSessionCredentials credentials;
 
-        public GetShadowTask(String thingName, AWSSessionCredentials credentials)
-        {
+        public GetShadowTask(String thingName, AWSSessionCredentials credentials) {
             this.thingName = thingName;
             this.credentials = credentials;
         }
@@ -104,8 +120,7 @@ public class AwsIotShadowClient
         @Override
         protected AsyncTaskResult<String> doInBackground(Void... voids)
         {
-            try
-            {
+            try {
                 GetThingShadowRequest getThingShadowRequest = new GetThingShadowRequest();
                 getThingShadowRequest.setRequestCredentials(credentials);
                 getThingShadowRequest.setThingName(thingName);
@@ -116,36 +131,39 @@ public class AwsIotShadowClient
                 getThingShadowResult.getPayload().get(bytes);
                 String result = new String(bytes);
                 return new AsyncTaskResult<String>(result);
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 Log.e(TAG, "***GetShadow***", e);
                 return new AsyncTaskResult<String>(e);
             }
+        }
+
+        @Override
+        protected void onPostExecute(AsyncTaskResult<String> result)
+        {
+            if(result.getError() == null)
+                Log.i(TAG, result.getResult());
+            else
+                Log.e(TAG, "GetShadow", result.getError());
         }
     }
 
     /**
      * Subclass activity to update shadow object.
      */
-    private class UpdateShadowTask extends AsyncTask<Void, Void, AsyncTaskResult<String>>
-    {
+    private class UpdateShadowTask extends AsyncTask<Void, Void, AsyncTaskResult<String>> {
         private String thingName;
         private String payload;
         AWSSessionCredentials credentials;
 
-        public UpdateShadowTask(String thingName, String message, AWSSessionCredentials credentials)
-        {
+        public UpdateShadowTask(String thingName, String message, AWSSessionCredentials credentials) {
             this.thingName = thingName;
             this.payload = message;
             this.credentials = credentials;
         }
 
         @Override
-        protected AsyncTaskResult<String> doInBackground(Void... voids)
-        {
-            try
-            {
+        protected AsyncTaskResult<String> doInBackground(Void... voids) {
+            try {
                 ByteBuffer payloadBuffer = ByteBuffer.wrap(payload.getBytes());
                 UpdateThingShadowRequest updateThingShadowRequest = new UpdateThingShadowRequest();
                 updateThingShadowRequest.setThingName(thingName);
@@ -157,12 +175,19 @@ public class AwsIotShadowClient
                 updateThingShadowResult.getPayload().get(bytes);
                 String result = new String(bytes);
                 return new AsyncTaskResult<String>(result);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 Log.e(TAG, "***UpdateShadow***", e);
                 return new AsyncTaskResult<String>(e);
             }
+        }
+
+        @Override
+        protected void onPostExecute(AsyncTaskResult<String> result)
+        {
+            if(result.getError() == null)
+                Log.i(TAG, result.getResult());
+            else
+                Log.e(TAG, "UpdateShadow", result.getError());
         }
     }
 }

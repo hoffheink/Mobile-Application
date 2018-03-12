@@ -226,7 +226,7 @@ public class RegisterApplianceFragment extends Fragment {
         public void run() {
             try {
                 InvokeRequest invokeRequest = new InvokeRequest();
-                invokeRequest.setFunctionName("arn:aws:lambda:us-east-2:955967187114:function:iot-app-register-device");
+                invokeRequest.setFunctionName("arn:aws:lambda:us-east-1:955967187114:function:iot-app-register-device");
                 String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
                 Log.i("RegisterDeviceWithAWS", "jsonRequestParameters: " + jsonRequestParameters);
                 invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));

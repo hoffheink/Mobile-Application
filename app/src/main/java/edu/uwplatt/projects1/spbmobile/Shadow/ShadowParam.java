@@ -1,5 +1,7 @@
 package edu.uwplatt.projects1.spbmobile.Shadow;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -8,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 
@@ -15,42 +18,81 @@ import edu.uwplatt.projects1.spbmobile.CloudDatasource;
  * Generic class used to centralize the construction of parameters for shadow invoking with
  * AWS. Constants correspond to the name of variable on the AWS servers.
  */
-public class ShadowParam
-{
-    private final String DEV_NAME = "deviceName";
-    private final String DEV_TYPE = "mobileDeviceType";
-    private final String DEV_VERSION = "mobileDeviceVersion";
+public class ShadowParam {
     private final String DESIRED_STATE = "state";
-    private final String UTC_TIME = "utcSendTime";
-
 
     /**
      * Default constructor, does nothing.
      */
-    public ShadowParam()
-    {
+    public ShadowParam() {
     }
 
     /**
      * Creates a json formatted string to send update commands to AWS IOT shadow devices.
-     * @param deviceName name of the appliance.
-     * @param deviceType type of appliance.
+     *
+     * @param deviceName    name of the appliance.
+     * @param deviceType    type of appliance.
      * @param deviceVersion appliance version.
-     * @param command the specific component of the device that is to be changed.
-     * @param stateChange the desired state the component should be in.
+     * @param component     the specific component of the device that is to be changed.
+     * @param newState      the desired state the component should be in.
      * @return a json formatted string for invoking a command update.
      */
-    public String armCommandParams(String deviceName, String deviceType, String deviceVersion, String command, String stateChange)
-    {
-        Gson gson = new GsonBuilder().create();
-        Map<String, String> commandParam = new HashMap<String, String>();
-
+    public String armCommandParams(String deviceName, String deviceType, String deviceVersion, String component, String newState) {
+        //Object o = new { State= 5 };
+        Gson gson = new Gson();
+        /*Map<String, String> commandParam = new HashMap<String, String>();
         commandParam.put(DEV_NAME, deviceName);
         commandParam.put(DEV_TYPE, deviceType);
         commandParam.put(DEV_VERSION, deviceVersion);
-        commandParam.put(DESIRED_STATE, new HashMap<String, String>().put(command, stateChange));
+        commandParam.put("state", getState(component, newState));
         commandParam.put(UTC_TIME, CloudDatasource.getUTCTime(new Date()));
+        return gson.toJson(commandParam);*/
+        HashMap<String, String> innerHashMap = new HashMap<>();
+        innerHashMap.put(component, newState);
+        String result = gson.toJson(new UpdateClass(deviceName, deviceType, deviceVersion, new State(innerHashMap), CloudDatasource.getUTCTime(new Date())));
+        Log.e("penis", result);
+        return result;
+    }
 
-        return gson.toJson(commandParam);
+    private class UpdateClass {
+        UpdateClass(String deviceName, String mobileDeviceType, String mobileDeviceVersion, State state, String utcSendTime) {
+            this.deviceName = deviceName;
+            this.mobileDeviceType = mobileDeviceType;
+            this.mobileDeviceVersion = mobileDeviceVersion;
+            this.state = state;
+            this.utcSendTime = utcSendTime;
+        }
+
+        String deviceName;
+        String mobileDeviceType;
+        String mobileDeviceVersion;
+        State state;
+        String utcSendTime;
+    }
+
+    public class State {
+        State(HashMap<String, String> desired) {
+            this.desired = desired;
+        }
+        HashMap<String, String> desired;
+    }
+
+    private String getState(String component, String newState) {
+        Gson gson = new GsonBuilder().create();
+        HashMap<String, String> hashMap = new HashMap<>();
+        HashMap<String, String> innerHashMap = new HashMap<>();
+        String str = gson.toJson(innerHashMap.put(component, newState));
+        hashMap.put(DESIRED_STATE, str);
+        return gson.toJson(hashMap);
     }
 }
+
+//return
+                /*"{\n" +
+                "    \"state\": {\n" +
+                "        \"desired\" : {\n" +
+                "            \"ledOn\": \"true\"\n" +
+                "        }\n" +
+                "    }\n" +
+                "}";
+                */
