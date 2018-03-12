@@ -86,17 +86,18 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         return result;
     }
 
-    private DurationPicker getDurationPicker(Parameter parameter) {
+    /*private DurationPicker getDurationPicker(Parameter parameter) {
         DurationPicker result = new DurationPicker(getContext());
         return result;
-    }
+    }*/
 
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup container) {
         final Parameter parameter = getItem(position);
+        LayoutInflater layoutInflater;
         if (convertView == null) {
-            LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             if (layoutInflater == null) {
                 throw new NullPointerException("Layout Inflater was null");
             }
@@ -122,10 +123,12 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
                         break;
                     case DurationType:
                         Log.d("getView", "DurationType");
-                        frameLayout.addView(getDurationPicker(parameter));
-                        TextView durationTypeTextView = new TextView(getContext());
-                        durationTypeTextView.setText(R.string.not_yet_implemented);
-                        frameLayout.addView(durationTypeTextView);
+                        DurationPicker dp = new DurationPicker();
+                        frameLayout.addView(dp.getView(container));
+                        //frameLayout.addView(getDurationPicker(parameter));
+                        /*TextView durationTypeTextView = new TextView(getContext());
+                        durationTypeTextView.setText(R.string.not_yet_implemented);*/
+                        //frameLayout.addView(durationTypeTextView);
                         break;
                 }
             }
@@ -136,7 +139,7 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
 
 
 
-    private class DurationPicker extends RelativeLayout {
+    private class DurationPicker /*extends RelativeLayout*/ {
         private NumberPicker hours;
         private NumberPicker minutes;
         private NumberPicker seconds;
@@ -146,17 +149,24 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
          */
         private int maxTime = 3600;
 
-        public DurationPicker(Context context) {
-            super(context);
+        public DurationPicker(/*Context context*/) {
+            /*super(context);
             hours = new NumberPicker(context);
             minutes = new NumberPicker(context);
             seconds = new NumberPicker(context);
-            LayoutParams layoutParams = new LayoutParams()
-            hours.setLayoutParams();
+            //LayoutParams layoutParams = new LayoutParams();
+            //hours.setLayoutParams();
             this.addView(hours);
             this.addView(minutes);
-            this.addView(seconds);
+            this.addView(seconds);*/
         }
-
+        public View getView(@NonNull ViewGroup container)
+        {
+            LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            if (layoutInflater == null) {
+                throw new NullPointerException("Layout Inflater was null");
+            }
+            return layoutInflater.inflate(R.layout.duration_picker, container, false);
+        }
     }
 }
