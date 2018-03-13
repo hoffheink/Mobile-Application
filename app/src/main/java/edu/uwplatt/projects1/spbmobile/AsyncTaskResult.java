@@ -1,4 +1,4 @@
-package edu.uwplatt.projects1.spbmobile.Shadow;
+package edu.uwplatt.projects1.spbmobile;
 
 /**
  * Centralize the return type of an AsyncTask, provided any parameter. Brings together data types

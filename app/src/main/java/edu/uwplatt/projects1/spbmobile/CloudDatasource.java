@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Region;
@@ -19,25 +18,17 @@ import com.amazonaws.services.iot.model.ThingAttribute;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
-
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
 
-
-public class CloudDatasource {
+public class CloudDatasource
+{
     private static final String US_EAST_1_IdentityPoolID = "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
     private static final String US_EAST_2_IdentityPoolID = "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878";
     @SuppressLint("StaticFieldLeak")
@@ -49,14 +40,11 @@ public class CloudDatasource {
 
     @SuppressWarnings("all")
     @NonNull
-    public CognitoCachingCredentialsProvider credentialsProvider;
+    private CognitoCachingCredentialsProvider credentialsProvider;
 
-
-    public static String getUTCTime(@NotNull Date date)
+    public CognitoCachingCredentialsProvider getCreds()
     {
-        SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd'T' HH:mm:ss.SSS", Locale.US);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return dateFormat.format(date);
+        return credentialsProvider;
     }
 
     public enum RegionEnum {

@@ -2,9 +2,6 @@ package edu.uwplatt.projects1.spbmobile.Command;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-
-import com.google.gson.Gson;
-
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
@@ -26,9 +23,9 @@ public class Command {
 
     public static void executeCurrentCommand(@NonNull Context context)
     {
-        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region).credentialsProvider).getShadow(Appliance.currentAppliance.getName());
+        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region).getCreds()).getShadow(Appliance.currentAppliance.getName());
         AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,MainActivity.account,
-                MainActivity.region).credentialsProvider).updateCommandShadow(Appliance.currentAppliance.getName(),
+                MainActivity.region).getCreds()).updateCommandShadow(Appliance.currentAppliance.getName(),
                 Appliance.currentAppliance.getApplianceType().toString(),
                 context.getString(R.string.appVersion), "ledOn", String.valueOf(onOff)); //Todo: Change from hardcode
         onOff = !onOff;

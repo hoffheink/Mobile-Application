@@ -52,13 +52,5 @@ dependencies {
     compile 'com.amazonaws:aws-android-sdk-lambda:2.6.+'//AWS Lambda
     compile 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.+'//AWS Coginito Credentials provider
     compile 'com.amazonaws:aws-android-sdk-kms:2.6.+'//Key managment services
-    compile 'org.jetbrains:annotations-java5:15.0'
 }
-
-
-
-
-
-
-
 apply plugin: 'com.google.gms.google-services'

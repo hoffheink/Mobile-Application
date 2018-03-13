@@ -1,9 +1,8 @@
 package edu.uwplatt.projects1.spbmobile.Shadow;
 
 import android.os.AsyncTask;
-import android.os.StrictMode;
+import android.support.annotation.NonNull;
 import android.util.Log;
-
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.services.iotdata.model.GetThingShadowRequest;
@@ -11,22 +10,19 @@ import com.amazonaws.services.iotdata.model.GetThingShadowResult;
 import com.amazonaws.services.iotdata.model.UpdateThingShadowRequest;
 import com.amazonaws.services.iotdata.model.UpdateThingShadowResult;
 import com.amazonaws.services.iotdata.AWSIotDataClient;
-
-import org.jetbrains.annotations.NotNull;
-
 import java.nio.ByteBuffer;
+import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
+import edu.uwplatt.projects1.spbmobile.MainActivity;
 
 
 public class AwsIotShadowClient
 {
     private static final String TAG = AwsIotShadowClient.class.getCanonicalName();
-    private static final String customerSpecificEP = "a121odz0gmuc20.iot.us-east-1.amazonaws.com";
-
+    //private static final String customerSpecificEP = "a121odz0gmuc20.iot.us-east-1.amazonaws.com";
     private static AwsIotShadowClient ourInstance;
 
-    CognitoCachingCredentialsProvider credentialsProvider;
-    AWSIotDataClient awsIotDataClient;
-
+    private CognitoCachingCredentialsProvider credentialsProvider;
+    private AWSIotDataClient awsIotDataClient;
 
     /**
      * Creates an instance of the AwsIotShadowClient is there is no instance, otherwise
@@ -35,21 +31,31 @@ public class AwsIotShadowClient
      * @param credentials credentials provided by the AWS cognito authentication.
      * @return the instance of AwsShadowClient.
      */
-    public static AwsIotShadowClient getInstance(@NotNull CognitoCachingCredentialsProvider credentials)
+    public static AwsIotShadowClient getInstance(@NonNull CognitoCachingCredentialsProvider credentials)
     {
         if (ourInstance == null)
             ourInstance = new AwsIotShadowClient(credentials);
         return ourInstance;
     }
 
-
     /**
      * Constructor used to initialize a AwsIotShadowClient.
      *
      * @param credentials credentials provided by the AWS cognito authentication.
      */
-    private AwsIotShadowClient(@NotNull CognitoCachingCredentialsProvider credentials) {
+    private AwsIotShadowClient(@NonNull CognitoCachingCredentialsProvider credentials) {
         updateShadowAuthentication(credentials);
+    }
+
+    private static String getCustomerEndpoint()
+    {
+        switch (MainActivity.region)
+        {
+            case US_EAST_1:
+                return "a121odz0gmuc20.iot.us-east-1.amazonaws.com";
+            default:
+                return "a121odz0gmuc20.iot.us-east-2.amazonaws.com";
+        }
     }
 
     /**
@@ -58,9 +64,9 @@ public class AwsIotShadowClient
      *
      * @param credentials credentials provided by the AWS cognito authentication.
      */
-    public void updateShadowAuthentication(@NotNull CognitoCachingCredentialsProvider credentials) {
+    public void updateShadowAuthentication(@NonNull CognitoCachingCredentialsProvider credentials) {
         awsIotDataClient = new AWSIotDataClient(credentials);
-        awsIotDataClient.setEndpoint(customerSpecificEP);
+        awsIotDataClient.setEndpoint(getCustomerEndpoint());
         this.credentialsProvider = credentials;
     }
 
@@ -115,7 +121,7 @@ public class AwsIotShadowClient
         private final String thingName;
         private final AWSSessionCredentials credentials;
 
-        public GetShadowTask(String thingName, AWSSessionCredentials credentials) {
+        protected GetShadowTask(String thingName, AWSSessionCredentials credentials) {
             this.thingName = thingName;
             this.credentials = credentials;
         }
@@ -134,10 +140,10 @@ public class AwsIotShadowClient
                 byte[] bytes = new byte[getThingShadowResult.getPayload().remaining()];
                 getThingShadowResult.getPayload().get(bytes);
                 String result = new String(bytes);
-                return new AsyncTaskResult<String>(result);
+                return new AsyncTaskResult<>(result);
             } catch (Exception e) {
                 Log.e(TAG, "***GetShadow***", e);
-                return new AsyncTaskResult<String>(e);
+                return new AsyncTaskResult<>(e);
             }
         }
 
@@ -165,7 +171,7 @@ public class AwsIotShadowClient
          * @param message
          * @param credentials
          */
-        public UpdateShadowTask(String thingName, String message, AWSSessionCredentials credentials)
+        protected UpdateShadowTask(String thingName, String message, AWSSessionCredentials credentials)
         {
             this.thingName = thingName;
             this.payload = message;
@@ -178,7 +184,8 @@ public class AwsIotShadowClient
          * @return
          */
         @Override
-        protected AsyncTaskResult<String> doInBackground(Void... voids) {
+        protected AsyncTaskResult<String> doInBackground(Void... voids)
+        {
             try {
                 ByteBuffer payloadBuffer = ByteBuffer.wrap(payload.getBytes());
                 UpdateThingShadowRequest updateThingShadowRequest = new UpdateThingShadowRequest();
@@ -190,10 +197,12 @@ public class AwsIotShadowClient
                 byte[] bytes = new byte[updateThingShadowResult.getPayload().remaining()];
                 updateThingShadowResult.getPayload().get(bytes);
                 String result = new String(bytes);
-                return new AsyncTaskResult<String>(result);
-            } catch (Exception e) {
+                return new AsyncTaskResult<>(result);
+            }
+            catch (Exception e)
+            {
                 Log.e(TAG, "***UpdateShadow***", e);
-                return new AsyncTaskResult<String>(e);
+                return new AsyncTaskResult<>(e);
             }
         }
 

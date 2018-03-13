@@ -4,15 +4,9 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
-
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import edu.uwplatt.projects1.spbmobile.CloudDatasource;
+import edu.uwplatt.projects1.spbmobile.TimeHandle;
 
 /**
  * Generic class used to centralize the construction of parameters for shadow invoking with
@@ -41,7 +35,7 @@ public class ShadowParam {
         Gson gson = new Gson();
         HashMap<String, String> innerHashMap = new HashMap<>();
         innerHashMap.put(component, newState);
-        String result = gson.toJson(new UpdateClass(deviceName, deviceType, deviceVersion, new State(innerHashMap), CloudDatasource.getUTCTime(new Date())));
+        String result = gson.toJson(new UpdateClass(deviceName, deviceType, deviceVersion, new State(innerHashMap), TimeHandle.getUTCTime(new Date())));
         Log.e("penis", result);
         return result;
     }

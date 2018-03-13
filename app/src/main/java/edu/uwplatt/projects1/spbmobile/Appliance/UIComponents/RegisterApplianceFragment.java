@@ -18,11 +18,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -32,43 +29,19 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.iot.AWSIot;
-import com.amazonaws.services.iot.AWSIotClient;
-import com.amazonaws.services.iot.model.UpdateThingRequest;
-import com.amazonaws.services.iotdata.AWSIotData;
-import com.amazonaws.services.iotdata.AWSIotDataClient;
-import com.amazonaws.services.iotdata.model.UpdateThingShadowRequest;
-import com.amazonaws.services.iotdata.model.UpdateThingShadowResult;
 import com.amazonaws.services.lambda.model.InvokeRequest;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-
-import static edu.uwplatt.projects1.spbmobile.CloudDatasource.RegionEnum.US_EAST_1;
-import static edu.uwplatt.projects1.spbmobile.CloudDatasource.RegionEnum.US_EAST_2;
 import static edu.uwplatt.projects1.spbmobile.MainActivity.region;
-
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
@@ -226,6 +199,7 @@ public class RegisterApplianceFragment extends Fragment {
         public void run() {
             try {
                 InvokeRequest invokeRequest = new InvokeRequest();
+                invokeRequest.setFunctionName("iot-app-register-device");
                 String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
                 Log.i("RegisterDeviceWithAWS", "jsonRequestParameters: " + jsonRequestParameters);
                 invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
@@ -243,7 +217,7 @@ public class RegisterApplianceFragment extends Fragment {
                 Log.e("RegisterDeviceWithAWS", e.getMessage(), e);
             }
 
-            CloudDatasource.getInstance(getActivity(), account, US_EAST_2).shadowUpdate();
+            CloudDatasource.getInstance(getActivity(), account, MainActivity.region).shadowUpdate();
         }
     }
 
