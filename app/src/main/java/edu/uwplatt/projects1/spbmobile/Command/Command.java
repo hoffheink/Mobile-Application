@@ -26,6 +26,7 @@ public class Command {
 
     public static void executeCurrentCommand(@NonNull Context context)
     {
+        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region).credentialsProvider).getShadow(Appliance.currentAppliance.getName());
         AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,MainActivity.account,
                 MainActivity.region).credentialsProvider).updateCommandShadow(Appliance.currentAppliance.getName(),
                 Appliance.currentAppliance.getApplianceType().toString(),

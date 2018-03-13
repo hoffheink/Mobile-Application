@@ -17,7 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 
 
-public class AwsIotShadowClient {
+public class AwsIotShadowClient
+{
     private static final String TAG = AwsIotShadowClient.class.getCanonicalName();
     private static final String customerSpecificEP = "a121odz0gmuc20.iot.us-east-1.amazonaws.com";
 
@@ -26,6 +27,7 @@ public class AwsIotShadowClient {
     CognitoCachingCredentialsProvider credentialsProvider;
     AWSIotDataClient awsIotDataClient;
 
+
     /**
      * Creates an instance of the AwsIotShadowClient is there is no instance, otherwise
      * it returns the instance of a AwsShadowClient.
@@ -33,7 +35,8 @@ public class AwsIotShadowClient {
      * @param credentials credentials provided by the AWS cognito authentication.
      * @return the instance of AwsShadowClient.
      */
-    public static AwsIotShadowClient getInstance(@NotNull CognitoCachingCredentialsProvider credentials) {
+    public static AwsIotShadowClient getInstance(@NotNull CognitoCachingCredentialsProvider credentials)
+    {
         if (ourInstance == null)
             ourInstance = new AwsIotShadowClient(credentials);
         return ourInstance;
@@ -91,7 +94,7 @@ public class AwsIotShadowClient {
      *
      * @param deviceName name of the appliance that is going to be changed.
      */
-    private void getShadow(String deviceName)
+    public void getShadow(String deviceName)
     {
         try
         {
@@ -120,7 +123,8 @@ public class AwsIotShadowClient {
         @Override
         protected AsyncTaskResult<String> doInBackground(Void... voids)
         {
-            try {
+            try
+            {
                 GetThingShadowRequest getThingShadowRequest = new GetThingShadowRequest();
                 getThingShadowRequest.setRequestCredentials(credentials);
                 getThingShadowRequest.setThingName(thingName);
@@ -155,12 +159,24 @@ public class AwsIotShadowClient {
         private String payload;
         AWSSessionCredentials credentials;
 
-        public UpdateShadowTask(String thingName, String message, AWSSessionCredentials credentials) {
+        /**
+         *
+         * @param thingName
+         * @param message
+         * @param credentials
+         */
+        public UpdateShadowTask(String thingName, String message, AWSSessionCredentials credentials)
+        {
             this.thingName = thingName;
             this.payload = message;
             this.credentials = credentials;
         }
 
+        /**
+         *
+         * @param voids
+         * @return
+         */
         @Override
         protected AsyncTaskResult<String> doInBackground(Void... voids) {
             try {
@@ -181,6 +197,10 @@ public class AwsIotShadowClient {
             }
         }
 
+        /**
+         *
+         * @param result
+         */
         @Override
         protected void onPostExecute(AsyncTaskResult<String> result)
         {

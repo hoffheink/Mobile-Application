@@ -38,15 +38,7 @@ public class ShadowParam {
      * @return a json formatted string for invoking a command update.
      */
     public String armCommandParams(String deviceName, String deviceType, String deviceVersion, String component, String newState) {
-        //Object o = new { State= 5 };
         Gson gson = new Gson();
-        /*Map<String, String> commandParam = new HashMap<String, String>();
-        commandParam.put(DEV_NAME, deviceName);
-        commandParam.put(DEV_TYPE, deviceType);
-        commandParam.put(DEV_VERSION, deviceVersion);
-        commandParam.put("state", getState(component, newState));
-        commandParam.put(UTC_TIME, CloudDatasource.getUTCTime(new Date()));
-        return gson.toJson(commandParam);*/
         HashMap<String, String> innerHashMap = new HashMap<>();
         innerHashMap.put(component, newState);
         String result = gson.toJson(new UpdateClass(deviceName, deviceType, deviceVersion, new State(innerHashMap), CloudDatasource.getUTCTime(new Date())));
@@ -86,13 +78,3 @@ public class ShadowParam {
         return gson.toJson(hashMap);
     }
 }
-
-//return
-                /*"{\n" +
-                "    \"state\": {\n" +
-                "        \"desired\" : {\n" +
-                "            \"ledOn\": \"true\"\n" +
-                "        }\n" +
-                "    }\n" +
-                "}";
-                */
