@@ -86,10 +86,10 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         return result;
     }
 
-    /*private DurationPicker getDurationPicker(Parameter parameter) {
-        DurationPicker result = new DurationPicker(getContext());
-        return result;
-    }*/
+    private View getDurationPicker(Parameter parameter, @NonNull ViewGroup container) {
+        DurationPicker result = new DurationPicker(parameter);
+        return result.getView(container);
+    }
 
     @NonNull
     @Override
@@ -123,12 +123,8 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
                         break;
                     case DurationType:
                         Log.d("getView", "DurationType");
-                        DurationPicker dp = new DurationPicker();
-                        frameLayout.addView(dp.getView(container));
-                        //frameLayout.addView(getDurationPicker(parameter));
-                        /*TextView durationTypeTextView = new TextView(getContext());
-                        durationTypeTextView.setText(R.string.not_yet_implemented);*/
-                        //frameLayout.addView(durationTypeTextView);
+                        frameLayout.addView(getDurationPicker(parameter, container));
+                        Command.setParameterOnCurrentCommand(parameter.machineName, parameter.value = 0);
                         break;
                 }
             }
@@ -138,30 +134,16 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
     }
 
 
+    private class DurationPicker {
+        final int maxTime;
+        final int minTime;
 
-    private class DurationPicker /*extends RelativeLayout*/ {
-        private NumberPicker hours;
-        private NumberPicker minutes;
-        private NumberPicker seconds;
-
-        /**
-         * The maximum time in seconds
-         */
-        private int maxTime = 3600;
-
-        public DurationPicker(/*Context context*/) {
-            /*super(context);
-            hours = new NumberPicker(context);
-            minutes = new NumberPicker(context);
-            seconds = new NumberPicker(context);
-            //LayoutParams layoutParams = new LayoutParams();
-            //hours.setLayoutParams();
-            this.addView(hours);
-            this.addView(minutes);
-            this.addView(seconds);*/
+        DurationPicker(Parameter parameter) {
+            maxTime = parameter.range.max;
+            minTime = parameter.range.min;
         }
-        public View getView(@NonNull ViewGroup container)
-        {
+
+        View getView(@NonNull ViewGroup container) {
             LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             if (layoutInflater == null) {
                 throw new NullPointerException("Layout Inflater was null");
