@@ -36,7 +36,6 @@ public class ShadowParam {
         HashMap<String, String> innerHashMap = new HashMap<>();
         innerHashMap.put(component, newState);
         String result = gson.toJson(new UpdateClass(deviceName, deviceType, deviceVersion, new State(innerHashMap), TimeHandle.getUTCTime(new Date())));
-        Log.e("penis", result);
         return result;
     }
 
