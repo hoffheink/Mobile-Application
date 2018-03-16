@@ -148,7 +148,11 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
             if (layoutInflater == null) {
                 throw new NullPointerException("Layout Inflater was null");
             }
-            return layoutInflater.inflate(R.layout.duration_picker, container, false);
+            View view = layoutInflater.inflate(R.layout.duration_picker, container, false);
+            ((NumberPicker)view.findViewById(R.id.durationHours)).setMaxValue(60);
+            ((NumberPicker)view.findViewById(R.id.durationMinutes)).setMaxValue(60);
+            ((NumberPicker)view.findViewById(R.id.durationSeconds)).setMaxValue(60);
+            return view;
         }
     }
 }

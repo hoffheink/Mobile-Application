@@ -6,7 +6,9 @@
     <RelativeLayout
         android:id="@+id/hoursRelLayout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/smallMargin"
+        android:layout_marginTop="@dimen/smallMargin">
 
         <TextView
             android:id="@+id/hoursTextView"
@@ -26,12 +28,15 @@
         android:id="@+id/minutesRelLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/smallMargin"
+        android:layout_marginTop="@dimen/smallMargin"
         android:layout_toEndOf="@id/hoursRelLayout">
 
         <TextView
             android:id="@+id/minutesTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:text="@string/minutes" />
 
         <NumberPicker
@@ -44,20 +49,22 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/smallMargin"
+        android:layout_marginTop="@dimen/smallMargin"
         android:layout_toEndOf="@id/minutesRelLayout">
 
         <TextView
             android:id="@+id/secondsTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:text="@string/seconds" />
 
         <NumberPicker
             android:id="@+id/durationSeconds"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/secondsTextView"
-            />
+            android:layout_below="@id/secondsTextView" />
     </RelativeLayout>
 
 
