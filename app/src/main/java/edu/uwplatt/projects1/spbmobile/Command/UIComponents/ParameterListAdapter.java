@@ -133,8 +133,10 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         return convertView;
     }
 
-
     private class DurationPicker {
+        private final int SecondsPerMinute = 60;
+        private final int MinutesPerHour = 60;
+        private final int SecondsPerHour = 60 * SecondsPerMinute;
         final int maxTime;
         final int minTime;
 
@@ -143,16 +145,103 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
             minTime = parameter.range.min;
         }
 
+        View view = null;
+        NumberPicker durationHours = null;
+        NumberPicker durationMinutes = null;
+        NumberPicker durationSeconds = null;
+        RelativeLayout hoursRelLayout = null;
+        RelativeLayout minutesRelLayout = null;
+        RelativeLayout secondsRelLayout = null;
+
+        private void updateDisplays() {
+            if (view != null) {
+                setHours();
+                setMinutes();
+                setSeconds();
+            }
+        }
+
+        private void setHours() {
+            if (durationHours != null) {
+                int timeAvailable = maxTime - durationMinutes.getValue() * SecondsPerMinute - durationSeconds.getValue();
+                int newMax = timeAvailable / SecondsPerHour;
+                durationHours.setMaxValue(newMax);
+                if (newMax == 0)
+                    hoursRelLayout.setVisibility(View.GONE);
+                else
+                    hoursRelLayout.setVisibility(View.VISIBLE);
+            }
+        }
+
+        private void setMinutes() {
+            if (durationMinutes != null) {
+                int timeAvailable = maxTime - durationHours.getValue() * SecondsPerHour - durationSeconds.getValue();
+                int newMax;
+                if (timeAvailable > 0) {
+                    if ((timeAvailable / SecondsPerMinute) >= MinutesPerHour)
+                        newMax = MinutesPerHour;
+                    else
+                        newMax = (timeAvailable / SecondsPerMinute) % MinutesPerHour;
+                } else
+                    newMax = 0;
+                durationMinutes.setMaxValue(newMax);
+                if (newMax == 0)
+                    minutesRelLayout.setVisibility(View.GONE);
+                else
+                    minutesRelLayout.setVisibility(View.VISIBLE);
+            }
+        }
+
+        private void setSeconds() {
+            if (durationSeconds != null) {
+                int timeAvailable = maxTime - durationHours.getValue() * SecondsPerHour - durationMinutes.getValue() * SecondsPerMinute;
+                int newMax;
+                if (timeAvailable > 0) {
+                    if (timeAvailable >= SecondsPerMinute)
+                        newMax = SecondsPerMinute;
+                    else
+                        newMax = timeAvailable % SecondsPerMinute;
+                } else
+                    newMax = 0;
+                durationSeconds.setMaxValue(newMax);
+                if (newMax == 0)
+                    secondsRelLayout.setVisibility(View.GONE);
+                else
+                    secondsRelLayout.setVisibility(View.VISIBLE);
+            }
+        }
+
         View getView(@NonNull ViewGroup container) {
             LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            if (layoutInflater == null) {
+            if (layoutInflater == null)
                 throw new NullPointerException("Layout Inflater was null");
-            }
-            View view = layoutInflater.inflate(R.layout.duration_picker, container, false);
-            ((NumberPicker)view.findViewById(R.id.durationHours)).setMaxValue(60);
-            ((NumberPicker)view.findViewById(R.id.durationMinutes)).setMaxValue(60);
-            ((NumberPicker)view.findViewById(R.id.durationSeconds)).setMaxValue(60);
+            view = layoutInflater.inflate(R.layout.duration_picker, container, false);
+            setUpPickers();
             return view;
         }
+
+        private void setUpPickers() {
+            durationHours = view.findViewById(R.id.durationHours);
+            durationMinutes = view.findViewById(R.id.durationMinutes);
+            durationSeconds = view.findViewById(R.id.durationSeconds);
+            hoursRelLayout = view.findViewById(R.id.hoursRelLayout);
+            minutesRelLayout = view.findViewById(R.id.minutesRelLayout);
+            secondsRelLayout = view.findViewById(R.id.secondsRelLayout);
+            durationHours.setMinValue(0);
+            durationMinutes.setMinValue(0);
+            durationSeconds.setMinValue(0);
+            durationHours.setOnValueChangedListener(valueChangeListener);
+            durationMinutes.setOnValueChangedListener(valueChangeListener);
+            durationSeconds.setOnValueChangedListener(valueChangeListener);
+            updateDisplays();
+        }
+
+        NumberPicker.OnValueChangeListener valueChangeListener = new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                updateDisplays();
+            }
+        };
+
     }
 }
