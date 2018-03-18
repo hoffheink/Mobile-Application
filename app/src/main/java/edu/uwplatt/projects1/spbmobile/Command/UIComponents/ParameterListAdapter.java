@@ -86,9 +86,15 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         return result;
     }
 
-    private View getDurationPicker(Parameter parameter, @NonNull ViewGroup container) {
-        DurationPicker result = new DurationPicker(parameter);
-        return result.getView(container);
+    /**
+     * This method will get a View that is a duration picker.
+     *
+     * @param max       The maximum number of seconds for the duration.
+     * @param container The container the View will be put into.
+     * @return The View that represents a duration picker.
+     */
+    private View getDurationPicker(final int max, @NonNull ViewGroup container) {
+        return (new DurationPicker(max)).getView(container);
     }
 
     @NonNull
@@ -123,7 +129,7 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
                         break;
                     case DurationType:
                         Log.d("getView", "DurationType");
-                        frameLayout.addView(getDurationPicker(parameter, container));
+                        frameLayout.addView(getDurationPicker(parameter.range.max, container));
                         Command.setParameterOnCurrentCommand(parameter.machineName, parameter.value = 0);
                         break;
                 }
@@ -133,6 +139,9 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         return convertView;
     }
 
+    /**
+     * This class represents a duration picker.
+     */
     private class DurationPicker {
         private final int SecondsPerMinute = 60;
         private final int MinutesPerHour = 60;
@@ -140,9 +149,14 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         final int maxTime;
         final int minTime;
 
-        DurationPicker(Parameter parameter) {
-            maxTime = parameter.range.max;
-            minTime = parameter.range.min;
+        /**
+         * The constructor.
+         *
+         * @param max The maximum time (in seconds) the duration can have.
+         */
+        DurationPicker(int max) {
+            maxTime = max;
+            minTime = 0;
         }
 
         View view = null;
@@ -153,6 +167,10 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         RelativeLayout minutesRelLayout = null;
         RelativeLayout secondsRelLayout = null;
 
+        /**
+         * This method will update the displays to appropriately display the number of hours,
+         * minutes, and seconds available to choose from.
+         */
         private void updateDisplays() {
             if (view != null) {
                 setHours();
@@ -161,6 +179,9 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
             }
         }
 
+        /**
+         * This method will set the hour picker to a valid range.
+         */
         private void setHours() {
             if (durationHours != null) {
                 int timeAvailable = maxTime - durationMinutes.getValue() * SecondsPerMinute - durationSeconds.getValue();
@@ -173,6 +194,9 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
             }
         }
 
+        /**
+         * This method will set the minute picker to a valid range.
+         */
         private void setMinutes() {
             if (durationMinutes != null) {
                 int timeAvailable = maxTime - durationHours.getValue() * SecondsPerHour - durationSeconds.getValue();
@@ -192,6 +216,9 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
             }
         }
 
+        /**
+         * This method will set the second picker to a valid range.
+         */
         private void setSeconds() {
             if (durationSeconds != null) {
                 int timeAvailable = maxTime - durationHours.getValue() * SecondsPerHour - durationMinutes.getValue() * SecondsPerMinute;
@@ -211,6 +238,11 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
             }
         }
 
+        /**
+         * This method will return the View associated with this duration picker.
+         *
+         * @param container The ViewGroup that this view will be placed in.
+         */
         View getView(@NonNull ViewGroup container) {
             LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             if (layoutInflater == null)
@@ -220,6 +252,9 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
             return view;
         }
 
+        /**
+         * This method will set up the NumberPickers.
+         */
         private void setUpPickers() {
             durationHours = view.findViewById(R.id.durationHours);
             durationMinutes = view.findViewById(R.id.durationMinutes);
@@ -236,6 +271,9 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
             updateDisplays();
         }
 
+        /**
+         * This Listener will call the updateDisplays method when fired.
+         */
         NumberPicker.OnValueChangeListener valueChangeListener = new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker numberPicker, int i, int i1) {
