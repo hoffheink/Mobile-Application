@@ -57,7 +57,6 @@ public class GoogleProvider
     {
         applicationContext = context;
         initializeGoogleClient(active);
-
     }
 
     /**
