@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
-import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
 
 public class CloudDatasource
 {

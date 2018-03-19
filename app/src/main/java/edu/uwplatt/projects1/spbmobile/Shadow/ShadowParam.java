@@ -30,7 +30,7 @@ public class ShadowParam
      * @param newState      the desired state the component should be in.
      * @return a json formatted string for invoking a command update.
      */
-    String armCommandParams(String deviceType, String deviceVersion, String component, String newState) {
+    public String armCommandParams(String deviceType, String deviceVersion, String component, String newState) {
         Gson gson = new Gson();
         HashMap<String, String> innerHashMap = new HashMap<>();
         innerHashMap.put(component, newState);
