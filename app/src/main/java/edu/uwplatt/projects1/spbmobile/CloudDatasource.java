@@ -231,9 +231,4 @@ public class CloudDatasource
         }
         return new String(bytes, charset);
     }
-
-    public void shadowUpdate() {
-        AwsIotShadowClient cmd = AwsIotShadowClient.getInstance(credentialsProvider);
-        //cmd.updateShadow("adam", "toaster","2222", "test", "true");
-    }
 }

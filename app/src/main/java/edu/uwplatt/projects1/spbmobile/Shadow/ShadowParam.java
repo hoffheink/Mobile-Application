@@ -14,12 +14,11 @@ import edu.uwplatt.projects1.spbmobile.TimeHandle;
  */
 public class ShadowParam
 {
-    private final String DESIRED_STATE = "state";
-
     /**
      * Default constructor, does nothing.
      */
-    public ShadowParam() {
+    public ShadowParam()
+    {
     }
 
     /**
@@ -31,7 +30,7 @@ public class ShadowParam
      * @param newState      the desired state the component should be in.
      * @return a json formatted string for invoking a command update.
      */
-    public String armCommandParams(String deviceType, String deviceVersion, String component, String newState) {
+    String armCommandParams(String deviceType, String deviceVersion, String component, String newState) {
         Gson gson = new Gson();
         HashMap<String, String> innerHashMap = new HashMap<>();
         innerHashMap.put(component, newState);
@@ -68,7 +67,7 @@ public class ShadowParam
     /**
      * Maintains a set of date related to the state change.
      */
-    public class State
+    private class State
     {
         /**
          * Constructor to set the values of the data members in the state class.

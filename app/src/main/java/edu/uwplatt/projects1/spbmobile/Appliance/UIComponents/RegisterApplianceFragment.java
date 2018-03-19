@@ -216,8 +216,6 @@ public class RegisterApplianceFragment extends Fragment {
             } catch (Exception e) {
                 Log.e("RegisterDeviceWithAWS", e.getMessage(), e);
             }
-
-            CloudDatasource.getInstance(getActivity(), account, MainActivity.region).shadowUpdate();
         }
     }
 
