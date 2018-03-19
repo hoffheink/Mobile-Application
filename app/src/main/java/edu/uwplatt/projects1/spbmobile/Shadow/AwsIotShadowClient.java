@@ -14,13 +14,14 @@ import java.nio.ByteBuffer;
 import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 
-
+/**
+ * This class handles sending and receiving shadow messages from AWS shadow client.
+ */
 public class AwsIotShadowClient
 {
     private static final String TAG = AwsIotShadowClient.class.getCanonicalName();
-    //private static final String customerSpecificEP = "a121odz0gmuc20.iot.us-east-1.amazonaws.com";
-    private static AwsIotShadowClient ourInstance;
 
+    private static AwsIotShadowClient ourInstance;
     private CognitoCachingCredentialsProvider credentialsProvider;
     private AWSIotDataClient awsIotDataClient;
 
@@ -43,10 +44,16 @@ public class AwsIotShadowClient
      *
      * @param credentials credentials provided by the AWS cognito authentication.
      */
-    private AwsIotShadowClient(@NonNull CognitoCachingCredentialsProvider credentials) {
+    private AwsIotShadowClient(@NonNull CognitoCachingCredentialsProvider credentials)
+    {
         updateShadowAuthentication(credentials);
     }
 
+    /**
+     * Gets the customer specific endpoint of a AWS server in a given region
+     * for making calls to the shadow.
+     * @return the customer specific endpoint as a string.
+     */
     private static String getCustomerEndpoint()
     {
         switch (MainActivity.region)
@@ -64,7 +71,8 @@ public class AwsIotShadowClient
      *
      * @param credentials credentials provided by the AWS cognito authentication.
      */
-    public void updateShadowAuthentication(@NonNull CognitoCachingCredentialsProvider credentials) {
+    public void updateShadowAuthentication(@NonNull CognitoCachingCredentialsProvider credentials)
+    {
         awsIotDataClient = new AWSIotDataClient(credentials);
         awsIotDataClient.setEndpoint(getCustomerEndpoint());
         this.credentialsProvider = credentials;
@@ -85,7 +93,7 @@ public class AwsIotShadowClient
         {
             getShadow(deviceName);
             ShadowParam sp = new ShadowParam();
-            String payload = sp.armCommandParams(deviceName, deviceType, deviceVersion, command, stateChange);
+            String payload = sp.armCommandParams("Kyles" + deviceType, deviceVersion, command, stateChange);
             UpdateShadowTask updateShadowTask = new UpdateShadowTask(deviceName, payload, credentialsProvider.getCredentials());
             updateShadowTask.execute();
         }
@@ -114,18 +122,29 @@ public class AwsIotShadowClient
     }
 
     /**
-     * Subclass activity to get the shadow object.
+     * Subclass activity to get the current message stored in a device shadow.
      */
     private class GetShadowTask extends AsyncTask<Void, Void, AsyncTaskResult<String>>
     {
         private final String thingName;
         private final AWSSessionCredentials credentials;
 
-        protected GetShadowTask(String thingName, AWSSessionCredentials credentials) {
+        /**
+         * Constructor to set the necessary parameters for accessing a device shadow.
+         * @param thingName the name of the device shadow to call.
+         * @param credentials credentials to authenticate caller's permission with AWS.
+         */
+        protected GetShadowTask(String thingName, AWSSessionCredentials credentials)
+        {
             this.thingName = thingName;
             this.credentials = credentials;
         }
 
+        /**
+         * Background activity to retrieve the appliance shadow from the cloud.
+         * @param voids nothing.
+         * @return the message retrieved from the AWS IoT servers.
+         */
         @Override
         protected AsyncTaskResult<String> doInBackground(Void... voids)
         {
@@ -141,35 +160,42 @@ public class AwsIotShadowClient
                 getThingShadowResult.getPayload().get(bytes);
                 String result = new String(bytes);
                 return new AsyncTaskResult<>(result);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Log.e(TAG, "***GetShadow***", e);
                 return new AsyncTaskResult<>(e);
             }
         }
 
+        /**
+         * Handles post execute instructions on a separate thread from the caller.
+         * @param result the message retrieved from the AWS IoT servers.
+         */
         @Override
         protected void onPostExecute(AsyncTaskResult<String> result)
         {
             if(result.getError() == null)
                 Log.i(TAG, result.getResult());
             else
-                Log.e(TAG, "GetShadow", result.getError());
+                Log.e(TAG, "***GetShadow***", result.getError());
         }
     }
 
     /**
-     * Subclass activity to update shadow object.
+     * Subclass activity to update the current message stored in a device shadow.
      */
-    private class UpdateShadowTask extends AsyncTask<Void, Void, AsyncTaskResult<String>> {
+    private class UpdateShadowTask extends AsyncTask<Void, Void, AsyncTaskResult<String>>
+    {
         private String thingName;
         private String payload;
-        AWSSessionCredentials credentials;
+        private AWSSessionCredentials credentials;
 
         /**
-         *
-         * @param thingName
-         * @param message
-         * @param credentials
+         * Constructor to set the necessary parameters for accessing a device shadow.
+         * @param thingName the name of the device shadow to call.
+         * @param message the request formatted message to send to the AWS IoT shadow.
+         * @param credentials credentials to authenticate caller's permission with AWS.
          */
         protected UpdateShadowTask(String thingName, String message, AWSSessionCredentials credentials)
         {
@@ -178,15 +204,17 @@ public class AwsIotShadowClient
             this.credentials = credentials;
         }
 
+
         /**
-         *
-         * @param voids
-         * @return
+         * Background activity to retrieve the appliance shadow from the cloud.
+         * @param voids nothing.
+         * @return the message retrieved from the AWS IoT servers.
          */
         @Override
         protected AsyncTaskResult<String> doInBackground(Void... voids)
         {
-            try {
+            try
+            {
                 ByteBuffer payloadBuffer = ByteBuffer.wrap(payload.getBytes());
                 UpdateThingShadowRequest updateThingShadowRequest = new UpdateThingShadowRequest();
                 updateThingShadowRequest.setThingName(thingName);
@@ -207,8 +235,8 @@ public class AwsIotShadowClient
         }
 
         /**
-         *
-         * @param result
+         * Handles post execute instructions on a separate thread from the caller.
+         * @param result the message retrieved from the AWS IoT servers.
          */
         @Override
         protected void onPostExecute(AsyncTaskResult<String> result)
