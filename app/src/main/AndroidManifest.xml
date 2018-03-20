@@ -36,5 +36,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uwplatt.projects1.spbmobile.MainActivity" />
         </activity>
+
+        <service
+            android:name="edu.uwplatt.projects1.spbmobile.Firebase.FirebaseInstanceService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 </manifest>
