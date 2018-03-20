@@ -1,12 +1,10 @@
 package edu.uwplatt.projects1.spbmobile.Shadow;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+
 import java.util.Date;
 import java.util.HashMap;
-import edu.uwplatt.projects1.spbmobile.TimeHandle;
+import edu.uwplatt.projects1.spbmobile.Time;
 
 /**
  * Generic class used to centralize the construction of parameters for shadow invoking with
@@ -34,7 +32,7 @@ public class ShadowParam
         Gson gson = new Gson();
         HashMap<String, String> innerHashMap = new HashMap<>();
         innerHashMap.put(component, newState);
-        String result = gson.toJson(new UpdateClass(deviceType, deviceVersion, new State(innerHashMap), TimeHandle.getUTCTime(new Date())));
+        String result = gson.toJson(new UpdateClass(deviceType, deviceVersion, new State(innerHashMap), Time.getUTCTime(new Date())));
         return result;
     }
 
