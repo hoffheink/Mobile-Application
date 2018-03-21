@@ -2,10 +2,8 @@ package edu.uwplatt.projects1.spbmobile;
 
 import edu.uwplatt.projects1.spbmobile.Shadow.ShadowParam;
 import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import static org.junit.Assert.assertNotEquals;
 
 public class ShadowParamUnitTest
