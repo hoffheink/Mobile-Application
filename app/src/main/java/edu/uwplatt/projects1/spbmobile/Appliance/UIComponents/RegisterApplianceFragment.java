@@ -152,19 +152,14 @@ public class RegisterApplianceFragment extends Fragment {
         URL applianceURL;
         try {
             applianceURL = new URL("http://192.168.4.1/setup");
-
             URLConnection connection = applianceURL.openConnection();
             connection.setRequestProperty("SSID", networkName);
             connection.setRequestProperty("PASS", networkPassword);
-
             connection.connect();
-
             Scanner inputScanner = new Scanner(connection.getInputStream());
             token = inputScanner.next();
             Log.i("sendNetworkInfo", "Token is: " + token);
-            //TODO: Fix this damn name!
             RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token, getContext());
-
             for (int count = 0; appliance == null && count < 10; count++) {
                 registrationTask.run();
                 Thread.sleep(5000);
@@ -303,7 +298,6 @@ public class RegisterApplianceFragment extends Fragment {
         config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         int configID = wifiManager.addNetwork(config);
         Log.i("connectTo", "configID: " + configID);
-        //TODO: Log errors so the user can see them
         wifiManager.enableNetwork(configID, true);
         thingName = "esp8266_" + selectedNetwork.SSID.substring(selectedNetwork.SSID.length() - 6);
         Log.i("connectTo", "thingName: " + thingName);
