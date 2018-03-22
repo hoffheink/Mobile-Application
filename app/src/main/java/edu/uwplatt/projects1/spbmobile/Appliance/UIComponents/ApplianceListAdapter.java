@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
+import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
 
 public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
