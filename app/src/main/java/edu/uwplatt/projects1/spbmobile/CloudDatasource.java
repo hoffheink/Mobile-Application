@@ -142,25 +142,25 @@ public class CloudDatasource {
                 listThingsRequest.setRequestCredentials(credentials);
 
                 try {
-                    List<String> thingNames = new ArrayList<>();
+                    /*List<String> thingNames = new ArrayList<>();
                     for (Policy policy : awsIot.listPrincipalPolicies(listPrincipalPoliciesRequest).getPolicies()) {
                         String policyName = policy.getPolicyName().replace("app-", "");
                         thingNames.add(policyName);
-                    }
+                    }*/
 
                     for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
-                        if (thingNames.contains(o.getThingName())) {
-                            Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
-                            String thingType = o.getThingTypeName();
-                            if (thingType != null) {
-                                switch (o.getThingTypeName()) {
-                                    case "coffee-maker":
-                                        appliance.setApplianceType(Appliance.ApplianceType.CoffeeMaker);
-                                        break;
-                                }
+                        //if (thingNames.contains(o.getThingName())) {
+                        Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
+                        String thingType = o.getThingTypeName();
+                        if (thingType != null) {
+                            switch (o.getThingTypeName()) {
+                                case "coffee-maker":
+                                    appliance.setApplianceType(Appliance.ApplianceType.CoffeeMaker);
+                                    break;
                             }
-                            newApplianceList.add(appliance);
                         }
+                        newApplianceList.add(appliance);
+                        //}
                     }
                 } catch (Exception e) {
                     Log.e("GetAppliancesRunnable", e.getMessage(), e);
