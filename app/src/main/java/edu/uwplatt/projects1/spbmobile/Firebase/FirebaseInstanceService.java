@@ -4,11 +4,17 @@ import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
+/**
+ * Base class to handle Firebase instance ID token refresh events.
+ */
 public class FirebaseInstanceService extends FirebaseInstanceIdService
 {
+    // Get import class identifier
     private final static String TAG = FirebaseInstanceService.class.getCanonicalName();
 
-
+    /**
+     * Fired upon token refresh.
+     */
     @Override
     public void onTokenRefresh()
     {
@@ -22,7 +28,6 @@ public class FirebaseInstanceService extends FirebaseInstanceIdService
         sendRegistrationToServer(refreshedToken);
     }
 
-    private void sendRegistrationToServer(String refreshedToken)
-    {
-    }
+    // Optional
+    private void sendRegistrationToServer(String refreshedToken) {}
 }
