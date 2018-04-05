@@ -7,6 +7,10 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobile.config.AWSConfigurable;
+import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
+import com.amazonaws.mobileconnectors.cognito.Dataset;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.iot.AWSIot;
@@ -26,8 +30,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 
-public class CloudDatasource
-{
+import static android.content.Context.USER_SERVICE;
+
+
+public class CloudDatasource {
     private static final String US_EAST_1_IdentityPoolID = "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
     private static final String US_EAST_2_IdentityPoolID = "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878";
     @SuppressLint("StaticFieldLeak")
@@ -88,6 +94,24 @@ public class CloudDatasource
         }
     }
 
+    public void updateCognitoSync() throws Exception {
+        Regions awsRegion;
+        switch (ourRegion) {
+            case US_EAST_1:
+                awsRegion = Regions.US_EAST_1;
+                break;
+            case US_EAST_2:
+                awsRegion = Regions.US_EAST_2;
+                break;
+            default:
+                throw new Exception("unhandled region");
+        }
+        AWSConfiguration awsConfiguration = new AWSConfiguration(ourContext);
+        CognitoSyncManager cognitoSyncManager = new CognitoSyncManager(ourContext, credentialsProvider, awsConfiguration);
+        Dataset dataset = cognitoSyncManager.openOrCreateDataset("user");
+        int i = 0;
+    }
+
     private AWSSessionCredentials getCredentials() {
         try {
             return ourInstance.credentialsProvider.getCredentials();
@@ -120,11 +144,11 @@ public class CloudDatasource
                 listThingsRequest.setRequestCredentials(credentials);
 
                 try {
-                    List<String> thingNames = new ArrayList<>();
+                    /*List<String> thingNames = new ArrayList<>();
                     for (Policy policy : awsIot.listPrincipalPolicies(listPrincipalPoliciesRequest).getPolicies()) {
                         String policyName = policy.getPolicyName().replace("app-", "");
                         thingNames.add(policyName);
-                    }
+                    }*/
 
                     for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
                         //if (thingNames.contains(o.getThingName())) {
@@ -139,8 +163,9 @@ public class CloudDatasource
                                     appliance.setApplianceType(Appliance.ApplianceType.Test);
                                     break;
                             }
-                            newApplianceList.add(appliance);
                         }
+                        newApplianceList.add(appliance);
+                        //}
                     }
                 } catch (Exception e) {
                     Log.e("GetAppliancesRunnable", e.getMessage(), e);

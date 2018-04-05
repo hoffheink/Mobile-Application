@@ -16,6 +16,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -41,7 +45,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.register_appliance_toolbar);
         setSupportActionBar(toolbar);
-
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -73,6 +76,7 @@ public class MainActivity extends AppCompatActivity
         Appliance.setVersionNumber(getString(R.string.appVersion));
         updateAccountInformation();
         Appliance nick = new Appliance("nick", "123456");
+
         int i = 7;
     }
 
@@ -86,6 +90,13 @@ public class MainActivity extends AppCompatActivity
             View header = navigationView.getHeaderView(0);
             ((TextView) header.findViewById(R.id.user_name)).setText(account.getDisplayName());
             ((TextView) header.findViewById(R.id.user_email)).setText(account.getEmail());
+
+            try
+            {
+                CloudDatasource.getInstance(this, account, region).updateCognitoSync();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/hoursRelLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/smallMargin"
+        android:layout_marginTop="@dimen/smallMargin">
+
+        <TextView
+            android:id="@+id/hoursTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/hours" />
+
+        <NumberPicker
+            android:id="@+id/durationHours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/hoursTextView" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/minutesRelLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/smallMargin"
+        android:layout_marginTop="@dimen/smallMargin"
+        android:layout_toEndOf="@id/hoursRelLayout">
+
+        <TextView
+            android:id="@+id/minutesTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/minutes" />
+
+        <NumberPicker
+            android:id="@+id/durationMinutes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/minutesTextView" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/secondsRelLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/smallMargin"
+        android:layout_marginTop="@dimen/smallMargin"
+        android:layout_toEndOf="@id/minutesRelLayout">
+
+        <TextView
+            android:id="@+id/secondsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/seconds" />
+
+        <NumberPicker
+            android:id="@+id/durationSeconds"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/secondsTextView" />
+    </RelativeLayout>
+
+
+</RelativeLayout>
