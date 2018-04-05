@@ -7,10 +7,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobile.config.AWSConfigurable;
-import com.amazonaws.mobile.config.AWSConfiguration;
-import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
-import com.amazonaws.mobileconnectors.cognito.Dataset;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.iot.AWSIot;
@@ -29,8 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
-
-import static android.content.Context.USER_SERVICE;
 
 
 public class CloudDatasource {
@@ -92,24 +86,6 @@ public class CloudDatasource {
                         US_EAST_2_IdentityPoolID, Regions.US_EAST_2);
                 break;
         }
-    }
-
-    public void updateCognitoSync() throws Exception {
-        Regions awsRegion;
-        switch (ourRegion) {
-            case US_EAST_1:
-                awsRegion = Regions.US_EAST_1;
-                break;
-            case US_EAST_2:
-                awsRegion = Regions.US_EAST_2;
-                break;
-            default:
-                throw new Exception("unhandled region");
-        }
-        AWSConfiguration awsConfiguration = new AWSConfiguration(ourContext);
-        CognitoSyncManager cognitoSyncManager = new CognitoSyncManager(ourContext, credentialsProvider, awsConfiguration);
-        Dataset dataset = cognitoSyncManager.openOrCreateDataset("user");
-        int i = 0;
     }
 
     private AWSSessionCredentials getCredentials() {

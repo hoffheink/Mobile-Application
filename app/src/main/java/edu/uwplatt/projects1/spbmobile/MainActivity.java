@@ -17,9 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.amazonaws.mobileconnectors.cognito.CognitoSyncManager;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -45,6 +42,15 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.register_appliance_toolbar);
         setSupportActionBar(toolbar);
+
+        /*FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });*/
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -90,13 +96,6 @@ public class MainActivity extends AppCompatActivity
             View header = navigationView.getHeaderView(0);
             ((TextView) header.findViewById(R.id.user_name)).setText(account.getDisplayName());
             ((TextView) header.findViewById(R.id.user_email)).setText(account.getEmail());
-
-            try
-            {
-                CloudDatasource.getInstance(this, account, region).updateCognitoSync();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 
