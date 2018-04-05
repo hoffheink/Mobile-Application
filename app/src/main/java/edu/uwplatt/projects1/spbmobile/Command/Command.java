@@ -24,10 +24,11 @@ public class Command {
     public static void executeCurrentCommand(@NonNull Context context)
     {
         AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region).getCreds()).getShadow(Appliance.currentAppliance.getName());
-        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,MainActivity.account,
+        /*AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,MainActivity.account,
                 MainActivity.region).getCreds()).updateCommandShadow(Appliance.currentAppliance.getName(),
                 Appliance.currentAppliance.getApplianceType().toString(),
-                context.getString(R.string.appVersion), "ledOn", String.valueOf(onOff)); //Todo: Change from hardcode
+                context.getString(R.string.appVersion), "{ledOn:true}"); //Todo: Change from hardcode
+                */
         onOff = !onOff;
     }
 

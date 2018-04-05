@@ -24,56 +24,42 @@ public class ShadowParam
      *
      * @param deviceType    type of appliance.
      * @param deviceVersion appliance version.
-     * @param component     the specific component of the device that is to be changed.
-     * @param newState      the desired state the component should be in.
      * @return a json formatted string for invoking a command update.
      */
-    public String armCommandParams(String deviceType, String deviceVersion, String component, String newState) {
+    public String armCommandParams(String deviceType, String deviceVersion, HashMap<String, String> command)
+    {
         Gson gson = new Gson();
+
+
+        /*
         HashMap<String, String> innerHashMap = new HashMap<>();
         innerHashMap.put(component, newState);
         String result = gson.toJson(new UpdateClass(deviceType, deviceVersion, new State(innerHashMap), Time.getUTCTime(new Date())));
-        return result;
+        */
+        return gson.toJson(new UpdateCommandStructure(deviceType, deviceVersion, new Desired(command)));
     }
 
-    /**
-     * Maintains a set of data members related to updating the current state of a shadow object.
-     */
-    private class UpdateClass
+    private class UpdateCommandStructure
     {
-        String mobileDeviceType;
-        String mobileDeviceVersion;
-        State state;
-        String utcSendTime;
+        String mobileDeviceType, mobileDeviceVersion, utcSendTime;
+        Desired state;
 
-        /**
-         * Constructor to set the values of the data members in the update class.
-         * @param mobileDeviceType type of appliance.
-         * @param mobileDeviceVersion appliance version.
-         * @param state the requested state change of the shadow object.
-         * @param utcSendTime the time the update shadow request was sent.
-         */
-        UpdateClass(String mobileDeviceType, String mobileDeviceVersion, State state, String utcSendTime)
+        UpdateCommandStructure(String type, String version, Desired command)
         {
-            this.mobileDeviceType = mobileDeviceType;
-            this.mobileDeviceVersion = mobileDeviceVersion;
-            this.state = state;
-            this.utcSendTime = utcSendTime;
+            Gson gson = new Gson();
+            state = command;
+            mobileDeviceType = type;
+            mobileDeviceVersion = version;
+            utcSendTime = Time.getUTCTime(new Date());
         }
     }
-
-    /**
-     * Maintains a set of date related to the state change.
-     */
-    private class State
+    private class Desired
     {
-        /**
-         * Constructor to set the values of the data members in the state class.
-         * @param desired the desired component to be changed and the state to be changed to.
-         */
-        State(HashMap<String, String> desired) {
-            this.desired = desired;
+        HashMap<String,String> desired;
+
+        Desired(HashMap<String,String> commnad)
+        {
+            desired = commnad;
         }
-        HashMap<String, String> desired;
     }
 }

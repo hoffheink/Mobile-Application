@@ -11,6 +11,8 @@ import com.amazonaws.services.iotdata.model.UpdateThingShadowRequest;
 import com.amazonaws.services.iotdata.model.UpdateThingShadowResult;
 import com.amazonaws.services.iotdata.AWSIotDataClient;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+
 import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 
@@ -85,15 +87,15 @@ public class AwsIotShadowClient
      * @param deviceType    appliance type.
      * @param deviceVersion appliance version.
      * @param command       object in the appliance that is going to be changed.
-     * @param stateChange   state of object in appliance that is being requested.
+     * //@param stateChange   state of object in appliance that is being requested.
      */
-    public void updateCommandShadow(String deviceName, String deviceType, String deviceVersion, String command, String stateChange)
+    public void updateCommandShadow(String deviceName, String deviceType, String deviceVersion, HashMap<String, String> command)
     {
         try
         {
             getShadow(deviceName);
             ShadowParam sp = new ShadowParam();
-            String payload = sp.armCommandParams("Kyles" + deviceType, deviceVersion, command, stateChange);
+            String payload = sp.armCommandParams(deviceType, deviceVersion, command);
             UpdateShadowTask updateShadowTask = new UpdateShadowTask(deviceName, payload, credentialsProvider.getCredentials());
             updateShadowTask.execute();
         }
