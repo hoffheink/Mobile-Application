@@ -12,8 +12,6 @@ import static org.junit.Assert.assertNotEquals;
  */
 public class ShadowParamUnitTest
 {
-    private final static String TAG = "ShadowParamTest";
-
     /**
      * This test is used to manually check the format of a payload to be sent to a shadow
      * object with a single requested state change.
@@ -21,6 +19,7 @@ public class ShadowParamUnitTest
     @Test
     public void armCommandParams_manualComparison_singleStateChange_testAutoPass()
     {
+        String TAG = "armCommandParams_manualComparison_singleStateChange_testAutoPass";
         String result = "";
         String CORRECT = "{\"mobileDeviceType\":\"Hat\",\"mobileDeviceVersion\":\"1.0.0\",\"state\":{\"desired\":{\"Bow\":\"on\"}},\"utcSendTime\":\"2017-12-04 20:33:39.852\"}";
         String mType = "Hat";
@@ -44,6 +43,7 @@ public class ShadowParamUnitTest
     @Test
     public void armCommandParams_manualComparison_multiStateChange_testAutoPass()
     {
+        String TAG = "armCommandParams_manualComparison_multiStateChange_testAutoPass";
         ShadowParam shadowParam = new ShadowParam();
         String deviceType = "Panzer";
         String deviceVersion = "4D";

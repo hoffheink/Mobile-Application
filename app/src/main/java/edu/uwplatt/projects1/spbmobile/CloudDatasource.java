@@ -41,7 +41,7 @@ public class CloudDatasource {
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
 
-    public CognitoCachingCredentialsProvider getCreds()
+    public CognitoCachingCredentialsProvider getCognitoCachingCredentialsProvider()
     {
         return credentialsProvider;
     }

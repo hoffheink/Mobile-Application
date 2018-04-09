@@ -27,7 +27,7 @@ public class AwsIotShadowClient
     private AWSIotDataClient awsIotDataClient;
 
     /**
-     * Creates an instance of the AwsIotShadowClient is there is no instance, otherwise
+     * Creates an instance of the AwsIotShadowClient if there is no instance, otherwise
      * it returns the instance of a AwsShadowClient.
      *
      * @param credentials credentials provided by the AWS cognito authentication.
@@ -56,14 +56,16 @@ public class AwsIotShadowClient
      *
      * @return the customer specific endpoint as a string.
      */
-    private static String getCustomerEndpoint()
+    private static String getCustomerEndpoint() throws Exception
     {
         switch (MainActivity.region)
         {
             case US_EAST_1:
                 return "a121odz0gmuc20.iot.us-east-1.amazonaws.com";
-            default:
+            case US_EAST_2:
                 return "a121odz0gmuc20.iot.us-east-2.amazonaws.com";
+            default:
+                throw new Exception("Region " + MainActivity.region.toString());
         }
     }
 
@@ -75,9 +77,16 @@ public class AwsIotShadowClient
      */
     public void updateShadowAuthentication(@NonNull CognitoCachingCredentialsProvider credentials)
     {
-        awsIotDataClient = new AWSIotDataClient(credentials);
-        awsIotDataClient.setEndpoint(getCustomerEndpoint());
-        this.credentialsProvider = credentials;
+        try
+        {
+            awsIotDataClient = new AWSIotDataClient(credentials);
+            awsIotDataClient.setEndpoint(getCustomerEndpoint());
+            this.credentialsProvider = credentials;
+        }
+        catch (Exception e)
+        {
+            Log.d(TAG, "ipdateShadowAuthentication", e);
+        }
     }
 
     /**
@@ -86,7 +95,8 @@ public class AwsIotShadowClient
      * @param deviceName    name of the appliance.
      * @param deviceType    appliance type.
      * @param deviceVersion appliance version.
-     * @param command       set of pairs that define the state to change and the desired state.
+     * @param command       set of pairs that define the state to change and the desired state;
+     *                      if order is required use a LinkedHashMap.
      */
     public void updateCommandShadow(String deviceName, String deviceType, String deviceVersion, HashMap<String, String> command)
     {

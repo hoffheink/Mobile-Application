@@ -15,22 +15,19 @@ import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
 public class Command {
     public static Command currentCommand;
     public String humanName;
-    boolean priority;
     public Parameter[] parameters;
-    State[] states;
-    String cmdName;
 
     static boolean onOff = true;
 
     public static void executeCurrentCommand(@NonNull Context context)
     {
-        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region).getCreds()).getShadow(Appliance.currentAppliance.getName());
+        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region).getCognitoCachingCredentialsProvider()).getShadow(Appliance.currentAppliance.getName());
         HashMap<String, String> losMap = new HashMap<>();
         losMap.put("ledOn", String.valueOf(onOff));
         losMap.put("KyleSaysHi", String.valueOf(onOff));
 
         AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,MainActivity.account,
-                MainActivity.region).getCreds()).updateCommandShadow(Appliance.currentAppliance.getName(),
+                MainActivity.region).getCognitoCachingCredentialsProvider()).updateCommandShadow(Appliance.currentAppliance.getName(),
                 Appliance.currentAppliance.getApplianceType().toString(),
                 context.getString(R.string.appVersion), losMap); //Todo: Change from hardcode
 
