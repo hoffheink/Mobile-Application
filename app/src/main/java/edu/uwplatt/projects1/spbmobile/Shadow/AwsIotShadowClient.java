@@ -12,7 +12,6 @@ import com.amazonaws.services.iotdata.model.UpdateThingShadowResult;
 import com.amazonaws.services.iotdata.AWSIotDataClient;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-
 import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 
@@ -54,6 +53,7 @@ public class AwsIotShadowClient
     /**
      * Gets the customer specific endpoint of a AWS server in a given region
      * for making calls to the shadow.
+     *
      * @return the customer specific endpoint as a string.
      */
     private static String getCustomerEndpoint()
@@ -81,19 +81,17 @@ public class AwsIotShadowClient
     }
 
     /**
-     * Updates a shadow object.
+     * Updates shadow object with a set commands.
      *
      * @param deviceName    name of the appliance.
      * @param deviceType    appliance type.
      * @param deviceVersion appliance version.
-     * @param command       object in the appliance that is going to be changed.
-     * //@param stateChange   state of object in appliance that is being requested.
+     * @param command       set of pairs that define the state to change and the desired state.
      */
     public void updateCommandShadow(String deviceName, String deviceType, String deviceVersion, HashMap<String, String> command)
     {
         try
         {
-            getShadow(deviceName);
             ShadowParam sp = new ShadowParam();
             String payload = sp.armCommandParams(deviceType, deviceVersion, command);
             UpdateShadowTask updateShadowTask = new UpdateShadowTask(deviceName, payload, credentialsProvider.getCredentials());
@@ -224,6 +222,7 @@ public class AwsIotShadowClient
                 updateThingShadowRequest.setPayload(payloadBuffer);
 
                 UpdateThingShadowResult updateThingShadowResult = awsIotDataClient.updateThingShadow(updateThingShadowRequest);
+
                 byte[] bytes = new byte[updateThingShadowResult.getPayload().remaining()];
                 updateThingShadowResult.getPayload().get(bytes);
                 String result = new String(bytes);
