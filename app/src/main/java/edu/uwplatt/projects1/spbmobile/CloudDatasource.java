@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 
-public class CloudDatasource
-{
+
+public class CloudDatasource {
     private static final String US_EAST_1_IdentityPoolID = "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
     private static final String US_EAST_2_IdentityPoolID = "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878";
     @SuppressLint("StaticFieldLeak")
@@ -120,11 +120,11 @@ public class CloudDatasource
                 listThingsRequest.setRequestCredentials(credentials);
 
                 try {
-                    List<String> thingNames = new ArrayList<>();
+                    /*List<String> thingNames = new ArrayList<>();
                     for (Policy policy : awsIot.listPrincipalPolicies(listPrincipalPoliciesRequest).getPolicies()) {
                         String policyName = policy.getPolicyName().replace("app-", "");
                         thingNames.add(policyName);
-                    }
+                    }*/
 
                     for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
                         //if (thingNames.contains(o.getThingName())) {
@@ -139,8 +139,9 @@ public class CloudDatasource
                                     appliance.setApplianceType(Appliance.ApplianceType.Test);
                                     break;
                             }
-                            newApplianceList.add(appliance);
                         }
+                        newApplianceList.add(appliance);
+                        //}
                     }
                 } catch (Exception e) {
                     Log.e("GetAppliancesRunnable", e.getMessage(), e);
