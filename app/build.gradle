@@ -53,11 +53,4 @@ dependencies {
     compile 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.+'//AWS Coginito Credentials provider
     compile 'com.amazonaws:aws-android-sdk-kms:2.6.+'//Key managment services
 }
-
-
-
-
-
-
-
 apply plugin: 'com.google.gms.google-services'

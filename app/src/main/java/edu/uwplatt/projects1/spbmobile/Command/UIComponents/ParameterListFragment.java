@@ -41,7 +41,7 @@ public class ParameterListFragment extends Fragment {
         executeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Command.executeCurrentCommand();
+                Command.executeCurrentCommand(getContext());
             }
         });
     }
@@ -65,6 +65,4 @@ public class ParameterListFragment extends Fragment {
 
         }
     }
-
-    // TODO: Create method to respond to buttons, update argument and hook method into UI event
 }

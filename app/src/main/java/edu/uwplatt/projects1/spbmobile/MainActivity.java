@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity
         Appliance.setVersionNumber(getString(R.string.appVersion));
         updateAccountInformation();
         Appliance nick = new Appliance("nick", "123456");
+
         int i = 7;
     }
 
