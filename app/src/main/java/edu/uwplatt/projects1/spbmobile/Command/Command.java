@@ -2,12 +2,32 @@ package edu.uwplatt.projects1.spbmobile.Command;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.annotations.SerializedName;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.UUID;
+
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
+import edu.uwplatt.projects1.spbmobile.JsonHelpers.RangeTypeAdapter;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
 import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
+import edu.uwplatt.projects1.spbmobile.Time;
 
 /**
  * This class is used to model Commands.
@@ -20,31 +40,83 @@ public class Command {
     State[] states;
     String cmdName;
 
-    static boolean onOff = true;
+    private static UUID getRandomUUID() {
+        return UUID.randomUUID();
+    }
 
-    public static void executeCurrentCommand(@NonNull Context context)
-    {
-        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region).getCognitoCachingCredentialsProvider()).getShadow(Appliance.currentAppliance.getName());
-        HashMap<String, String> losMap = new HashMap<>();
-        losMap.put("ledOn", String.valueOf(onOff));
-        losMap.put("KyleSaysHi", String.valueOf(onOff));
+    public static class CommandQueue {
+        private class CommandModel {
+            private class Properties {
+                private int priority;
+                private UUID guid;
+                private String timestamp;
 
-        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,MainActivity.account,
-                MainActivity.region).getCognitoCachingCredentialsProvider()).updateCommandShadow(Appliance.currentAppliance.getName(),
-                Appliance.currentAppliance.getApplianceType().toString(),
-                context.getString(R.string.appVersion), losMap); //Todo: Change from hardcode
+                public Properties(boolean isPriority) {
+                    if (isPriority)
+                        priority = 1;
+                    else
+                        priority = 0;
+                    guid = getRandomUUID();
+                    timestamp = Time.getUTCTime(new Date());
+                }
 
+                public Properties(boolean isPriority, UUID inGuid) {
+                    this(isPriority);
+                    guid = inGuid;
+                }
+            }
 
-        onOff = !onOff;
+            private final String cmdName;
+            private final Properties properties;
+            private HashMap<String, Object> arguments = new HashMap<>();
+
+            public CommandModel(Command command) {
+                cmdName = command.cmdName;
+                properties = new Properties(command.priority);
+                for (Parameter parameter : command.parameters) {
+                    arguments.put(parameter.machineName, parameter.value);
+                }
+            }
+        }
+        @SerializedName("commandQueue")
+        Queue<CommandModel> commandModelQueue = new PriorityQueue<>();
+        public void addCommand(Command command)
+        {
+            commandModelQueue.add(new CommandModel(command));
+        }
+    }
+
+    public static void executeCurrentCommand(@NonNull Context context) {
+        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,
+                MainActivity.account,
+                MainActivity.region)
+                .getCognitoCachingCredentialsProvider())
+                .getShadow(Appliance.currentAppliance.getName());
+        HashMap<String, String> variableMap = new HashMap<>();
+
+        CommandQueue commandQueue = new CommandQueue();
+        commandQueue.addCommand(currentCommand);
+        Gson gson = new Gson();
+        String commandQueueJson = gson.toJson(commandQueue);
+
+        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,
+                MainActivity.account,
+                MainActivity.region)
+                .getCognitoCachingCredentialsProvider())
+                .updateCommandShadow(
+                        Appliance.currentAppliance.getName(),
+                        Appliance.currentAppliance.getApplianceType().toString(),
+                        (String) context.getText(R.string.appVersion),
+                        commandQueue); //Todo: Change from hardcode
     }
 
     /**
      * Sets the parameters on the current command.
+     *
      * @param machineName this is the name that the argument should be sent as.
-     * @param value the value being inputted.
+     * @param value       the value being inputted.
      */
-    public static void setParameterOnCurrentCommand(String machineName, Object value)
-    {
+    public static void setParameterOnCurrentCommand(String machineName, Object value) {
         if (currentCommand != null)
             for (int i = 0; i < currentCommand.parameters.length; i++)
                 if (currentCommand.parameters[i].machineName.equals(machineName))

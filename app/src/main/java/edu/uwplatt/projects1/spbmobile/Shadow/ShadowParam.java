@@ -3,6 +3,8 @@ package edu.uwplatt.projects1.spbmobile.Shadow;
 import com.google.gson.Gson;
 import java.util.Date;
 import java.util.HashMap;
+
+import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.Time;
 
 /**
@@ -23,13 +25,13 @@ public class ShadowParam
      *
      * @param deviceType    type of appliance.
      * @param deviceVersion appliance version.
-     * @param command set of pairs that define the state to change and the desired state.
+     * @param commandQueue set of pairs that define the state to change and the desired state.
      * @return a json formatted string for invoking a command update.
      */
-    public String armCommandParams(String deviceType, String deviceVersion, HashMap<String, String> command)
+    public String armCommandParams(String deviceType, String deviceVersion, Command.CommandQueue commandQueue)
     {
         Gson gson = new Gson();
-        return gson.toJson(new UpdateCommandStructure(deviceType, deviceVersion, new Desired(command)));
+        return gson.toJson(new UpdateCommandStructure(deviceType, deviceVersion, new Desired(commandQueue)));
     }
 
     /**
@@ -63,15 +65,15 @@ public class ShadowParam
      */
     private class Desired
     {
-        HashMap<String,String> desired;
+        Command.CommandQueue desired;
 
         /**
          * Constructor sets the values of the class' attributes.
-         * @param commnad
+         * @param commandQueue
          */
-        Desired(HashMap<String,String> commnad)
+        Desired(Command.CommandQueue commandQueue)
         {
-            desired = commnad;
+            desired = commandQueue;
         }
     }
 }
