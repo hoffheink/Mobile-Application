@@ -44,7 +44,7 @@ import java.util.Set;
 import static edu.uwplatt.projects1.spbmobile.MainActivity.region;
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
-import edu.uwplatt.projects1.spbmobile.MainActivity;
+import edu.uwplatt.projects1.spbmobile.GoogleProvider;
 import edu.uwplatt.projects1.spbmobile.R;
 
 public class RegisterApplianceFragment extends Fragment {
@@ -143,7 +143,7 @@ public class RegisterApplianceFragment extends Fragment {
         public void run() {
             sendNetworkInfo(networkName, networkPassword);
             if (appliance != null) {
-                CloudDatasource.getInstance(getContext(), MainActivity.account, region).loadAppliances(); //Reloading the appliance list
+                CloudDatasource.getInstance(getContext(), GoogleProvider.getAccount(), region).loadAppliances(); //Reloading the appliance list
             }
         }
     }
@@ -159,7 +159,10 @@ public class RegisterApplianceFragment extends Fragment {
             Scanner inputScanner = new Scanner(connection.getInputStream());
             token = inputScanner.next();
             Log.i("sendNetworkInfo", "Token is: " + token);
-            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token, getContext());
+
+            //TODO: Fix this damn name!
+            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(GoogleProvider.getAccount(), thingName, token, getContext());
+
             for (int count = 0; appliance == null && count < 10; count++) {
                 registrationTask.run();
                 Thread.sleep(5000);

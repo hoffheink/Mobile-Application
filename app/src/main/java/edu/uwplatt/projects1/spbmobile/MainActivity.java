@@ -17,14 +17,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceFragment;
@@ -32,7 +27,6 @@ import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceF
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
     protected DrawerLayout mDrawer;
-    public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
     public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_1;
 
@@ -87,15 +81,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateAccountInformation() {
-        account = GoogleSignIn.getLastSignedInAccount(this);
-        if (account == null)
+        GoogleProvider.setAccountToLastSignedIn(this);
+
+        if (GoogleProvider.getAccount() == null)
             showWelcomeScreen();
         else {
-            CloudDatasource.getInstance(this, account, region).loadAppliances(); //Loads appliance list
+            CloudDatasource.getInstance(this, GoogleProvider.getAccount(), region).loadAppliances(); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
-            ((TextView) header.findViewById(R.id.user_name)).setText(account.getDisplayName());
-            ((TextView) header.findViewById(R.id.user_email)).setText(account.getEmail());
+            ((TextView) header.findViewById(R.id.user_name)).setText(GoogleProvider.getDispName());
+            ((TextView) header.findViewById(R.id.user_email)).setText(GoogleProvider.getEmail());
         }
     }
 
@@ -153,22 +148,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_invoke_aws) {
 
         } else if (id == R.id.nav_logout) {
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(getString(R.string.default_web_client_id))
-                    .requestEmail()
-                    .build();
-
-            // Build a GoogleSignInClient with the options specified by gso.
-            GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-            mGoogleSignInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-                    homeIntent.addCategory(Intent.CATEGORY_HOME);
-                    homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(homeIntent);
-                }
-            });
+            GoogleProvider.signOut(this);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

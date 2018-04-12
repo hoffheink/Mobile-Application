@@ -5,12 +5,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.util.concurrent.ExecutionException;
 
@@ -74,7 +77,7 @@ public class GoogleProvider
      * Get currently authorized Google account that is signed in.
      * @return currently authorized Google account that is signed in.
      */
-    GoogleSignInAccount getAccount()
+    public static GoogleSignInAccount getAccount()
     {
         return account;
     }
@@ -108,6 +111,48 @@ public class GoogleProvider
     {
         GoogleProvider.SilentLoginWithGoogle silentLoginWithGoogle = new GoogleProvider.SilentLoginWithGoogle();
         return silentLoginWithGoogle.execute().get();
+    }
+
+    /**
+     * Signs out of activity
+     *
+     */
+    public static void signOut(Activity activity) {
+        // Build a GoogleSignInClient with the options specified by gso.
+
+        googleSignInClient.signOut().addOnCompleteListener(activity, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+                homeIntent.addCategory(Intent.CATEGORY_HOME);
+                homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                applicationContext.startActivity(homeIntent);
+            }
+        });
+    }
+
+    /**
+     * Sets the account to the last signed in
+     *
+     */
+    public static void setAccountToLastSignedIn(Context context) {
+        account = GoogleSignIn.getLastSignedInAccount(context);
+    }
+
+    /**
+     * Gets the account display name
+     *
+     */
+    public static String getDispName() {
+        return account.getDisplayName();
+    }
+
+    /**
+     * Gets the account email
+     *
+     */
+    public static String getEmail() {
+        return account.getEmail();
     }
 
     /**
