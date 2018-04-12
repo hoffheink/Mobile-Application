@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import java.util.HashMap;
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
+import edu.uwplatt.projects1.spbmobile.GoogleProvider;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
 import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
@@ -21,12 +22,12 @@ public class Command {
 
     public static void executeCurrentCommand(@NonNull Context context)
     {
-        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region).getCognitoCachingCredentialsProvider()).getShadow(Appliance.currentAppliance.getName());
+        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, GoogleProvider.getAccount(), MainActivity.region).getCognitoCachingCredentialsProvider()).getShadow(Appliance.currentAppliance.getName());
         HashMap<String, String> losMap = new HashMap<>();
         losMap.put("ledOn", String.valueOf(onOff));
         losMap.put("KyleSaysHi", String.valueOf(onOff));
 
-        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,MainActivity.account,
+        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, GoogleProvider.getAccount(),
                 MainActivity.region).getCognitoCachingCredentialsProvider()).updateCommandShadow(Appliance.currentAppliance.getName(),
                 Appliance.currentAppliance.getApplianceType().toString(),
                 context.getString(R.string.appVersion), losMap); //Todo: Change from hardcode
