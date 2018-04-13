@@ -278,6 +278,10 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
             @Override
             public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                 updateDisplays();
+                int timeInSeconds = durationHours.getValue()*SecondsPerHour+
+                        durationMinutes.getValue() * SecondsPerMinute+
+                        durationSeconds.getValue();
+                Command.setParameterOnCurrentCommand("duration", timeInSeconds);
             }
         };
 
