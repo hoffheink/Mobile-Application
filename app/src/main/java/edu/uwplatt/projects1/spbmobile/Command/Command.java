@@ -1,6 +1,7 @@
 package edu.uwplatt.projects1.spbmobile.Command;
 
 import android.content.Context;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 
 import com.google.gson.Gson;
@@ -82,6 +83,10 @@ public class Command {
         Queue<CommandModel> commandModelQueue = new PriorityQueue<>();
         public void addCommand(Command command)
         {
+            //TODO: REMOVE THIS V
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            //TODO: REMOVE THIS ^
             commandModelQueue.add(new CommandModel(command));
         }
     }
