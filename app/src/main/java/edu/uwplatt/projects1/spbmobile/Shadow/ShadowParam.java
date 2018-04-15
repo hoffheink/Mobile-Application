@@ -52,7 +52,6 @@ public class ShadowParam
          */
         UpdateCommandStructure(String type, String version, Desired command)
         {
-            Gson gson = new Gson();
             state = command;
             mobileDeviceType = type;
             mobileDeviceVersion = version;

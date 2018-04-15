@@ -1,5 +1,6 @@
 package edu.uwplatt.projects1.spbmobile;
 
+import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.Shadow.ShadowParam;
 import org.junit.Test;
 import java.util.LinkedHashMap;
@@ -29,7 +30,8 @@ public class ShadowParamUnitTest
         command.put("Hat", "on");
 
         ShadowParam shadowParam = new ShadowParam();
-        result = shadowParam.armCommandParams(mType, mVer, command);
+        Command.CommandQueue commandQueue = new Command.CommandQueue();
+        result = shadowParam.armCommandParams(mType, mVer, commandQueue);
 
         System.out.println(TAG + "Format should be:\n" + CORRECT);
         System.out.println(TAG + "Format is:\n" + result);
@@ -56,7 +58,8 @@ public class ShadowParamUnitTest
             command.put(comp+i, String.valueOf(equiped));
             equiped = !equiped;
         }
-        String result = shadowParam.armCommandParams(deviceType,deviceVersion, command);
+        Command.CommandQueue commandQueue = new Command.CommandQueue();
+        String result = shadowParam.armCommandParams(deviceType,deviceVersion, commandQueue);
         System.out.println(TAG + "Format is:\n" + result);
         assert(true);
     }

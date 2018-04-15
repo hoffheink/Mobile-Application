@@ -46,6 +46,10 @@ public class Command {
     }
 
     public static class CommandQueue {
+        public CommandQueue(Command command) {
+            addCommand(command);
+        }
+
         private class CommandModel {
             private class Properties {
                 private int priority;
@@ -79,40 +83,30 @@ public class Command {
                 }
             }
         }
+
         @SerializedName("commandQueue")
         Queue<CommandModel> commandModelQueue = new PriorityQueue<>();
-        public void addCommand(Command command)
-        {
-            //TODO: REMOVE THIS V
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            //TODO: REMOVE THIS ^
+
+        public void addCommand(Command command) {
             commandModelQueue.add(new CommandModel(command));
         }
     }
 
     public static void executeCurrentCommand(@NonNull Context context) {
-        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,
-                MainActivity.account,
-                MainActivity.region)
-                .getCognitoCachingCredentialsProvider())
-                .getShadow(Appliance.currentAppliance.getName());
-        HashMap<String, String> variableMap = new HashMap<>();
-
-        CommandQueue commandQueue = new CommandQueue();
-        commandQueue.addCommand(currentCommand);
-        Gson gson = new Gson();
-        String commandQueueJson = gson.toJson(commandQueue);
-
-        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context,
-                MainActivity.account,
-                MainActivity.region)
-                .getCognitoCachingCredentialsProvider())
+        CommandQueue commandQueue = new CommandQueue(currentCommand);
+        //commandQueue.addCommand(currentCommand);
+        //TODO: REMOVE THIS V
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        //TODO: REMOVE THIS ^
+        AwsIotShadowClient.getInstance(
+                CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region)
+                        .getCognitoCachingCredentialsProvider())
                 .updateCommandShadow(
                         Appliance.currentAppliance.getName(),
                         Appliance.currentAppliance.getApplianceType().toString(),
                         (String) context.getText(R.string.appVersion),
-                        commandQueue); //Todo: Change from hardcode
+                        commandQueue);
     }
 
     /**

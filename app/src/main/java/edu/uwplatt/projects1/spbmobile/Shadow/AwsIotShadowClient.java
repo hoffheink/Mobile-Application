@@ -3,6 +3,7 @@ package edu.uwplatt.projects1.spbmobile.Shadow;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
@@ -104,6 +105,7 @@ public class AwsIotShadowClient {
             updateShadowTask.execute();
         } catch (Exception e) {
             Log.e(TAG, "UpdateShadowCall", e);
+            throw e;
         }
     }
 
