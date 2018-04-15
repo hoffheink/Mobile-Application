@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 
+import com.amazonaws.auth.AWSSessionCredentials;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -36,17 +37,21 @@ import edu.uwplatt.projects1.spbmobile.Time;
 public class Command {
     public static Command currentCommand;
     public String humanName;
-    boolean priority;
+    private boolean priority;
     public Parameter[] parameters;
     State[] states;
-    String cmdName;
+    private String cmdName;
 
     private static UUID getRandomUUID() {
         return UUID.randomUUID();
     }
 
     public static class CommandQueue {
-        public CommandQueue(Command command) {
+        public CommandQueue() {
+
+        }
+
+        CommandQueue(Command command) {
             addCommand(command);
         }
 
@@ -56,7 +61,7 @@ public class Command {
                 private UUID guid;
                 private String timestamp;
 
-                public Properties(boolean isPriority) {
+                Properties(boolean isPriority) {
                     if (isPriority)
                         priority = 1;
                     else
@@ -75,7 +80,7 @@ public class Command {
             private final Properties properties;
             private HashMap<String, Object> arguments = new HashMap<>();
 
-            public CommandModel(Command command) {
+            CommandModel(Command command) {
                 cmdName = command.cmdName;
                 properties = new Properties(command.priority);
                 for (Parameter parameter : command.parameters) {
@@ -87,26 +92,24 @@ public class Command {
         @SerializedName("commandQueue")
         Queue<CommandModel> commandModelQueue = new PriorityQueue<>();
 
-        public void addCommand(Command command) {
+        void addCommand(Command command) {
             commandModelQueue.add(new CommandModel(command));
         }
     }
 
-    public static void executeCurrentCommand(@NonNull Context context) {
+    public static void executeCurrentCommand(@NonNull Context context) throws Exception {
         CommandQueue commandQueue = new CommandQueue(currentCommand);
-        //commandQueue.addCommand(currentCommand);
-        //TODO: REMOVE THIS V
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        //TODO: REMOVE THIS ^
-        AwsIotShadowClient.getInstance(
-                CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region)
-                        .getCognitoCachingCredentialsProvider())
-                .updateCommandShadow(
-                        Appliance.currentAppliance.getName(),
-                        Appliance.currentAppliance.getApplianceType().toString(),
-                        (String) context.getText(R.string.appVersion),
-                        commandQueue);
+        CloudDatasource datasource = CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region);
+        AWSSessionCredentials credentials = datasource.getCredentials();
+        if (credentials != null)
+        {
+            AwsIotShadowClient client = AwsIotShadowClient.getInstance(credentials);
+            client.updateCommandShadow(
+                    Appliance.currentAppliance.getName(),
+                    Appliance.currentAppliance.getApplianceType().toString(),
+                    (String) context.getText(R.string.appVersion),
+                    commandQueue);
+        }
     }
 
     /**

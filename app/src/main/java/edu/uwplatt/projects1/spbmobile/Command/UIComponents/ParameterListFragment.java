@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 import edu.uwplatt.projects1.spbmobile.Command.Command;
@@ -38,13 +39,20 @@ public class ParameterListFragment extends Fragment {
     }
 
     private void setExecuteButtonOnClickListener(ImageButton executeButton) {
-        executeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Command.executeCurrentCommand(getContext());
-            }
-        });
+        executeButton.setOnClickListener(executeButtonExecute);
     }
+
+    private View.OnClickListener executeButtonExecute = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            try {
+                Command.executeCurrentCommand(getContext());
+            } catch (Exception e) {
+                Log.e("executeButtonExecute", e.getMessage(), e);
+                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     @Override
     public void onStart() {

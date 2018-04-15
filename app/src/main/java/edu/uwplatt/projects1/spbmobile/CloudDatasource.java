@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
+
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Region;
@@ -18,12 +19,14 @@ import com.amazonaws.services.iot.model.ThingAttribute;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 
 
@@ -41,8 +44,7 @@ public class CloudDatasource {
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
 
-    public CognitoCachingCredentialsProvider getCognitoCachingCredentialsProvider()
-    {
+    public CognitoCachingCredentialsProvider getCognitoCachingCredentialsProvider() {
         return credentialsProvider;
     }
 
@@ -88,13 +90,26 @@ public class CloudDatasource {
         }
     }
 
-    private AWSSessionCredentials getCredentials() {
-        try {
-            return ourInstance.credentialsProvider.getCredentials();
-        } catch (Exception e) {
-            Log.e("getCredentials", e.getMessage(), e);
-            return null;
+    private class GetCredentialsRunnable implements Runnable {
+        AWSSessionCredentials credentials = null;
+        CognitoCachingCredentialsProvider provider;
+
+        GetCredentialsRunnable(CognitoCachingCredentialsProvider provider) {
+            this.provider = provider;
         }
+
+        @Override
+        public void run() {
+            credentials = provider.getCredentials();
+        }
+    }
+
+    public AWSSessionCredentials getCredentials() {
+        GetCredentialsRunnable getCredentialsRunnable = new GetCredentialsRunnable(ourInstance.credentialsProvider);
+        Thread thread = new Thread(getCredentialsRunnable);
+        thread.start();
+        while (getCredentialsRunnable.credentials == null) ;
+        return getCredentialsRunnable.credentials;
     }
 
     private static class GetAppliancesRunnable implements Runnable {
@@ -158,7 +173,7 @@ public class CloudDatasource {
             try {
                 ourInstance.credentialsProvider.refresh();
             } catch (Exception e) {
-                Log.e("LoadCredentialsTask", "Exception: " + e.getMessage(), e);
+                Log.e("LoadCredentialsTask", e.getMessage(), e);
             }
             return ourInstance.credentialsProvider;
         }
