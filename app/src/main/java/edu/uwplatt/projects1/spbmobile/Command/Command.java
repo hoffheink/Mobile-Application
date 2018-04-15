@@ -1,5 +1,11 @@
 package edu.uwplatt.projects1.spbmobile.Command;
 
+import android.util.Log;
+
+import com.google.firebase.iid.FirebaseInstanceId;
+
+import edu.uwplatt.projects1.spbmobile.Firebase.FirebaseInstanceService;
+
 /**
  * This class is used to model Commands.
  */
@@ -11,8 +17,8 @@ public class Command {
     State[] states;
     String cmdName;
 
-    public static void executeCurrentCommand() {
-
+    public static void executeCurrentCommand()
+    {
     }
 
     /**
