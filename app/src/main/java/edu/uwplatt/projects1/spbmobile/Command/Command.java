@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
+import edu.uwplatt.projects1.spbmobile.GoogleProvider;
 import edu.uwplatt.projects1.spbmobile.JsonHelpers.RangeTypeAdapter;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
@@ -99,7 +100,7 @@ public class Command {
 
     public static void executeCurrentCommand(@NonNull Context context) throws Exception {
         CommandQueue commandQueue = new CommandQueue(currentCommand);
-        CloudDatasource datasource = CloudDatasource.getInstance(context, MainActivity.account, MainActivity.region);
+        CloudDatasource datasource = CloudDatasource.getInstance(context, GoogleProvider.getAccount(), MainActivity.region);
         AWSSessionCredentials credentials = datasource.getCredentials();
         if (credentials != null)
         {
