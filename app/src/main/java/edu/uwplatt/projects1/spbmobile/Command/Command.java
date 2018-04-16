@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import edu.uwplatt.projects1.spbmobile.Firebase.FirebaseInstanceService;
+import edu.uwplatt.projects1.spbmobile.MainActivity;
 
 /**
  * This class is used to model Commands.
