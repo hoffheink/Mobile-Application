@@ -12,8 +12,14 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 
+import com.amazonaws.auth.AWSSessionCredentials;
+
+import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.Command.Command;
+import edu.uwplatt.projects1.spbmobile.GoogleProvider;
+import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
+import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
 
 /**
  * This
@@ -46,7 +52,11 @@ public class ParameterListFragment extends Fragment {
         @Override
         public void onClick(View view) {
             try {
-                Command.executeCurrentCommand(getContext());
+                GoogleProvider googleProvider = GoogleProvider.getInstance(getContext(), getActivity());
+                CloudDatasource datasource = CloudDatasource.getInstance(getContext(), googleProvider.getAccount(), MainActivity.region);
+                AWSSessionCredentials credentials = datasource.getCredentials();
+                AwsIotShadowClient client = AwsIotShadowClient.getInstance(credentials);
+                Command.executeCurrentCommand(client, (String) getContext().getText(R.string.appVersion));
             } catch (Exception e) {
                 Log.e("executeButtonExecute", e.getMessage(), e);
                 Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();

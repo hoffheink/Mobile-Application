@@ -29,8 +29,10 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -41,7 +43,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+
 import static edu.uwplatt.projects1.spbmobile.MainActivity.region;
+
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.GoogleProvider;
@@ -119,7 +123,7 @@ public class RegisterApplianceFragment extends Fragment {
             TextView networkPassword = getActivity().findViewById(R.id.network_password);
             if (networkName != null && networkName.getSelectedItem() != null) {
                 String ssid = getSSID(networkName);
-                Runnable sendNetworkInfoRunnable = new SendNetworkInfoRunnable(ssid, networkPassword.getText().toString());
+                Runnable sendNetworkInfoRunnable = new SendNetworkInfoAndRegisterRunnable(ssid, networkPassword.getText().toString(), GoogleProvider.getInstance(getContext(), getActivity()).getAccount());
                 new Thread(sendNetworkInfoRunnable).start();
             }
         }
@@ -130,25 +134,28 @@ public class RegisterApplianceFragment extends Fragment {
         return ((HashMap<String, String>) networkName.getSelectedItem()).get(SSID_KEY);
     }
 
-    private class SendNetworkInfoRunnable implements Runnable {
+    private class SendNetworkInfoAndRegisterRunnable implements Runnable {
         private final String networkName;
         private final String networkPassword;
+        private final GoogleSignInAccount account;
 
-        SendNetworkInfoRunnable(String networkName, String networkPassword) {
+        SendNetworkInfoAndRegisterRunnable(String networkName, String networkPassword, GoogleSignInAccount account) {
             this.networkName = networkName;
             this.networkPassword = networkPassword;
+            this.account = account;
         }
 
         @Override
         public void run() {
-            sendNetworkInfo(networkName, networkPassword);
-            if (appliance != null) {
+            sendNetworkInfoRegister(networkName, networkPassword, account);
+            /*if (appliance != null) {
+            //TODO: Move this logic to an appropriate place (When we load appliance list screen)
                 CloudDatasource.getInstance(getContext(), GoogleProvider.getAccount(), region).loadAppliances(); //Reloading the appliance list
-            }
+            }*/
         }
     }
 
-    private void sendNetworkInfo(String networkName, String networkPassword) {
+    private void sendNetworkInfoRegister(String networkName, String networkPassword, GoogleSignInAccount account) {
         URL applianceURL;
         try {
             applianceURL = new URL("http://192.168.4.1/setup");
@@ -158,25 +165,24 @@ public class RegisterApplianceFragment extends Fragment {
             connection.connect();
             Scanner inputScanner = new Scanner(connection.getInputStream());
             token = inputScanner.next();
-            Log.i("sendNetworkInfo", "Token is: " + token);
+            Log.i("sendNetworkInfoRegister", "Token is: " + token);
 
-            //TODO: Fix this damn name!
-            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(GoogleProvider.getAccount(), thingName, token, getContext());
+            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(account, thingName, token, getContext());
 
             for (int count = 0; appliance == null && count < 10; count++) {
                 registrationTask.run();
                 Thread.sleep(5000);
             }
             if (appliance == null) {
-                Log.w("sendNetworkInfo", "Failed to add device!");
+                Log.w("sendNetworkInfoRegister", "Failed to add device!");
                 Toast.makeText(getContext(), "Failed to add device!", Toast.LENGTH_LONG).show();
             } else {
                 goHome();
             }
         } catch (IOException e) {
-            Log.e("sendNetworkInfo", "IOException: " + e.getMessage(), e);
+            Log.e("sendNetworkInfoRegister", "IOException: " + e.getMessage(), e);
         } catch (InterruptedException e) {
-            Log.e("sendNetworkInfo", "InterruptedException: " + e.getMessage(), e);
+            Log.e("sendNetworkInfoRegister", "InterruptedException: " + e.getMessage(), e);
         }
     }
 

@@ -93,6 +93,7 @@ public class CloudDatasource {
     private class GetCredentialsRunnable implements Runnable {
         AWSSessionCredentials credentials = null;
         CognitoCachingCredentialsProvider provider;
+        Exception exception = null;
 
         GetCredentialsRunnable(CognitoCachingCredentialsProvider provider) {
             this.provider = provider;
@@ -100,15 +101,25 @@ public class CloudDatasource {
 
         @Override
         public void run() {
-            credentials = provider.getCredentials();
+            try {
+                credentials = provider.getCredentials();
+                /*credentials = null;
+                throw new Exception("penis");*/
+            } catch (Exception e) {
+                exception = e;
+                credentials = null;
+            }
         }
     }
 
-    public AWSSessionCredentials getCredentials() {
+    public AWSSessionCredentials getCredentials() throws Exception {
         GetCredentialsRunnable getCredentialsRunnable = new GetCredentialsRunnable(ourInstance.credentialsProvider);
         Thread thread = new Thread(getCredentialsRunnable);
         thread.start();
-        while (getCredentialsRunnable.credentials == null) ;
+        while (getCredentialsRunnable.credentials == null && getCredentialsRunnable.exception == null)
+            ;
+        if (getCredentialsRunnable.exception != null)
+            throw new Exception(getCredentialsRunnable.exception);
         return getCredentialsRunnable.credentials;
     }
 
@@ -116,7 +127,11 @@ public class CloudDatasource {
         @Override
         public void run() {
             ArrayList<Appliance> newApplianceList = new ArrayList<>();
-            AWSSessionCredentials credentials = ourInstance.getCredentials();
+            AWSSessionCredentials credentials = null;
+            try {
+                credentials = ourInstance.getCredentials();
+            } catch (Exception ignored) {
+            }
             if (credentials != null) {
                 AWSIot awsIot = new AWSIotClient(ourInstance.credentialsProvider);
                 switch (ourRegion) {

@@ -5,6 +5,7 @@ import android.os.StrictMode;
 import android.support.annotation.NonNull;
 
 import com.amazonaws.auth.AWSSessionCredentials;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -98,19 +99,19 @@ public class Command {
         }
     }
 
-    public static void executeCurrentCommand(@NonNull Context context) throws Exception {
+    public static void executeCurrentCommand(/*@NonNull Context context, GoogleSignInAccount account*/AwsIotShadowClient shadowClient, String appVersion) throws Exception {
         CommandQueue commandQueue = new CommandQueue(currentCommand);
-        CloudDatasource datasource = CloudDatasource.getInstance(context, GoogleProvider.getAccount(), MainActivity.region);
+        /*CloudDatasource datasource = CloudDatasource.getInstance(context, account, MainActivity.region);
         AWSSessionCredentials credentials = datasource.getCredentials();
         if (credentials != null)
         {
-            AwsIotShadowClient client = AwsIotShadowClient.getInstance(credentials);
-            client.updateCommandShadow(
-                    Appliance.currentAppliance.getName(),
-                    Appliance.currentAppliance.getApplianceType().toString(),
-                    (String) context.getText(R.string.appVersion),
-                    commandQueue);
-        }
+            AwsIotShadowClient client = AwsIotShadowClient.getInstance(credentials);*/
+        shadowClient.updateCommandShadow(
+                Appliance.currentAppliance.getName(),
+                Appliance.currentAppliance.getApplianceType().toString(),
+                appVersion,
+                commandQueue);
+        /*}*/
     }
 
     /**

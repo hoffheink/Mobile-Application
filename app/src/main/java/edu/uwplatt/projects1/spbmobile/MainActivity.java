@@ -81,16 +81,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateAccountInformation() {
-        GoogleProvider.setAccountToLastSignedIn(this);
+        GoogleProvider googleProvider = GoogleProvider.getInstance(getApplicationContext(), this);
+        googleProvider.setAccountToLastSignedIn();
 
-        if (GoogleProvider.getAccount() == null)
+        if (googleProvider.getAccount() == null)
             showWelcomeScreen();
         else {
-            CloudDatasource.getInstance(this, GoogleProvider.getAccount(), region).loadAppliances(); //Loads appliance list
+            CloudDatasource.getInstance(this, googleProvider.getAccount(), region).loadAppliances(); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
-            ((TextView) header.findViewById(R.id.user_name)).setText(GoogleProvider.getDispName());
-            ((TextView) header.findViewById(R.id.user_email)).setText(GoogleProvider.getEmail());
+            ((TextView) header.findViewById(R.id.user_name)).setText(googleProvider.getDisplayName());
+            ((TextView) header.findViewById(R.id.user_email)).setText(googleProvider.getEmail());
         }
     }
 
@@ -148,9 +149,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_invoke_aws) {
 
         } else if (id == R.id.nav_logout) {
-            GoogleProvider.signOut(this);
+            GoogleProvider.getInstance(getApplicationContext(), this).signOut();
         }
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
