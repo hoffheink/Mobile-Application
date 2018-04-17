@@ -32,10 +32,17 @@ import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceF
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener
 {
+    private static MainActivity ourInstance;
+    private static boolean visible;
 
     public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
     public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_1;
+
+    public static MainActivity getOurInstance()
+    {
+        return ourInstance;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -56,6 +63,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView;
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        ourInstance = this;
     }
 
     /**
@@ -198,9 +207,31 @@ public class MainActivity extends AppCompatActivity
     }
 
     //New Code
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        visible = true;
+        setVisible(true);
+    }
+
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        visible = false;
+        setVisible(false);
+    }
+
     public void createSnackbar(String message)
     {
         Snackbar snackbar = Snackbar.make(findViewById(R.id.drawer_layout), message, Snackbar.LENGTH_LONG);
         snackbar.show();
+    }
+
+    public boolean isVisible()
+    {
+        return visible;
     }
 }

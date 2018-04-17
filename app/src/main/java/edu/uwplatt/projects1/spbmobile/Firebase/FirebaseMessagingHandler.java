@@ -43,7 +43,7 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService
     {
         super.onMessageReceived(remoteMessage);
 
-        if(true)
+        if(MainActivity.getOurInstance().isVisible())
         {
             Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -73,6 +73,7 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService
             {
                 Map<String, String> payload = remoteMessage.getData();
                 String formattedData = formatMessage(parsePayload(payload.get("default")));
+                MainActivity.getOurInstance().createSnackbar(formattedData);
                 //MainActivity.getInstance().createSnackbar(formattedData);
             }
         }
