@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
 
 import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
 import edu.uwplatt.projects1.spbmobile.Command.Command;
+import edu.uwplatt.projects1.spbmobile.Command.CommandQueue;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 
 /**
@@ -73,13 +74,14 @@ public class AwsIotShadowClient {
      *
      * @param credentials credentialsProvider provided by the AWS cognito authentication.
      */
-    private void updateShadowAuthentication(@NonNull AWSSessionCredentials credentials) throws Exception {
+    private void updateShadowAuthentication(@NonNull AWSSessionCredentials credentials)
+            throws Exception {
         try {
             awsIotDataClient = new AWSIotDataClient(credentials);
             awsIotDataClient.setEndpoint(getCustomerEndpoint());
             this.credentials = credentials;
         } catch (Exception e) {
-            Log.d(TAG, "UpdateShadowAuthentication", e);
+            Log.d(TAG, e.getMessage(), e);
             throw e;
         }
     }
@@ -88,11 +90,11 @@ public class AwsIotShadowClient {
         private final String deviceName;
         private final String deviceType;
         private final String deviceVersion;
-        private final Command.CommandQueue commandQueue;
+        private final CommandQueue commandQueue;
         private final AWSSessionCredentials credentials;
 
         UpdateCommandShadowRunnable(String deviceName, String deviceType,
-                                    String deviceVersion, Command.CommandQueue commandQueue,
+                                    String deviceVersion, CommandQueue commandQueue,
                                     AWSSessionCredentials credentials) {
             this.deviceName = deviceName;
             this.deviceType = deviceType;
@@ -110,7 +112,7 @@ public class AwsIotShadowClient {
                         credentials, awsIotDataClient);
                 updateShadowTask.execute();
             } catch (Exception e) {
-                Log.e(TAG, "UpdateShadowCall", e);
+                Log.e(TAG, e.getMessage(), e);
                 throw e;
             }
         }
@@ -126,7 +128,7 @@ public class AwsIotShadowClient {
      *                      if order is required use a LinkedHashMap.
      */
     public void updateCommandShadow(String deviceName, String deviceType,
-                                    String deviceVersion, Command.CommandQueue commandQueue) {
+                                    String deviceVersion, CommandQueue commandQueue) {
         Runnable updateCommandShadowRunnable = new UpdateCommandShadowRunnable(deviceName,
                 deviceType, deviceVersion, commandQueue, credentials);
         Thread thread = new Thread(updateCommandShadowRunnable);
@@ -140,10 +142,11 @@ public class AwsIotShadowClient {
      */
     public void getShadow(String deviceName) {
         try {
-            GetShadowTask getShadowTask = new GetShadowTask(deviceName, credentials, awsIotDataClient);
+            GetShadowTask getShadowTask = new GetShadowTask(deviceName, credentials,
+                    awsIotDataClient);
             getShadowTask.execute();
         } catch (Exception e) {
-            Log.e(TAG, "GetShadowCaller", e);
+            Log.e(TAG, e.getMessage(), e);
         }
     }
 
@@ -161,7 +164,8 @@ public class AwsIotShadowClient {
          * @param thingName   the name of the device shadow to call.
          * @param credentials credentials to authenticate caller's permission with AWS.
          */
-        GetShadowTask(String thingName, AWSSessionCredentials credentials, AWSIotDataClient client) {
+        GetShadowTask(String thingName, AWSSessionCredentials credentials,
+                      AWSIotDataClient client) {
             this.thingName = thingName;
             this.credentials = credentials;
             this.client = client;
@@ -255,8 +259,8 @@ public class AwsIotShadowClient {
                 String result = new String(bytes);
                 return new AsyncTaskResult<>(result);
             } catch (Exception e) {
-                Log.e(TAG, "***UpdateShadow***", e);
-                return new AsyncTaskResult<>(e);
+                Log.e(TAG, e.getMessage(), e);
+                throw e;
             }
         }
 
@@ -270,7 +274,7 @@ public class AwsIotShadowClient {
             if (result.getError() == null)
                 Log.i(TAG, result.getResult());
             else
-                Log.e(TAG, "UpdateShadow", result.getError());
+                Log.e(TAG, result.getError().getMessage(), result.getError());
         }
     }
 }

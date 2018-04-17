@@ -4,10 +4,9 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,17 +14,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceFragment;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
     protected DrawerLayout mDrawer;
     private static final int RC_WELCOME_SCREEN = 9002;
     public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_1;
@@ -37,18 +36,10 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.register_appliance_toolbar);
         setSupportActionBar(toolbar);
 
-        /*FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -72,25 +63,23 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-
-        Appliance.setVersionNumber(getString(R.string.appVersion));
         updateAccountInformation();
-        Appliance nick = new Appliance("nick", "123456");
-
-        int i = 7;
     }
 
     private void updateAccountInformation() {
-        GoogleProvider googleProvider = GoogleProvider.getInstance(getApplicationContext(), this);
+        GoogleProvider googleProvider = GoogleProvider.getInstance(getApplicationContext(),
+                this);
         googleProvider.setAccountToLastSignedIn();
 
         if (googleProvider.getAccount() == null)
             showWelcomeScreen();
         else {
-            CloudDatasource.getInstance(this, googleProvider.getAccount(), region).loadAppliances(); //Loads appliance list
+            CloudDatasource.getInstance(this, googleProvider.getAccount(), region)
+                    .loadAppliances(); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
-            ((TextView) header.findViewById(R.id.user_name)).setText(googleProvider.getDisplayName());
+            ((TextView) header.findViewById(R.id.user_name))
+                    .setText(googleProvider.getDisplayName());
             ((TextView) header.findViewById(R.id.user_email)).setText(googleProvider.getEmail());
         }
     }
@@ -156,15 +145,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void onClick(View v) {
-//        switch (v.getId()) {
-//            case R.id.sign_in_button_main:
-//                signIn();
-//                break;
-//        }
-    }
-
     /**
      * Checks if the appropriate version of google play services is installed.
      * <p>
@@ -172,7 +152,8 @@ public class MainActivity extends AppCompatActivity
      */
     private void testGooglePlayServicesAvailability() {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
-        Integer resultCode = googleApiAvailability.isGooglePlayServicesAvailable(this.getApplicationContext());
+        Integer resultCode = googleApiAvailability
+                .isGooglePlayServicesAvailable(this.getApplicationContext());
         if (resultCode != ConnectionResult.SUCCESS) {
             Dialog dialog = googleApiAvailability.getErrorDialog(this, resultCode, 0);
             if (dialog != null) {

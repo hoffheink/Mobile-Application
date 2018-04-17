@@ -23,17 +23,11 @@ public class Appliance {
     @NonNull
     private ApplianceType applianceType = ApplianceType.Unknown;
 
-
-    private static String VersionNumber;
     private static Gson applianceGson = constructApplianceGson();
 
     @NonNull
     private static Gson constructApplianceGson() {
         return new GsonBuilder().registerTypeAdapter(Range.class, new RangeTypeAdapter()).create();
-    }
-
-    public static void setVersionNumber(String versionNumber) {
-        VersionNumber = versionNumber;
     }
 
     /**
@@ -61,7 +55,6 @@ public class Appliance {
     private void loadCommands() {
         String inputText = "[ { \"cmdName\": \"EchoCommand\", \"humanName\": \"Echo Command\", \"priority\": false, \"parameters\": [ { \"machineName\": \"echoText\", \"humanName\": \"Echo Text\", \"description\": \"Text that the device sends back to cloud.\", \"type\": \"string\", \"enumerations\": [], \"range\": {}, \"units\": \"\" } ], \"status\": { \"states\": [ { \"value\": 4, \"text\": \"Echoing\" } ] } }, { \"cmdName\": \"bakeCommand\", \"humanName\": \"Bake Command\", \"priority\": false, \"parameters\": [ { \"machineName\": \"temperature\", \"humanName\": \"Temperature\", \"description\": \"Temperature to bake at.\", \"type\": \"int\", \"enumerations\": [], \"range\": { \"min\": 100, \"max\": 600, \"step\": 5 }, \"units\": \"deg F\" }, { \"machineName\": \"mode\", \"humanName\": \"Oven Mode\", \"description\": \"\", \"priority\": false, \"type\": \"enum\", \"enumerations\": [ { \"value\": 1, \"name\": \"Bake\" }, { \"value\": 2, \"name\": \"Broil\" }, { \"value\": 3, \"name\": \"Bake (Convection)\" } ], \"range\": {}, \"units\": \"\" }, { \"machineName\": \"duration\", \"humanName\": \"Duration\", \"description\": \"Time to cook for.\", \"type\": \"duration\", \"enumerations\": [], \"range\": { \"min\": 0, \"max\": 86400, \"step\": 1 }, \"units\": \"\" } ], \"status\": { \"state\": [ { \"value\": 4, \"text\": \"Pre-Heating\" }, { \"value\": 5, \"text\": \"Bake\" }, { \"value\": 6, \"text\": \"Cooling\" } ], \"startTime\": 123 } }]";
         commands = applianceGson.fromJson(inputText, Command[].class);
-        Log.d("loadCommands", applianceGson.toJson(commands));
     }
 
     /**
@@ -110,16 +103,6 @@ public class Appliance {
     @NonNull
     public String getStatus() {
         return status;
-    }
-
-    /**
-     * Sets the status.
-     *
-     * @param inStatus the new status.
-     */
-    public Appliance setStatus(@NonNull String inStatus) {
-        status = inStatus;
-        return this;
     }
 
     /**

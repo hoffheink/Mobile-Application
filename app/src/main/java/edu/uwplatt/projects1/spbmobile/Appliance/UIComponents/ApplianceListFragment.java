@@ -13,7 +13,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
-import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListAdapter;
 import edu.uwplatt.projects1.spbmobile.Command.UIComponents.CommandListFragment;
 import edu.uwplatt.projects1.spbmobile.R;
 
@@ -70,7 +69,8 @@ public class ApplianceListFragment extends Fragment {
 
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.content_main, commandListFragment, "newFragTag");
+                fragmentTransaction.replace(R.id.content_main, commandListFragment,
+                        "newFragTag");
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }

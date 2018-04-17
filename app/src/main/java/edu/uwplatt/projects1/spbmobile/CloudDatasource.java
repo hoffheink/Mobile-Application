@@ -14,7 +14,6 @@ import com.amazonaws.services.iot.AWSIot;
 import com.amazonaws.services.iot.AWSIotClient;
 import com.amazonaws.services.iot.model.ListPrincipalPoliciesRequest;
 import com.amazonaws.services.iot.model.ListThingsRequest;
-import com.amazonaws.services.iot.model.Policy;
 import com.amazonaws.services.iot.model.ThingAttribute;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.InvokeRequest;
@@ -25,14 +24,15 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 
 
 public class CloudDatasource {
-    private static final String US_EAST_1_IdentityPoolID = "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
-    private static final String US_EAST_2_IdentityPoolID = "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878";
+    private static final String US_EAST_1_IdentityPoolID =
+            "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
+    private static final String US_EAST_2_IdentityPoolID =
+            "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878";
     @SuppressLint("StaticFieldLeak")
     private static CloudDatasource ourInstance;
     @SuppressLint("StaticFieldLeak")
@@ -44,10 +44,6 @@ public class CloudDatasource {
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
 
-    public CognitoCachingCredentialsProvider getCognitoCachingCredentialsProvider() {
-        return credentialsProvider;
-    }
-
     public enum RegionEnum {
         US_EAST_1,
         US_EAST_2
@@ -55,7 +51,9 @@ public class CloudDatasource {
 
     public static List<Appliance> applianceList = new ArrayList<>();
 
-    public static CloudDatasource getInstance(@NonNull Context inContext, @NonNull GoogleSignInAccount account, RegionEnum inRegion) {
+    public static CloudDatasource getInstance(@NonNull Context inContext,
+                                              @NonNull GoogleSignInAccount account,
+                                              RegionEnum inRegion) {
         if (ourInstance == null || !ourContext.equals(inContext) || !ourRegion.equals(inRegion)) {
             ourInstance = new CloudDatasource(inContext, inRegion);
             ourContext = inContext;
@@ -66,12 +64,12 @@ public class CloudDatasource {
         try {
             loadCredentialsTask.execute(ourInstance.credentialsProvider);
         } catch (Exception e) {
-            Log.e("getInstance", "Unable to load credentials", e);
+            Log.e("getInstance", "Unable to load credentials:" + e.getMessage(), e);
         }
         return ourInstance;
     }
 
-    public void loadAppliances() {
+    void loadAppliances() {
         Runnable getAppliancesRunnable = new GetAppliancesRunnable();
         Thread thread = new Thread(getAppliancesRunnable);
         thread.start();
@@ -103,8 +101,6 @@ public class CloudDatasource {
         public void run() {
             try {
                 credentials = provider.getCredentials();
-                /*credentials = null;
-                throw new Exception("penis");*/
             } catch (Exception e) {
                 exception = e;
                 credentials = null;
@@ -113,11 +109,12 @@ public class CloudDatasource {
     }
 
     public AWSSessionCredentials getCredentials() throws Exception {
-        GetCredentialsRunnable getCredentialsRunnable = new GetCredentialsRunnable(ourInstance.credentialsProvider);
+        GetCredentialsRunnable getCredentialsRunnable =
+                new GetCredentialsRunnable(ourInstance.credentialsProvider);
         Thread thread = new Thread(getCredentialsRunnable);
         thread.start();
-        while (getCredentialsRunnable.credentials == null && getCredentialsRunnable.exception == null)
-            ;
+        while (getCredentialsRunnable.credentials == null &&
+                getCredentialsRunnable.exception == null);
         if (getCredentialsRunnable.exception != null)
             throw new Exception(getCredentialsRunnable.exception);
         return getCredentialsRunnable.credentials;
@@ -142,28 +139,35 @@ public class CloudDatasource {
                         awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
                         break;
                 }
-                ListPrincipalPoliciesRequest listPrincipalPoliciesRequest = new ListPrincipalPoliciesRequest();
-                listPrincipalPoliciesRequest.setPrincipal(ourInstance.credentialsProvider.getIdentityId());
-                Log.i("GetAppliancesRunnable", "CognitoID: " + ourInstance.credentialsProvider.getIdentityId());
+                ListPrincipalPoliciesRequest listPrincipalPoliciesRequest =
+                        new ListPrincipalPoliciesRequest();
+                listPrincipalPoliciesRequest
+                        .setPrincipal(ourInstance.credentialsProvider.getIdentityId());
+                Log.i("GetAppliancesRunnable", "CognitoID: "
+                        + ourInstance.credentialsProvider.getIdentityId());
 
                 ListThingsRequest listThingsRequest = new ListThingsRequest();
                 listThingsRequest.setRequestCredentials(credentials);
 
                 try {
                     /*List<String> thingNames = new ArrayList<>();
-                    for (Policy policy : awsIot.listPrincipalPolicies(listPrincipalPoliciesRequest).getPolicies()) {
-                        String policyName = policy.getPolicyName().replace("app-", "");
+                    for (Policy policy : awsIot.listPrincipalPolicies(listPrincipalPoliciesRequest)
+                            .getPolicies()) {
+                        String policyName = policy.getPolicyName()
+                                .replace("app-", "");
                         thingNames.add(policyName);
                     }*/
 
                     for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
                         //if (thingNames.contains(o.getThingName())) {
-                        Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
+                        Appliance appliance = new Appliance(o.getThingName(),
+                                o.getVersion().toString());
                         String thingType = o.getThingTypeName();
                         if (thingType != null) {
                             switch (o.getThingTypeName()) {
                                 case "coffee-maker":
-                                    appliance.setApplianceType(Appliance.ApplianceType.CoffeeMaker);
+                                    appliance.setApplianceType(Appliance.ApplianceType
+                                            .CoffeeMaker);
                                     break;
                                 case "test":
                                     appliance.setApplianceType(Appliance.ApplianceType.Test);
@@ -171,8 +175,8 @@ public class CloudDatasource {
                             }
                         }
                         newApplianceList.add(appliance);
-                        //}
                     }
+                    //}
                 } catch (Exception e) {
                     Log.e("GetAppliancesRunnable", e.getMessage(), e);
                 }
@@ -181,10 +185,13 @@ public class CloudDatasource {
         }
     }
 
-    private static class LoadCredentialsTask extends AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> {
+    private static class LoadCredentialsTask extends AsyncTask<CognitoCachingCredentialsProvider,
+            Void, CognitoCachingCredentialsProvider> {
         @Override
-        protected CognitoCachingCredentialsProvider doInBackground(CognitoCachingCredentialsProvider... voids) {
-            Log.i("LoadCredentialsTask", ourInstance.credentialsProvider.getLogins().toString());
+        protected CognitoCachingCredentialsProvider doInBackground(
+                CognitoCachingCredentialsProvider... voids) {
+            Log.i("LoadCredentialsTask",
+                    ourInstance.credentialsProvider.getLogins().toString());
             try {
                 ourInstance.credentialsProvider.refresh();
             } catch (Exception e) {
@@ -197,15 +204,14 @@ public class CloudDatasource {
     public String invoke(GoogleSignInAccount account, InvokeRequest request) {
         try {
             String functionName = request.getFunctionName();
-            String newFunctionName = "arn:aws:lambda:" + ourRegion.toString().toLowerCase().replace("_", "-") + ":955967187114:function:" + functionName;
+            String newFunctionName = "arn:aws:lambda:" + ourRegion.toString().toLowerCase()
+                    .replace("_", "-") + ":955967187114:function:" + functionName;
             Log.i("invoke", "functionName: " + newFunctionName);
             request.setFunctionName(newFunctionName);
             addLoginsFromAccount(account);
             return new LambdaInvoker(request).execute().get();
-        } catch (InterruptedException e) {
-            Log.e("invoke", "InterruptedException: " + e.getMessage(), e);
-        } catch (ExecutionException e) {
-            Log.e("invoke", "ExecutionException: " + e.getMessage(), e);
+        } catch (Exception e) {
+            Log.e("invoke", e.getMessage(), e);
         }
         return null;
     }

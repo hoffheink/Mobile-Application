@@ -28,11 +28,13 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
         final Appliance appliance = getItem(position);
 
         if (convertView == null) {
-            LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = (LayoutInflater)
+                    getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             if (layoutInflater == null) {
                 throw new NullPointerException("Layout Inflater was null");
             }
-            convertView = layoutInflater.inflate(R.layout.appliance_list_item, container, false);
+            convertView = layoutInflater.inflate(R.layout.appliance_list_item, container,
+                    false);
         }
 
         ImageView applianceType = (convertView.findViewById(R.id.appliance_type));
@@ -47,7 +49,8 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
                     break;
             }
             applianceType.setImageDrawable(drawable);
-            ((TextView) convertView.findViewById(R.id.appliance_status)).setText(appliance.getStatus());
+            ((TextView) convertView.findViewById(R.id.appliance_status))
+                    .setText(appliance.getStatus());
 
             ((TextView) convertView.findViewById(R.id.appliance_name))
                     .setText(appliance.getName());
@@ -56,13 +59,14 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
         ImageView connectionIndicator = (convertView.findViewById(R.id.connection_indicator));
 
         if (position % 2 == 0) {
-            Drawable connectionConnected = ContextCompat.getDrawable(getContext(), R.drawable.connection_connected);
+            Drawable connectionConnected = ContextCompat.getDrawable(getContext(),
+                    R.drawable.connection_connected);
             connectionIndicator.setImageDrawable(connectionConnected);
         } else {
-            Drawable connectionUnconnected = ContextCompat.getDrawable(getContext(), R.drawable.connection);
+            Drawable connectionUnconnected = ContextCompat.getDrawable(getContext(),
+                    R.drawable.connection);
             connectionIndicator.setImageDrawable(connectionUnconnected);
         }
         return convertView;
     }
-
 }

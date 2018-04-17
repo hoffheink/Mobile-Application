@@ -32,7 +32,6 @@ public class CommandListFragment extends Fragment {
         if (container != null) {
             container.removeAllViews();
         }
-
         return inflater.inflate(R.layout.fragment_command_list, container, false);
     }
 
@@ -57,7 +56,8 @@ public class CommandListFragment extends Fragment {
                 Log.d("onItemClick", "Item clicked in CommandListFragment");
                 Command.currentCommand = (Command) listView.getItemAtPosition(i);
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.content_main, new ParameterListFragment(), "parameterListFragment");
+                fragmentTransaction.replace(R.id.content_main, new ParameterListFragment(),
+                        "parameterListFragment");
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }

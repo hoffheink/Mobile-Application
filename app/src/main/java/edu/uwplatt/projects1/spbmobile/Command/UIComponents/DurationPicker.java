@@ -54,7 +54,8 @@ class DurationPicker {
      */
     private void setHours() {
         if (durationHours != null) {
-            int timeAvailable = maxTime - durationMinutes.getValue() * SecondsPerMinute - durationSeconds.getValue();
+            int timeAvailable = maxTime - durationMinutes.getValue() * SecondsPerMinute
+                    - durationSeconds.getValue();
             int newMax = timeAvailable / SecondsPerHour;
             durationHours.setMaxValue(newMax);
             if (newMax == 0)
@@ -69,7 +70,8 @@ class DurationPicker {
      */
     private void setMinutes() {
         if (durationMinutes != null) {
-            int timeAvailable = maxTime - durationHours.getValue() * SecondsPerHour - durationSeconds.getValue();
+            int timeAvailable = maxTime - durationHours.getValue() * SecondsPerHour
+                    - durationSeconds.getValue();
             int newMax;
             if (timeAvailable > 0) {
                 if ((timeAvailable / SecondsPerMinute) >= MinutesPerHour)
@@ -91,7 +93,8 @@ class DurationPicker {
      */
     private void setSeconds() {
         if (durationSeconds != null) {
-            int timeAvailable = maxTime - durationHours.getValue() * SecondsPerHour - durationMinutes.getValue() * SecondsPerMinute;
+            int timeAvailable = maxTime - durationHours.getValue() * SecondsPerHour
+                    - durationMinutes.getValue() * SecondsPerMinute;
             int newMax;
             if (timeAvailable > 0) {
                 if (timeAvailable >= SecondsPerMinute)
@@ -114,7 +117,8 @@ class DurationPicker {
      * @param container The ViewGroup that this view will be placed in.
      */
     View getView(@NonNull ViewGroup container, Context context) {
-        LayoutInflater layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if (layoutInflater == null)
             throw new NullPointerException("Layout Inflater was null");
         view = layoutInflater.inflate(R.layout.duration_picker, container, false);
@@ -144,15 +148,15 @@ class DurationPicker {
     /**
      * This Listener will call the updateDisplays method when fired.
      */
-    private NumberPicker.OnValueChangeListener valueChangeListener = new NumberPicker.OnValueChangeListener() {
-        @Override
-        public void onValueChange(NumberPicker numberPicker, int i, int i1) {
-            updateDisplays();
-            int timeInSeconds = durationHours.getValue()*SecondsPerHour+
-                    durationMinutes.getValue() * SecondsPerMinute+
-                    durationSeconds.getValue();
-            Command.setParameterOnCurrentCommand("duration", timeInSeconds);
-        }
-    };
-
+    private NumberPicker.OnValueChangeListener valueChangeListener =
+            new NumberPicker.OnValueChangeListener() {
+                @Override
+                public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                    updateDisplays();
+                    int timeInSeconds = durationHours.getValue() * SecondsPerHour +
+                            durationMinutes.getValue() * SecondsPerMinute +
+                            durationSeconds.getValue();
+                    Command.setParameterOnCurrentCommand("duration", timeInSeconds);
+                }
+            };
 }

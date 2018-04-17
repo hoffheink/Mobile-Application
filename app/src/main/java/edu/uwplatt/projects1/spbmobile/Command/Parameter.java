@@ -19,13 +19,13 @@ public class Parameter {
 
     public Object value;
 
-    public ArrayAdapter<String> getSpinnerOptions(Context context)
-    {
+    public ArrayAdapter<String> getSpinnerOptions(Context context) {
         List<String> optionList = new LinkedList<>();
         for (Enumeration enumeration : enumerations)
             optionList.add(enumeration.name);
         String[] strings = optionList.toArray(new String[optionList.size()]);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, strings);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(context,
+                android.R.layout.simple_spinner_item, strings);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         return arrayAdapter;
     }

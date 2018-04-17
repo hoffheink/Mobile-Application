@@ -4,8 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-
-import java.util.Objects;
 
 import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.Command.Enumeration;
@@ -60,7 +55,8 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                Command.setParameterOnCurrentCommand(parameter.machineName, charSequence.toString());
+                Command.setParameterOnCurrentCommand(parameter.machineName,
+                        charSequence.toString());
             }
 
             @Override
@@ -81,7 +77,8 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
                     String selectedItem = spinner.getSelectedItem().toString();
                     for (Enumeration enumeration : parameter.enumerations)
                         if (selectedItem.equals(enumeration.name)) {
-                            Command.setParameterOnCurrentCommand(parameter.machineName, enumeration.value);
+                            Command.setParameterOnCurrentCommand(parameter.machineName,
+                                    enumeration.value);
                             break;
                         }
                 }
@@ -112,11 +109,13 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         final Parameter parameter = getItem(position);
         LayoutInflater layoutInflater;
         if (convertView == null) {
-            layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            layoutInflater = (LayoutInflater) getContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             if (layoutInflater == null) {
                 throw new NullPointerException("Layout Inflater was null");
             }
-            convertView = layoutInflater.inflate(R.layout.parameter_list_item, container, false);
+            convertView = layoutInflater.inflate(R.layout.parameter_list_item, container,
+                    false);
         }
         if (parameter != null) {
             FrameLayout frameLayout = convertView.findViewById(R.id.parameter_content_frameLayout);
@@ -124,26 +123,27 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
                 switch (parameter.type) {
                     case IntType:
                         frameLayout.addView(getNumberPicker(parameter));
-                        Command.setParameterOnCurrentCommand(parameter.machineName, parameter.range.min);
+                        Command.setParameterOnCurrentCommand(parameter.machineName,
+                                parameter.range.min);
                         break;
                     case StringType:
-                        Log.d("getView", "Adding EditText");
                         frameLayout.addView(getEditText(parameter));
                         Command.setParameterOnCurrentCommand(parameter.machineName, "");
                         break;
                     case EnumType:
-                        Log.d("getView", "EnumType");
                         frameLayout.addView(getSpinner(parameter));
-                        Command.setParameterOnCurrentCommand(parameter.machineName, parameter.enumerations[0].value);
+                        Command.setParameterOnCurrentCommand(parameter.machineName,
+                                parameter.enumerations[0].value);
                         break;
                     case DurationType:
-                        Log.d("getView", "DurationType");
                         frameLayout.addView(getDurationPicker(parameter.range.max, container));
-                        Command.setParameterOnCurrentCommand(parameter.machineName, parameter.value = 0);
+                        Command.setParameterOnCurrentCommand(parameter.machineName,
+                                parameter.value = 0);
                         break;
                 }
             }
-            ((TextView) convertView.findViewById(R.id.parameter_name_textView)).setText(parameter.humanName);
+            ((TextView) convertView.findViewById(R.id.parameter_name_textView))
+                    .setText(parameter.humanName);
         }
         return convertView;
     }

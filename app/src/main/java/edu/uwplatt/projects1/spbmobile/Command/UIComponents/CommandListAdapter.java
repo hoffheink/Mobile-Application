@@ -28,11 +28,13 @@ public class CommandListAdapter extends ArrayAdapter<Command> {
         Command command = getItem(position);
 
         if (convertView == null) {
-            LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = (LayoutInflater) getContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             if (layoutInflater == null) {
                 throw new NullPointerException("Layout Inflater was null");
             }
-            convertView = layoutInflater.inflate(R.layout.command_list_item, container, false);
+            convertView = layoutInflater.inflate(R.layout.command_list_item, container,
+                    false);
         }
 
         if (command != null)
