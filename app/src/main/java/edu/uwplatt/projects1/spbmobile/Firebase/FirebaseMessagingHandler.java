@@ -1,28 +1,14 @@
 package edu.uwplatt.projects1.spbmobile.Firebase;
 
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.Application;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
-
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.google.gson.Gson;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
 
@@ -53,9 +39,7 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService
             nBuilder.setContentTitle("Pancake Party Application");
 
             if(remoteMessage.getData() != null)
-            {
                 nBuilder.setContentText("This happens:" + remoteMessage.getData());
-            }
 
             Intent resultIntent = new Intent(this, MainActivity.class);
             PendingIntent resultPendingIntent = PendingIntent.getActivity(this,
