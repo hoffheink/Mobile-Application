@@ -43,7 +43,7 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService
     {
         super.onMessageReceived(remoteMessage);
 
-        if(MainActivity.getOurInstance().isVisible())
+        if(MainActivity.getOurInstance().isVisible() == false)
         {
             Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
@@ -54,10 +54,7 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService
 
             if(remoteMessage.getData() != null)
             {
-                Map<String, String> payload = remoteMessage.getData();
-                String formattedData = formatMessage(parsePayload(payload.get("default")));
-                //Log.d(TAG, "***Payload***"  + remoteMessage.getData()); //Keep for cloud
-                nBuilder.setContentText(formattedData);
+                nBuilder.setContentText("This happens:" + remoteMessage.getData());
             }
 
             Intent resultIntent = new Intent(this, MainActivity.class);
@@ -70,20 +67,11 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService
         else
         {
             if(remoteMessage.getData() != null)
-            {
-                Map<String, String> payload = remoteMessage.getData();
-                String formattedData = formatMessage(parsePayload(payload.get("default")));
-                MainActivity.getOurInstance().createSnackbar(formattedData);
-                //MainActivity.getInstance().createSnackbar(formattedData);
-            }
+                MainActivity.getOurInstance().createSnackbar(remoteMessage.getData().toString());
+
         }
     }
 
-    @Override
-    public void onDeletedMessages()
-    {
-
-    }
 
     private ArrayList<String> parsePayload(String payload)
     {
