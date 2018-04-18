@@ -225,6 +225,7 @@ public class MainActivity extends AppCompatActivity
         setVisible(false);
     }
 
+
     public void createSnackbar(String message)
     {
         Snackbar snackbar = Snackbar.make(findViewById(R.id.drawer_layout), message, Snackbar.LENGTH_LONG);
