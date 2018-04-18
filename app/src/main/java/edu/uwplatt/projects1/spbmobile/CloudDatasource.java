@@ -114,7 +114,8 @@ public class CloudDatasource {
         Thread thread = new Thread(getCredentialsRunnable);
         thread.start();
         while (getCredentialsRunnable.credentials == null &&
-                getCredentialsRunnable.exception == null);
+                getCredentialsRunnable.exception == null)
+            Thread.sleep(100);
         if (getCredentialsRunnable.exception != null)
             throw new Exception(getCredentialsRunnable.exception);
         return getCredentialsRunnable.credentials;

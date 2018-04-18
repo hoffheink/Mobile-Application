@@ -57,7 +57,8 @@ public class ParameterListFragment extends Fragment {
                         googleProvider.getAccount(), MainActivity.region);
                 AWSSessionCredentials credentials = datasource.getCredentials();
                 AwsIotShadowClient client = AwsIotShadowClient.getInstance(credentials);
-                Command.executeCurrentCommand(client, (String) getContext().getText(R.string.appVersion));
+                Command.executeCurrentCommand(client,
+                        (String) getContext().getText(R.string.appVersion));
                 getFragmentManager().popBackStack();
                 getFragmentManager().popBackStack();
                 Toast.makeText(getContext(),
