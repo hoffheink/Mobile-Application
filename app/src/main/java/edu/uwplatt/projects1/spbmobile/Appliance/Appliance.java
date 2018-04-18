@@ -106,6 +106,16 @@ public class Appliance {
     }
 
     /**
+     * Sets the status.
+     *
+     * @param inStatus the new status.
+     */
+    public Appliance setStatus(@NonNull String inStatus) {
+        status = inStatus;
+        return this;
+    }
+
+    /**
      * Gets the appliance type.
      *
      * @return appliance type.
