@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -33,6 +34,8 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService
     public void onMessageReceived(RemoteMessage remoteMessage)
     {
         super.onMessageReceived(remoteMessage);
+
+        Log.d("Firebase", "token "+ FirebaseInstanceId.getInstance().getToken());
 
         if(!MainActivity.getOurInstance().isVisible())
         {
@@ -61,7 +64,7 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService
                 NotificationPayload notificationPayload;
 
                 /*
-                Map<String, String> map = remoteMessage.getData();
+                Map<String, Stri ng> map = remoteMessage.getData();
                 if(map.containsKey("default"))
                     notificationPayload = gson.fromJson(map.get("default"), NotificationPayload.class);
                 else
@@ -72,6 +75,8 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService
 
                 MainActivity.getOurInstance().createSnackbar("Data sent is: " + remoteMessage.getData());
             }
+            else
+                MainActivity.getOurInstance().createSnackbar("No data collected");
         }
     }
 
