@@ -63,20 +63,17 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService
                 Gson gson = new Gson();
                 NotificationPayload notificationPayload;
 
-                /*
-                Map<String, Stri ng> map = remoteMessage.getData();
+                Map<String, String> map = remoteMessage.getData();
+                Log.d(TAG, map.toString());
                 if(map.containsKey("default"))
-                    notificationPayload = gson.fromJson(map.get("default"), NotificationPayload.class);
+                    notificationPayload = gson.fromJson(map.get("default").toString(), NotificationPayload.class);
+
                 else
-                    notificationPayload = gson.fromJson(gson.toJson(map), NotificationPayload.class);
+                    notificationPayload = gson.fromJson(gson.toJson(map).toString(), NotificationPayload.class);
+
 
                 MainActivity.getOurInstance().createSnackbar(formatMessage(notificationPayload));
-                */
-
-                MainActivity.getOurInstance().createSnackbar("Data sent is: " + remoteMessage.getData());
             }
-            else
-                MainActivity.getOurInstance().createSnackbar("No data collected");
         }
     }
 
