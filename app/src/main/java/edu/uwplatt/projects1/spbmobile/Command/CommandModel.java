@@ -1,5 +1,6 @@
 package edu.uwplatt.projects1.spbmobile.Command;
 
+import java.util.Date;
 import java.util.HashMap;
 
 class CommandModel {
@@ -7,9 +8,9 @@ class CommandModel {
     private final CommandProperties properties;
     private HashMap<String, Object> arguments = new HashMap<>();
 
-    CommandModel(Command command) {
+    CommandModel(Command command, Date date) {
         cmdName = command.cmdName;
-        properties = new CommandProperties(command.priority);
+        properties = new CommandProperties(command.priority, date, command.guid);
         for (Parameter parameter : command.parameters) {
             arguments.put(parameter.machineName, parameter.value);
         }

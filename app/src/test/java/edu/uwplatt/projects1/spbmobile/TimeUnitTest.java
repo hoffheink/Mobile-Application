@@ -5,8 +5,6 @@ import org.junit.Test;
 
 public class TimeUnitTest
 {
-    private static final String TAG = "TimeUnitTest";
-
     @Test
     public  void getUtcTime_CompareTime_InternalCpuClock()
     {

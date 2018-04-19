@@ -14,17 +14,17 @@ class CommandProperties {
     private UUID guid;
     private String timestamp;
 
-    CommandProperties(boolean isPriority) {
+    private CommandProperties(boolean isPriority, Date date) {
         if (isPriority)
             priority = 1;
         else
             priority = 0;
         guid = getRandomUUID();
-        timestamp = Time.getUTCTime(new Date());
+        timestamp = Time.getUTCTime(date);
     }
 
-    public CommandProperties(boolean isPriority, UUID inGuid) {
-        this(isPriority);
+    CommandProperties(boolean isPriority, Date date, UUID inGuid) {
+        this(isPriority, date);
         guid = inGuid;
     }
 }

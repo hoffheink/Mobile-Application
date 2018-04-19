@@ -2,6 +2,9 @@ package edu.uwplatt.projects1.spbmobile.Command;
 
 import android.support.annotation.NonNull;
 
+import java.util.Date;
+import java.util.UUID;
+
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
 
@@ -10,15 +13,21 @@ import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
  */
 public class Command {
     public static Command currentCommand;
+    UUID guid;
     public String humanName;
     boolean priority;
     public Parameter[] parameters;
     State[] states;
     String cmdName;
 
+    public Command(UUID guid)
+    {
+        this.guid = guid;
+    }
+
     public static void executeCurrentCommand(@NonNull AwsIotShadowClient shadowClient,
                                              String appVersion) throws Exception {
-        CommandQueue commandQueue = new CommandQueue(currentCommand);
+        CommandQueue commandQueue = new CommandQueue(currentCommand, new Date());
         shadowClient.updateCommandShadow(
                 Appliance.currentAppliance.getName(),
                 Appliance.currentAppliance.getApplianceType().toString(),

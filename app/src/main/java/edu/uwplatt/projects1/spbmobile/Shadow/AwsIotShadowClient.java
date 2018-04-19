@@ -12,6 +12,7 @@ import com.amazonaws.services.iotdata.model.UpdateThingShadowRequest;
 import com.amazonaws.services.iotdata.model.UpdateThingShadowResult;
 
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
 import edu.uwplatt.projects1.spbmobile.Command.CommandQueue;
@@ -105,8 +106,8 @@ public class AwsIotShadowClient {
         @Override
         public void run() {
             try {
-                ShadowParam sp = new ShadowParam();
-                String payload = sp.armCommandParams(deviceType, deviceVersion, commandQueue);
+                String payload = ShadowParam.armCommandParams(deviceType, deviceVersion,
+                        commandQueue, new Date());
                 UpdateShadowTask updateShadowTask = new UpdateShadowTask(deviceName, payload,
                         credentials, awsIotDataClient);
                 updateShadowTask.execute();
