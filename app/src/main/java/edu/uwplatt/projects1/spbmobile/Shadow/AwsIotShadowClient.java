@@ -14,7 +14,6 @@ import com.amazonaws.services.iotdata.model.UpdateThingShadowResult;
 import java.nio.ByteBuffer;
 
 import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
-import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.Command.CommandQueue;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 
@@ -72,7 +71,7 @@ public class AwsIotShadowClient {
      * Sets the credentialsProvider used to communicate with a shadow object and rebuilds the
      * necessary shadow client.
      *
-     * @param credentials credentialsProvider provided by the AWS cognito authentication.
+     * @param credentials credentials provided by the AWS cognito authentication.
      */
     private void updateShadowAuthentication(@NonNull AWSSessionCredentials credentials)
             throws Exception {
