@@ -2,7 +2,7 @@ package edu.uwplatt.projects1.spbmobile.Command;
 
 public class Range {
     public int min;
-    private int max;
+    public int max;
     public int step;
 
     public String[] getDisplayableValues() {

@@ -18,11 +18,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -32,15 +29,8 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.amazonaws.services.lambda.model.InvokeRequest;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -51,9 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-
 import static edu.uwplatt.projects1.spbmobile.MainActivity.region;
-
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
@@ -164,17 +152,13 @@ public class RegisterApplianceFragment extends Fragment {
         URL applianceURL;
         try {
             applianceURL = new URL("http://192.168.4.1/setup");
-
             URLConnection connection = applianceURL.openConnection();
             connection.setRequestProperty("SSID", networkName);
             connection.setRequestProperty("PASS", networkPassword);
-
             connection.connect();
-
             Scanner inputScanner = new Scanner(connection.getInputStream());
             token = inputScanner.next();
             Log.i("sendNetworkInfo", "Token is: " + token);
-            //TODO: Fix this damn name!
             RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token, getContext());
             for (int count = 0; appliance == null && count < 10; count++) {
                 registrationTask.run();
@@ -214,8 +198,10 @@ public class RegisterApplianceFragment extends Fragment {
                 String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
                 Log.i("RegisterDeviceWithAWS", "jsonRequestParameters: " + jsonRequestParameters);
                 invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
+
                 String response = CloudDatasource.getInstance(context, account, region).invoke(account, invokeRequest);
                 Log.i("RegisterDeviceWithAWS", "response: " + response);
+
                 if (response != null) {
                     if (!response.contains("errorMessage")) {
                         appliance = new Appliance(deviceName, deviceName);
@@ -312,7 +298,6 @@ public class RegisterApplianceFragment extends Fragment {
         config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         int configID = wifiManager.addNetwork(config);
         Log.i("connectTo", "configID: " + configID);
-        //TODO: Log errors so the user can see them
         wifiManager.enableNetwork(configID, true);
         thingName = "esp8266_" + selectedNetwork.SSID.substring(selectedNetwork.SSID.length() - 6);
         Log.i("connectTo", "thingName: " + thingName);
