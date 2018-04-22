@@ -8,12 +8,14 @@ import android.util.Log;
 
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.auth.policy.Principal;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.iot.AWSIot;
 import com.amazonaws.services.iot.AWSIotClient;
 import com.amazonaws.services.iot.model.ListPrincipalPoliciesRequest;
 import com.amazonaws.services.iot.model.ListThingsRequest;
+import com.amazonaws.services.iot.model.Policy;
 import com.amazonaws.services.iot.model.ThingAttribute;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.InvokeRequest;
@@ -151,33 +153,33 @@ public class CloudDatasource {
                 listThingsRequest.setRequestCredentials(credentials);
 
                 try {
-                    /*List<String> thingNames = new ArrayList<>();
+                    List<String> thingNames = new ArrayList<>();
                     for (Policy policy : awsIot.listPrincipalPolicies(listPrincipalPoliciesRequest)
                             .getPolicies()) {
                         String policyName = policy.getPolicyName()
                                 .replace("app-", "");
                         thingNames.add(policyName);
-                    }*/
+                    }
 
                     for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
-                        //if (thingNames.contains(o.getThingName())) {
-                        Appliance appliance = new Appliance(o.getThingName(),
-                                o.getVersion().toString());
-                        String thingType = o.getThingTypeName();
-                        if (thingType != null) {
-                            switch (o.getThingTypeName()) {
-                                case "coffee-maker":
-                                    appliance.setApplianceType(Appliance.ApplianceType
-                                            .CoffeeMaker);
-                                    break;
-                                case "test":
-                                    appliance.setApplianceType(Appliance.ApplianceType.Test);
-                                    break;
+                        if (thingNames.contains(o.getThingName())) {
+                            Appliance appliance = new Appliance(o.getThingName(),
+                                    o.getVersion().toString());
+                            String thingType = o.getThingTypeName();
+                            if (thingType != null) {
+                                switch (o.getThingTypeName()) {
+                                    case "coffee-maker":
+                                        appliance.setApplianceType(Appliance.ApplianceType
+                                                .CoffeeMaker);
+                                        break;
+                                    case "test":
+                                        appliance.setApplianceType(Appliance.ApplianceType.Test);
+                                        break;
+                                }
                             }
+                            newApplianceList.add(appliance);
                         }
-                        newApplianceList.add(appliance);
                     }
-                    //}
                 } catch (Exception e) {
                     Log.e("GetAppliancesRunnable", e.getMessage(), e);
                 }
