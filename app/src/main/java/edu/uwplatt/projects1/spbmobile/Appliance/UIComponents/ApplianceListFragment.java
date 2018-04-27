@@ -16,22 +16,27 @@ import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.Command.UIComponents.CommandListFragment;
 import edu.uwplatt.projects1.spbmobile.R;
 
-
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must
  * handle interaction events.
  */
 public class ApplianceListFragment extends Fragment {
-
+    /**
+     * The required default constructor.
+     */
+    //TODO: Find out if we need this
     public ApplianceListFragment() {
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
+    /**
+     * This method will create fragment for the list of Appliance.
+     *
+     * @param inflater           the inflater to inflate the view.
+     * @param container          the container to throw the fragment in.
+     * @param savedInstanceState The saved instance (if available).
+     * @return The view after inflation.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -43,6 +48,9 @@ public class ApplianceListFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_appliance_list, container, false);
     }
 
+    /**
+     * This method will load up the Appliances and create the views.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -57,6 +65,11 @@ public class ApplianceListFragment extends Fragment {
         }
     }
 
+    /**
+     * This method is used to respond to an item being clicked.
+     *
+     * @param listView the ListView to attach the onClickListener to.
+     */
     private void setOnClickListener(final ListView listView) {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

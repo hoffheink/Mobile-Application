@@ -24,14 +24,22 @@ import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
  * This class is used to display the list of Parameters to the user.
  */
 public class ParameterListFragment extends Fragment {
+
+    /**
+     * The required default constructor.
+     */
+    //TODO: Find out if we need this
     public ParameterListFragment() {
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
+    /**
+     * This method will create fragment for the list of Parameters.
+     *
+     * @param inflater           the inflater to inflate the view.
+     * @param container          the container to throw the fragment in.
+     * @param savedInstanceState The saved instance (if available).
+     * @return The view after inflation.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -43,6 +51,11 @@ public class ParameterListFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_parameter_list, container, false);
     }
 
+    /**
+     * This method is used to create an OnClickListener for the execute button.
+     *
+     * @param executeButton the execute button.
+     */
     private void setExecuteButtonOnClickListener(ImageButton executeButton) {
         executeButton.setOnClickListener(executeButtonExecute);
     }
@@ -73,6 +86,9 @@ public class ParameterListFragment extends Fragment {
         }
     };
 
+    /**
+     * This method will load up the Parameters and create the views.
+     */
     @Override
     public void onStart() {
         super.onStart();

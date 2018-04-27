@@ -15,13 +15,30 @@ import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.R;
 
+/**
+ * This class is used to convert a list of Appliances to an ArrayAdapter of Appliances.
+ */
 public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
 
+    /**
+     * This is the constructor for the ApplianceListAdapter.
+     *
+     * @param context  The context for the adapter.
+     * @param resource the resource used for drawing.
+     */
     ApplianceListAdapter(@NonNull Context context, int resource) {
         super(context, resource);
         addAll(CloudDatasource.applianceList);
     }
 
+    /**
+     * This method gets the view for the Appliance view.
+     *
+     * @param position    Its index.
+     * @param convertView The area to put the info.
+     * @param container   The container the convertView will go into.
+     * @return The View of the Appliance.
+     */
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup container) {

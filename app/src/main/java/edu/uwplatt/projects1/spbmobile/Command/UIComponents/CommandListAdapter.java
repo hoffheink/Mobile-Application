@@ -17,11 +17,25 @@ import edu.uwplatt.projects1.spbmobile.R;
  */
 public class CommandListAdapter extends ArrayAdapter<Command> {
 
+    /**
+     * This is the constructor for the CommandListAdapter.
+     *
+     * @param context  The context for the adapter.
+     * @param resource the resource used for drawing.
+     */
     CommandListAdapter(@NonNull Context context, int resource) {
         super(context, resource);
         addAll(Appliance.currentAppliance.commands);
     }
 
+    /**
+     * This method gets the view for the Command view.
+     *
+     * @param position    Its index.
+     * @param convertView The area to put the info.
+     * @param container   The container the convertView will go into.
+     * @return The View of the Command.
+     */
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup container) {

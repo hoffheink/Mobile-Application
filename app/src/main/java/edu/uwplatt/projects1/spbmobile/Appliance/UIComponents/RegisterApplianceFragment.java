@@ -49,21 +49,31 @@ import edu.uwplatt.projects1.spbmobile.R;
 
 import static edu.uwplatt.projects1.spbmobile.MainActivity.region;
 
+/**
+ * This class is used to register an Appliance with the cloud side.
+ */
 public class RegisterApplianceFragment extends Fragment {
 
+    final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 5555;
     public static final String NETWORK_PREFIX = "Mon";
     public static final String SSID_KEY = "SSID";
+    private static String thingName;
+    private List<ScanResult> unfilteredResults;
     WifiManager wifiManager;
     ArrayList<ScanResult> filteredResults;
     ScanResult selectedNetwork;
     Appliance appliance = null;
     String token;
-
     Boolean config = false;
 
-    final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 5555;
-    private List<ScanResult> unfilteredResults;
-
+    /**
+     * This method will create fragment for the registering of an appliance.
+     *
+     * @param inflater           the inflater to inflate the view.
+     * @param container          the container to throw the fragment in.
+     * @param savedInstanceState The saved instance (if available).
+     * @return The view after inflation.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -74,6 +84,11 @@ public class RegisterApplianceFragment extends Fragment {
         return inflater.inflate(R.layout.content_register_appliance, container, false);
     }
 
+    /**
+     * This method will start scanning wifi and get permissions if needed.
+     *
+     * @param savedInstanceState The saved instance (if available).
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,16 +150,32 @@ public class RegisterApplianceFragment extends Fragment {
         }
     };
 
+    /**
+     * This method will get the SSID from the network name.
+     *
+     * @param networkName the network name.
+     * @return the SSID.
+     */
     @SuppressWarnings("all")
     private String getSSID(Spinner networkName) {
         return ((HashMap<String, String>) networkName.getSelectedItem()).get(SSID_KEY);
     }
 
+    /**
+     * This class will register the Appliance.
+     */
     private class SendNetworkInfoAndRegisterRunnable implements Runnable {
         private final String networkName;
         private final String networkPassword;
         private final GoogleSignInAccount account;
 
+        /**
+         * This constructor will create the runnable.
+         *
+         * @param networkName     the network name.
+         * @param networkPassword the network password.
+         * @param account         the account to register the Appliance with.
+         */
         SendNetworkInfoAndRegisterRunnable(String networkName, String networkPassword,
                                            GoogleSignInAccount account) {
             this.networkName = networkName;
@@ -152,80 +183,97 @@ public class RegisterApplianceFragment extends Fragment {
             this.account = account;
         }
 
+        /**
+         * This method will actually call the method to register it.
+         */
         @Override
         public void run() {
-            sendNetworkInfoRegister(networkName, networkPassword, account);
-        }
-    }
-
-    private void sendNetworkInfoRegister(String networkName, String networkPassword,
-                                         GoogleSignInAccount account) {
-        URL applianceURL;
-        try {
-            applianceURL = new URL("http://192.168.4.1/setup");
-            URLConnection connection = applianceURL.openConnection();
-            connection.setRequestProperty("SSID", networkName);
-            connection.setRequestProperty("PASS", networkPassword);
-            connection.connect();
-            Scanner inputScanner = new Scanner(connection.getInputStream());
-            token = inputScanner.next();
-            Log.i("sendNetworkInfoRegister", "Token is: " + token);
-
-            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(account, thingName,
-                    token, getContext());
-
-            for (int count = 0; appliance == null && count < 10; count++) {
-                registrationTask.run();
-                Thread.sleep(5000);
-            }
-            if (appliance == null) {
-                Log.w("sendNetworkInfoRegister", "Failed to add device!");
-                Toast.makeText(getContext(), "Failed to add device!",
-                        Toast.LENGTH_LONG).show();
-            } else {
-                goHome();
-            }
-        } catch (Exception e) {
-            Log.e("sendNetworkInfoRegister", e.getMessage(), e);
-        }
-    }
-
-    public class RegisterDeviceWithAWS implements Runnable {
-        private final String token;
-        private final String deviceName;
-        private final GoogleSignInAccount account;
-        private final Context context;
-
-        RegisterDeviceWithAWS(GoogleSignInAccount inAccount, String inDeviceName, String inToken,
-                              Context inContext) {
-            account = inAccount;
-            deviceName = inDeviceName;
-            token = inToken;
-            context = inContext;
-        }
-
-        @Override
-        public void run() {
+            URL applianceURL;
             try {
-                InvokeRequest invokeRequest = new InvokeRequest();
-                invokeRequest.setFunctionName("iot-app-register-device");
-                String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\""
-                        + token + "\"}";
-                invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
-                String response = CloudDatasource.getInstance(context, account, region)
-                        .invoke(account, invokeRequest);
-                if (response != null) {
-                    if (!response.contains("errorMessage")) {
-                        appliance = new Appliance(deviceName, deviceName);
-                    }
-                } else
-                    Log.w("RegisterDeviceWithAWS", "Failed to register:");
+                applianceURL = new URL("http://192.168.4.1/setup");
+                URLConnection connection = applianceURL.openConnection();
+                connection.setRequestProperty("SSID", networkName);
+                connection.setRequestProperty("PASS", networkPassword);
+                connection.connect();
+                Scanner inputScanner = new Scanner(connection.getInputStream());
+                token = inputScanner.next();
+                Log.i("sendNetworkInfoRegister", "Token is: " + token);
+
+                RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(account,
+                        thingName, token, getContext());
+
+                for (int count = 0; appliance == null && count < 10; count++) {
+                    registrationTask.run();
+                    Thread.sleep(5000);
+                }
+                if (appliance == null) {
+                    Log.w("sendNetworkInfoRegister", "Failed to add device!");
+                    Toast.makeText(getContext(), "Failed to add device!",
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    goHome();
+                }
             } catch (Exception e) {
-                Log.e("RegisterDeviceWithAWS", e.getMessage(), e);
+                Log.e("sendNetworkInfoRegister", e.getMessage(), e);
+            }
+        }
+
+        /**
+         * This class will register the device with AWS.
+         */
+        public class RegisterDeviceWithAWS implements Runnable {
+            private final String token;
+            private final String applianceName;
+            private final GoogleSignInAccount account;
+            private final Context context;
+
+            /**
+             * This constructor will create the runnable.
+             *
+             * @param account       the account used to register the Appliance.
+             * @param applianceName the Appliance name.
+             * @param token         the token used to register the Appliance.
+             * @param context       the context used to create the CloudDatasource.
+             */
+            //TODO: Refactor this so that it takes in a CloudDatasource rather than creating one every time.
+            RegisterDeviceWithAWS(GoogleSignInAccount account, String applianceName, String token,
+                                  Context context) {
+                this.account = account;
+                this.applianceName = applianceName;
+                this.token = token;
+                this.context = context;
+            }
+
+            /**
+             * This method actually registers the device with AWS.
+             */
+            @Override
+            public void run() {
+                try {
+                    InvokeRequest invokeRequest = new InvokeRequest();
+                    invokeRequest.setFunctionName("iot-app-register-device");
+                    //TODO: Refactor this to be better.
+                    String jsonRequestParameters = "{\"thingId\":\"" + applianceName +
+                            "\",\"thingPin\":\"" + token + "\"}";
+                    invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
+                    String response = CloudDatasource.getInstance(context, account, region)
+                            .invoke(account, invokeRequest);
+                    if (response != null) {
+                        if (!response.contains("errorMessage")) {
+                            appliance = new Appliance(applianceName, applianceName);
+                        }
+                    } else
+                        Log.w("RegisterDeviceWithAWS", "Failed to register:");
+                } catch (Exception e) {
+                    Log.e("RegisterDeviceWithAWS", e.getMessage(), e);
+                }
             }
         }
     }
 
+    /**
+     * This method will show the configuration settings.
+     */
     private void showConfigurationSettings() {
         if (!config) {
             config = true;
@@ -255,6 +303,9 @@ public class RegisterApplianceFragment extends Fragment {
         }
     }
 
+    /**
+     * This method will bring the view all the way home.
+     */
     private void goHome() {
         FragmentManager fragmentManager = this.getFragmentManager();
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -265,6 +316,11 @@ public class RegisterApplianceFragment extends Fragment {
         fragmentTransaction.commit();
     }
 
+    /**
+     * This method will show all the esp devices so that they can be registered.
+     *
+     * @param results the list of ScanResults.
+     */
     private void resultsReceived(List<ScanResult> results) {
         if (!config) {
             ProgressBar progressBar = getActivity()
@@ -307,8 +363,11 @@ public class RegisterApplianceFragment extends Fragment {
         }
     };
 
-    private static String thingName;
-
+    /**
+     * This method will connect the android device to the wifi network at the passed in index.
+     *
+     * @param index the index of the selected wifi network.
+     */
     private void connectTo(int index) {
         selectedNetwork = filteredResults.get(index);
         WifiConfiguration config = new WifiConfiguration();
@@ -321,12 +380,18 @@ public class RegisterApplianceFragment extends Fragment {
         Log.i("connectTo", "thingName: " + thingName);
     }
 
+    /**
+     * This method will prevent our code from getting called if the app is not the main activity.
+     */
     public void onPause() {
         getActivity().unregisterReceiver(wifiScanReceiver);
         getActivity().unregisterReceiver(wifiConnectReceiver);
         super.onPause();
     }
 
+    /**
+     * This method will allow our code to get called if the app becomes the main activity.
+     */
     public void onResume() {
         getActivity().registerReceiver(
                 wifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));

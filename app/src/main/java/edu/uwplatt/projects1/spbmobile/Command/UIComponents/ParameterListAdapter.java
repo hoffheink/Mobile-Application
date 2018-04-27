@@ -30,6 +30,12 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         addAll(Command.currentCommand.parameters);
     }
 
+    /**
+     * This method gets a NumberPicker from a Parameter.
+     *
+     * @param parameter the Parameter to create the NumberPicker from.
+     * @return the new NumberPicker.
+     */
     private NumberPicker getNumberPicker(final Parameter parameter) {
         final Range range = parameter.range;
         NumberPicker result = new NumberPicker(getContext());
@@ -46,6 +52,12 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         return result;
     }
 
+    /**
+     * This method gets a EditText from a Parameter.
+     *
+     * @param parameter the Parameter to create the EditText from.
+     * @return the new EditText.
+     */
     private EditText getEditText(final Parameter parameter) {
         EditText result = new EditText(getContext());
         result.addTextChangedListener(new TextWatcher() {
@@ -66,6 +78,12 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         return result;
     }
 
+    /**
+     * This method gets a Spinner from a Parameter.
+     *
+     * @param parameter the Parameter to create the Spinner from.
+     * @return the new Spinner.
+     */
     private Spinner getSpinner(final Parameter parameter) {
         Spinner result = new Spinner(getContext());
         result.setAdapter(parameter.getSpinnerOptions(getContext()));
@@ -103,6 +121,14 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
         return (new DurationPicker(max)).getView(container, getContext());
     }
 
+    /**
+     * This method gets the view for the Command view.
+     *
+     * @param position    Its index.
+     * @param convertView The area to put the info.
+     * @param container   The container the convertView will go into.
+     * @return The View of the Command.
+     */
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup container) {

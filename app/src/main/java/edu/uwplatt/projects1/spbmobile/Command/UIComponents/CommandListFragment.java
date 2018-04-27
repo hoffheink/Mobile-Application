@@ -20,11 +20,14 @@ import android.support.v4.app.Fragment;
  */
 public class CommandListFragment extends Fragment {
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
+    /**
+     * This method will create fragment for the list of Command.
+     *
+     * @param inflater           the inflater to inflate the view.
+     * @param container          the container to throw the fragment in.
+     * @param savedInstanceState The saved instance (if available).
+     * @return The view after inflation.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -35,6 +38,9 @@ public class CommandListFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_command_list, container, false);
     }
 
+    /**
+     * This method will load up the Commands and create the views.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -49,6 +55,11 @@ public class CommandListFragment extends Fragment {
         }
     }
 
+    /**
+     * This method is used to respond to an item being clicked.
+     *
+     * @param listView the ListView to attach the onClickListener to.
+     */
     private void setOnClickListener(final ListView listView) {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
