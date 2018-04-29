@@ -1,5 +1,11 @@
 package edu.uwplatt.projects1.spbmobile.Command;
 
+import android.util.Log;
+
+import com.google.firebase.iid.FirebaseInstanceId;
+
+import edu.uwplatt.projects1.spbmobile.Firebase.FirebaseInstanceService;
+import edu.uwplatt.projects1.spbmobile.MainActivity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import java.util.HashMap;
