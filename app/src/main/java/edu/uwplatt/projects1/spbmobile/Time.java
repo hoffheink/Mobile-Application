@@ -8,14 +8,14 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 /**
- * Handle time operations.
+ * This class handles time operations.
  */
 public class Time {
     /**
      * Get the current time for the UTC timezone region.
      *
-     * @param date the date the object is called.
-     * @return the formatted time as a string.
+     * @param date the Date.
+     * @return the formatted time String.
      */
     public static String getUTCTime(@NonNull Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T' HH:mm:ss.SSS",

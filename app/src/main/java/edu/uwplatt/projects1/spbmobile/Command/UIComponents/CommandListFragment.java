@@ -23,10 +23,10 @@ public class CommandListFragment extends Fragment {
     /**
      * This method will create fragment for the list of Command.
      *
-     * @param inflater           the inflater to inflate the view.
-     * @param container          the container to throw the fragment in.
-     * @param savedInstanceState The saved instance (if available).
-     * @return The view after inflation.
+     * @param inflater           the LayoutInflater used to inflate the view.
+     * @param container          the ViewGroup to throw the fragment in.
+     * @param savedInstanceState the Bundle (if available).
+     * @return the View after inflation.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,7 +39,7 @@ public class CommandListFragment extends Fragment {
     }
 
     /**
-     * This method will load up the Commands and create the views.
+     * This method will load up the Commands and create the Views.
      */
     @Override
     public void onStart() {
@@ -56,7 +56,7 @@ public class CommandListFragment extends Fragment {
     }
 
     /**
-     * This method is used to respond to an item being clicked.
+     * This method is used to respond to a Command being clicked.
      *
      * @param listView the ListView to attach the onClickListener to.
      */

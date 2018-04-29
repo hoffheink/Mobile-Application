@@ -23,7 +23,7 @@ class DurationPicker {
     /**
      * The constructor.
      *
-     * @param max The maximum time (in seconds) the duration can have.
+     * @param max the maximum time (in seconds) the duration can have.
      */
     DurationPicker(int max) {
         maxTime = max;
@@ -112,9 +112,10 @@ class DurationPicker {
     }
 
     /**
-     * This method will return the View associated with this duration picker.
+     * This method will return the View associated with this DurationPicker.
      *
-     * @param container The ViewGroup that this view will be placed in.
+     * @param container the ViewGroup that this view will be placed in.
+     * @param context  the Application Context.
      */
     View getView(@NonNull ViewGroup container, Context context) {
         LayoutInflater layoutInflater = (LayoutInflater) context
@@ -146,7 +147,7 @@ class DurationPicker {
     }
 
     /**
-     * This Listener will call the updateDisplays method when fired.
+     * This listener will call the updateDisplays method when fired.
      */
     private NumberPicker.OnValueChangeListener valueChangeListener =
             new NumberPicker.OnValueChangeListener() {

@@ -69,10 +69,10 @@ public class RegisterApplianceFragment extends Fragment {
     /**
      * This method will create fragment for the registering of an appliance.
      *
-     * @param inflater           the inflater to inflate the view.
-     * @param container          the container to throw the fragment in.
-     * @param savedInstanceState The saved instance (if available).
-     * @return The view after inflation.
+     * @param inflater           the LayoutInflater used to inflate the view.
+     * @param container          the ViewGroup to throw the fragment in.
+     * @param savedInstanceState the Bundle (if available).
+     * @return The View after inflation.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -85,9 +85,9 @@ public class RegisterApplianceFragment extends Fragment {
     }
 
     /**
-     * This method will start scanning wifi and get permissions if needed.
+     * This method will start scanning WiFi and get permissions if needed.
      *
-     * @param savedInstanceState The saved instance (if available).
+     * @param savedInstanceState the Bundle (if available).
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -108,6 +108,12 @@ public class RegisterApplianceFragment extends Fragment {
     }
 
     BroadcastReceiver wifiScanReceiver = new BroadcastReceiver() {
+        /**
+         * This method will make a call to update the WiFi list.
+         *
+         * @param context the Context.
+         * @param intent  the Intent.
+         */
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -119,6 +125,12 @@ public class RegisterApplianceFragment extends Fragment {
     };
 
     BroadcastReceiver wifiConnectReceiver = new BroadcastReceiver() {
+        /**
+         * This method will make a call to show config settings for the new Appliance.
+         *
+         * @param context the Context.
+         * @param intent  the Intent.
+         */
         @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -136,6 +148,11 @@ public class RegisterApplianceFragment extends Fragment {
     };
 
     private View.OnClickListener sendNetworkInfoClickListener = new View.OnClickListener() {
+        /**
+         * This method will initiate the registering of a Appliance.
+         *
+         * @param view the View clicked.
+         */
         @Override
         public void onClick(View view) {
             Spinner networkName = getActivity().findViewById(R.id.network_name);
@@ -153,7 +170,7 @@ public class RegisterApplianceFragment extends Fragment {
     /**
      * This method will get the SSID from the network name.
      *
-     * @param networkName the network name.
+     * @param networkName the Spinner.
      * @return the SSID.
      */
     @SuppressWarnings("all")
@@ -162,7 +179,7 @@ public class RegisterApplianceFragment extends Fragment {
     }
 
     /**
-     * This class will register the Appliance.
+     * This class is used to register the Appliance.
      */
     private class SendNetworkInfoAndRegisterRunnable implements Runnable {
         private final String networkName;
@@ -174,7 +191,7 @@ public class RegisterApplianceFragment extends Fragment {
          *
          * @param networkName     the network name.
          * @param networkPassword the network password.
-         * @param account         the account to register the Appliance with.
+         * @param account         the GoogleSignInAccount to register the Appliance with.
          */
         SendNetworkInfoAndRegisterRunnable(String networkName, String networkPassword,
                                            GoogleSignInAccount account) {
@@ -184,7 +201,7 @@ public class RegisterApplianceFragment extends Fragment {
         }
 
         /**
-         * This method will actually call the method to register it.
+         * This method will actually call the method to register the Appliance.
          */
         @Override
         public void run() {
@@ -219,7 +236,7 @@ public class RegisterApplianceFragment extends Fragment {
         }
 
         /**
-         * This class will register the device with AWS.
+         * This class is used to register the device with AWS.
          */
         public class RegisterDeviceWithAWS implements Runnable {
             private final String token;
@@ -230,10 +247,10 @@ public class RegisterApplianceFragment extends Fragment {
             /**
              * This constructor will create the runnable.
              *
-             * @param account       the account used to register the Appliance.
+             * @param account       the GoogleSignInAccount used to register the Appliance.
              * @param applianceName the Appliance name.
              * @param token         the token used to register the Appliance.
-             * @param context       the context used to create the CloudDatasource.
+             * @param context       the Application Context.
              */
             //TODO: Refactor this so that it takes in a CloudDatasource rather than creating one every time.
             RegisterDeviceWithAWS(GoogleSignInAccount account, String applianceName, String token,
@@ -257,7 +274,7 @@ public class RegisterApplianceFragment extends Fragment {
                             "\",\"thingPin\":\"" + token + "\"}";
                     invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
                     String response = CloudDatasource.getInstance(context, account, region)
-                            .invoke(account, invokeRequest);
+                            .invokeLambda(account, invokeRequest);
                     if (response != null) {
                         if (!response.contains("errorMessage")) {
                             appliance = new Appliance(applianceName, applianceName);

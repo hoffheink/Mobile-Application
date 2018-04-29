@@ -23,7 +23,7 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
     /**
      * This is the constructor for the ApplianceListAdapter.
      *
-     * @param context  The context for the adapter.
+     * @param context  the Application Context.
      * @param resource the resource used for drawing.
      */
     ApplianceListAdapter(@NonNull Context context, int resource) {
@@ -34,10 +34,10 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
     /**
      * This method gets the view for the Appliance view.
      *
-     * @param position    Its index.
-     * @param convertView The area to put the info.
-     * @param container   The container the convertView will go into.
-     * @return The View of the Appliance.
+     * @param position    the index of the Appliance.
+     * @param convertView the View to put the info.
+     * @param container   the ViewGroup the convertView will go into.
+     * @return the View of the Appliance.
      */
     @NonNull
     @Override

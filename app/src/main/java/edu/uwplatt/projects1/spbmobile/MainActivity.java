@@ -23,12 +23,20 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceFragment;
 
+/**
+ * This class represents the main activity of the application.
+ */
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     protected DrawerLayout mDrawer;
     private static final int RC_WELCOME_SCREEN = 9002;
     public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_1;
 
+    /**
+     * This method will set up all the needed components of the MainActivity.
+     *
+     * @param savedInstanceState the Bundle (if available).
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,19 +61,26 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Creates an intent to show the welcome screen.
+     * This method creates and displays the Intent to show the WelcomeScreenActivity.
      */
     private void showWelcomeScreen() {
         Intent openDevicesIntent = new Intent(this, WelcomeScreenActivity.class);
         startActivityForResult(openDevicesIntent, RC_WELCOME_SCREEN);
     }
 
+    /**
+     * This method will load up the account information.
+     */
     @Override
     public void onStart() {
         super.onStart();
         updateAccountInformation();
     }
 
+    /**
+     * This method will update the account info and make a call to display the WelcomeScreenActivity
+     * if needed.
+     */
     private void updateAccountInformation() {
         GoogleProvider googleProvider = GoogleProvider.getInstance(getApplicationContext(),
                 this);
@@ -84,61 +99,74 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * This method is executed when the back button is pressed.
+     */
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            getFragmentManager().popBackStack();
         }
     }
 
+    /**
+     * This method initializes the contents of the Fragment host's standard options menu.
+     *
+     * @param menu the Menu that has items in it.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        //TODO: Make this menu do something, for now I have just disabled it.
+        //getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
+    /**
+     * This method is used to handle action bar item clicks here. The action bar will automatically
+     * handle clicks on the Home/Up button, so long as you specify a parent activity in
+     * AndroidManifest.xml.
+     *
+     * @param item the MenuItem selected.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         return id == R.id.action_settings || super.onOptionsItemSelected(item);
     }
 
+    /**
+     * This method handles navigation view item clicks here.
+     *
+     * @param item the MenuItem selected.
+     */
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         if (id == R.id.nav_appliances) {
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
             ApplianceListFragment fragment = new ApplianceListFragment();
             fragmentTransaction.add(R.id.content_main, fragment);
             fragmentTransaction.commit();
         } else if (id == R.id.nav_register_appliance) {
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
             RegisterApplianceFragment fragment = new RegisterApplianceFragment();
             fragmentTransaction.add(R.id.content_main, fragment);
             fragmentTransaction.commit();
-
         } else if (id == R.id.nav_account) {
-
+            //TODO: Remove or implement
         } else if (id == R.id.nav_settings) {
-
+            //TODO: Remove or implement
         } else if (id == R.id.nav_invoke_aws) {
-
+            //TODO: Remove or implement
         } else if (id == R.id.nav_logout) {
-            GoogleProvider.getInstance(getApplicationContext(), this).signOut();
+            GoogleProvider.getInstance(getApplicationContext(), this).signOut(this);
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -146,9 +174,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Checks if the appropriate version of google play services is installed.
-     * <p>
-     * If not an error is shown to the user.
+     * This method checks if the appropriate version of Google Play Services is installed, and if
+     * not, an error is shown to the user.
      */
     private void testGooglePlayServicesAvailability() {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
@@ -162,6 +189,13 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * This method will handles the activity results.
+     *
+     * @param requestCode the requestCode.
+     * @param resultCode  the resultCode.
+     * @param data        the Intent of the request.
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_WELCOME_SCREEN && resultCode == RESULT_OK) {
             updateAccountInformation();

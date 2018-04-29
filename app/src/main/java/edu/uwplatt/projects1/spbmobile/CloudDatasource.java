@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.auth.policy.Principal;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.iot.AWSIot;
@@ -29,7 +28,9 @@ import java.util.List;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 
-
+/**
+ * This class represents a link to our cloud datasource.
+ */
 public class CloudDatasource {
     private static final String US_EAST_1_IdentityPoolID =
             "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
@@ -53,52 +54,81 @@ public class CloudDatasource {
 
     public static List<Appliance> applianceList = new ArrayList<>();
 
-    public static CloudDatasource getInstance(@NonNull Context inContext,
+    /**
+     * This class will get an instance of our CloudDatasource.
+     *
+     * @param context the Application Context for the CloudDatasource.
+     * @param account the GoogleSignInAccount for the CloudDatasource.
+     * @param region  the RegionEnum for the CloudDatasource.
+     * @return the CloudDatasource.
+     */
+    public static CloudDatasource getInstance(@NonNull Context context,
                                               @NonNull GoogleSignInAccount account,
-                                              RegionEnum inRegion) {
-        if (ourInstance == null || !ourContext.equals(inContext) || !ourRegion.equals(inRegion)) {
-            ourInstance = new CloudDatasource(inContext, inRegion);
-            ourContext = inContext;
-            ourRegion = inRegion;
+                                              RegionEnum region) {
+        if (ourInstance == null || !ourContext.equals(context) || !ourRegion.equals(region)) {
+            ourInstance = new CloudDatasource(context, region);
+            ourContext = context;
+            ourRegion = region;
         }
         addLoginsFromAccount(account);
-        LoadCredentialsTask loadCredentialsTask = new LoadCredentialsTask();
+        GetCredentialProviderTask getCredentialProviderTask = new GetCredentialProviderTask();
         try {
-            loadCredentialsTask.execute(ourInstance.credentialsProvider);
+            getCredentialProviderTask.execute(ourInstance.credentialsProvider);
         } catch (Exception e) {
             Log.e("getInstance", "Unable to load credentials:" + e.getMessage(), e);
         }
         return ourInstance;
     }
 
+    /**
+     * This constructor will create a CloudDatasource.
+     *
+     * @param context the Application Context used to get the CognitoCachingCredentialsProvider.
+     * @param region  the RegionEnum used to get the CognitoCachingCredentialsProvider.
+     */
+    private CloudDatasource(@NonNull Context context, @NonNull RegionEnum region) {
+        switch (region) {
+            case US_EAST_1:
+                credentialsProvider = new CognitoCachingCredentialsProvider(context,
+                        US_EAST_1_IdentityPoolID, Regions.US_EAST_1);
+                break;
+            case US_EAST_2:
+                credentialsProvider = new CognitoCachingCredentialsProvider(context,
+                        US_EAST_2_IdentityPoolID, Regions.US_EAST_2);
+                break;
+        }
+    }
+
+    /**
+     * This method will load the list of Appliances.
+     */
     void loadAppliances() {
         Runnable getAppliancesRunnable = new GetAppliancesRunnable();
         Thread thread = new Thread(getAppliancesRunnable);
         thread.start();
     }
 
-    private CloudDatasource(@NonNull Context inContext, @NonNull RegionEnum inRegion) {
-        switch (inRegion) {
-            case US_EAST_1:
-                credentialsProvider = new CognitoCachingCredentialsProvider(inContext,
-                        US_EAST_1_IdentityPoolID, Regions.US_EAST_1);
-                break;
-            case US_EAST_2:
-                credentialsProvider = new CognitoCachingCredentialsProvider(inContext,
-                        US_EAST_2_IdentityPoolID, Regions.US_EAST_2);
-                break;
-        }
-    }
-
+    /**
+     * This class is used to get AWSSessionCredentials.
+     */
     private class GetCredentialsRunnable implements Runnable {
         AWSSessionCredentials credentials = null;
         CognitoCachingCredentialsProvider provider;
         Exception exception = null;
 
+        /**
+         * This constructor is used to create a GetCredentialsRunnable.
+         *
+         * @param provider the CognitoCachingCredentialsProvider.
+         */
         GetCredentialsRunnable(CognitoCachingCredentialsProvider provider) {
             this.provider = provider;
         }
 
+        /**
+         * This method will actually get the credentials.
+         * Upon completion, either credentials or exception will have a value.
+         */
         @Override
         public void run() {
             try {
@@ -108,8 +138,15 @@ public class CloudDatasource {
                 credentials = null;
             }
         }
+
     }
 
+    /**
+     * This method will get the AWSSessionCredentials.
+     *
+     * @return the AWSSessionCredentials.
+     * @throws Exception just a general thrower.
+     */
     public AWSSessionCredentials getCredentials() throws Exception {
         GetCredentialsRunnable getCredentialsRunnable =
                 new GetCredentialsRunnable(ourInstance.credentialsProvider);
@@ -123,9 +160,16 @@ public class CloudDatasource {
         return getCredentialsRunnable.credentials;
     }
 
+    /**
+     * This class is used to get Appliances.
+     */
     private static class GetAppliancesRunnable implements Runnable {
+        /**
+         * This method will actually get the Appliances.
+         */
         @Override
         public void run() {
+            //TODO: refactor this method!
             ArrayList<Appliance> newApplianceList = new ArrayList<>();
             AWSSessionCredentials credentials = null;
             try {
@@ -169,11 +213,11 @@ public class CloudDatasource {
                             if (thingType != null) {
                                 switch (o.getThingTypeName()) {
                                     case "coffee-maker":
-                                        appliance.setApplianceType(Appliance.ApplianceType
+                                        appliance.setApplianceType(Appliance.ApplianceTypes
                                                 .CoffeeMaker);
                                         break;
                                     case "test":
-                                        appliance.setApplianceType(Appliance.ApplianceType.Test);
+                                        appliance.setApplianceType(Appliance.ApplianceTypes.Test);
                                         break;
                                 }
                             }
@@ -188,37 +232,58 @@ public class CloudDatasource {
         }
     }
 
-    private static class LoadCredentialsTask extends AsyncTask<CognitoCachingCredentialsProvider,
-            Void, CognitoCachingCredentialsProvider> {
+    /**
+     * This class is used to get the CognitoCachingCredentialsProvider.
+     */
+    private static class GetCredentialProviderTask extends
+            AsyncTask<CognitoCachingCredentialsProvider, Void, CognitoCachingCredentialsProvider> {
+        /**
+         * This method is used to get the CognitoCachingCredentialsProvider.
+         *
+         * @return the CognitoCachingCredentialsProvider.
+         */
         @Override
         protected CognitoCachingCredentialsProvider doInBackground(
                 CognitoCachingCredentialsProvider... voids) {
-            Log.i("LoadCredentialsTask",
+            Log.i("GetCredProviderTask",
                     ourInstance.credentialsProvider.getLogins().toString());
             try {
                 ourInstance.credentialsProvider.refresh();
             } catch (Exception e) {
-                Log.e("LoadCredentialsTask", e.getMessage(), e);
+                Log.e("GetCredProviderTask", e.getMessage(), e);
             }
             return ourInstance.credentialsProvider;
         }
     }
 
-    public String invoke(GoogleSignInAccount account, InvokeRequest request) {
+    /**
+     * This method is used to invokeLambda a lambda request.
+     *
+     * @param account the GoogleSignInAccount to execute the lambda function with.
+     * @param request the InvokeRequest to execute.
+     * @return the String result.
+     */
+    public String invokeLambda(GoogleSignInAccount account, InvokeRequest request) {
         try {
             String functionName = request.getFunctionName();
             String newFunctionName = "arn:aws:lambda:" + ourRegion.toString().toLowerCase()
                     .replace("_", "-") + ":955967187114:function:" + functionName;
-            Log.i("invoke", "functionName: " + newFunctionName);
+            Log.i("invokeLambda", "functionName: " + newFunctionName);
             request.setFunctionName(newFunctionName);
+            //TODO: The line of code before: is it needed? If so, why is this not handled before?
             addLoginsFromAccount(account);
             return new LambdaInvoker(request).execute().get();
         } catch (Exception e) {
-            Log.e("invoke", e.getMessage(), e);
+            Log.e("invokeLambda", e.getMessage(), e);
         }
         return null;
     }
 
+    /**
+     * This method is used to add logins to the credentialsProvider from a GoogleSignInAccount.
+     *
+     * @param account the GoogleSignInAccount to add logins from.
+     */
     private static void addLoginsFromAccount(GoogleSignInAccount account) {
         HashMap<String, String> logins = new HashMap<>();
 
@@ -228,15 +293,28 @@ public class CloudDatasource {
         ourInstance.credentialsProvider.setLogins(logins);
     }
 
+    /**
+     * This class is used to invoke a lambda function.
+     */
     @SuppressLint("StaticFieldLeak")
     private class LambdaInvoker extends AsyncTask<Void, Void, String> {
 
         private final InvokeRequest invokeRequest;
 
+        /**
+         * This constructor is used to create a LambdaInvoker.
+         *
+         * @param request the InvokeRequest to invoke.
+         */
         LambdaInvoker(InvokeRequest request) {
             invokeRequest = request;
         }
 
+        /**
+         * This method will actually invoke the Lambda request.
+         *
+         * @return the invoke request's results.
+         */
         @Override
         protected String doInBackground(Void... voids) {
             AWSLambdaClient client = new AWSLambdaClient(credentialsProvider);
@@ -254,12 +332,15 @@ public class CloudDatasource {
                 Log.i("LambdaInvoker", response, null);
                 return response;
             } catch (Exception e) {
-                Log.e("LambdaInvoker", "Failed to invoke AWS: " + e.getMessage(), e);
+                Log.e("LambdaInvoker", "Failed to invokeLambda AWS: " + e.getMessage(), e);
                 return null;
             }
         }
     }
 
+    /**
+     * Not documenting due to future removal
+     */
     private static String byteBufferToString(ByteBuffer buffer, Charset charset) {
         byte[] bytes;
         if (buffer.hasArray()) {

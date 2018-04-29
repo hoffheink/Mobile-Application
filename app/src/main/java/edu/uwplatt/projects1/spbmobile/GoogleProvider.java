@@ -26,112 +26,119 @@ public class GoogleProvider {
     private static GoogleSignInAccount account;
     @SuppressLint("StaticFieldLeak")
     private static GoogleSignInClient googleSignInClient;
-    @SuppressLint("StaticFieldLeak")
-    private static Activity ourActivity;
 
     /**
      * Creates an instance of a GoogleProvider object.
      *
-     * @param context  is the Android application context.
-     * @param activity identity for the current UI activity that is being executed.
-     * @return the instance of a GoogleProvider object.
+     * @param context  the Application Context used to create the GoogleProvider.
+     * @param activity the current UI Activity that is being executed.
+     * @return the GoogleProvider.
      */
-    public static GoogleProvider getInstance(Context context, Activity activity) {
-        if (ourInstance == null || context != ourContext) {
-            ourActivity = activity;
+    public static GoogleProvider getInstance(@NonNull Context context, @NonNull Activity activity) {
+        if (ourInstance == null || !context.equals(ourContext)) {
             ourContext = context;
-            ourInstance = new GoogleProvider();
+            ourInstance = new GoogleProvider(activity);
         }
         return ourInstance;
     }
 
     /**
-     * Default constructor for initializing a GoogleProvider object.
-     */
-    private GoogleProvider() {
-        initializeGoogleClient();
-    }
-
-    /**
-     * Initializie Google sign in option and a Googly Api client for logging in.
-     */
-    private void initializeGoogleClient() {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(ourContext.getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
-        googleSignInClient = GoogleSignIn.getClient(ourActivity, gso);
-    }
-
-    /**
-     * Get currently authorized Google account that is signed in.
+     * This constructor creates a GoogleProvider.
      *
-     * @return currently authorized Google account that is signed in.
+     * @param activity the current UI Activity that is being executed.
+     */
+    private GoogleProvider(@NonNull Activity activity) {
+        initializeGoogleClient(activity);
+    }
+
+    /**
+     * This method will initialize the googleSignInClient.
+     *
+     * @param activity the current UI Activity that is being executed.
+     */
+    private void initializeGoogleClient(@NonNull Activity activity) {
+        GoogleSignInOptions googleSignInOptions =
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(ourContext.getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build();
+
+        googleSignInClient = GoogleSignIn.getClient(activity, googleSignInOptions);
+    }
+
+    /**
+     * This method gets the currently authorized Google account that is signed in.
+     *
+     * @return the currently GoogleSignInAccount.
      */
     public GoogleSignInAccount getAccount() {
         return account;
     }
 
     /**
-     * Set the currently logged in Google account.
+     * This method sets the currently logged in Google account.
      *
-     * @param account authorized Google account that is loged in.
+     * @param account the GoogleSignInAccount that is logged in.
      */
     void setGoogleAccount(GoogleSignInAccount account) {
         GoogleProvider.account = account;
     }
 
     /**
-     * Creates a login intent from Google that the user uses to authorize their account.
+     * This method creates a login intent from Google that the user uses to authorize their account.
      *
-     * @return Google login intent.
+     * @return the Intent used for signing in.
      */
     Intent generateSignInIntent() {
         return googleSignInClient.getSignInIntent();
     }
 
-    private OnCompleteListener<Void> signOutOnCompleteListener = new OnCompleteListener<Void>() {
-        @Override
-        public void onComplete(@NonNull Task<Void> task) {
-            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-            homeIntent.addCategory(Intent.CATEGORY_HOME);
-            homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            ourContext.startActivity(homeIntent);
-
-
-            FragmentManager fragmentManager = ourActivity.getFragmentManager();
-            while (fragmentManager.getBackStackEntryCount() != 0)
-                fragmentManager.popBackStack();
-            Intent openDevicesIntent = new Intent(ourActivity, WelcomeScreenActivity.class);
-            ourActivity.startActivityForResult(openDevicesIntent, RC_WELCOME_SCREEN);
-        }
-    };
-
     /**
-     * Signs out of activity
+     * This method is used to sign a user out.
+     *
+     * @param activity the current UI Activity that is being executed.
      */
-    void signOut() {
-        googleSignInClient.signOut().addOnCompleteListener(ourActivity, signOutOnCompleteListener);
+    void signOut(final Activity activity) {
+        googleSignInClient.signOut().addOnCompleteListener(activity,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+                        homeIntent.addCategory(Intent.CATEGORY_HOME);
+                        homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        ourContext.startActivity(homeIntent);
+
+                        FragmentManager fragmentManager = activity.getFragmentManager();
+                        while (fragmentManager.getBackStackEntryCount() != 0)
+                            fragmentManager.popBackStack();
+                        Intent openDevicesIntent =
+                                new Intent(activity, WelcomeScreenActivity.class);
+                        activity.startActivityForResult(openDevicesIntent, RC_WELCOME_SCREEN);
+                    }
+                });
     }
 
 
     /**
-     * Sets the account to the last signed in
+     * This method sets the account to the last signed in account.
      */
     void setAccountToLastSignedIn() {
         account = GoogleSignIn.getLastSignedInAccount(ourContext);
     }
 
     /**
-     * Gets the account display name
+     * This method gets the account's display name.
+     *
+     * @return the display name of the account.
      */
     String getDisplayName() {
         return account.getDisplayName();
     }
 
     /**
-     * Gets the account email
+     * This method gets the account's email.
+     *
+     * @return the email of the account.
      */
     String getEmail() {
         return account.getEmail();

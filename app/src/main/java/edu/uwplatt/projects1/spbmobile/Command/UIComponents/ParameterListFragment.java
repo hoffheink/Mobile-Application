@@ -28,17 +28,17 @@ public class ParameterListFragment extends Fragment {
     /**
      * The required default constructor.
      */
-    //TODO: Find out if we need this
+    //TODO: Find out if we need this: I don't think we do since we don't have any other constructors
     public ParameterListFragment() {
     }
 
     /**
      * This method will create fragment for the list of Parameters.
      *
-     * @param inflater           the inflater to inflate the view.
-     * @param container          the container to throw the fragment in.
-     * @param savedInstanceState The saved instance (if available).
-     * @return The view after inflation.
+     * @param inflater           the LayoutInflater used to inflate the View.
+     * @param container          the ViewGroup to throw the Parameter Views in.
+     * @param savedInstanceState the Bundle (if available).
+     * @return the View after inflation.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,7 +54,7 @@ public class ParameterListFragment extends Fragment {
     /**
      * This method is used to create an OnClickListener for the execute button.
      *
-     * @param executeButton the execute button.
+     * @param executeButton the ImageButton that was clicked.
      */
     private void setExecuteButtonOnClickListener(ImageButton executeButton) {
         executeButton.setOnClickListener(executeButtonExecute);
@@ -87,7 +87,7 @@ public class ParameterListFragment extends Fragment {
     };
 
     /**
-     * This method will load up the Parameters and create the views.
+     * This method will load up the Parameters and create the Views.
      */
     @Override
     public void onStart() {

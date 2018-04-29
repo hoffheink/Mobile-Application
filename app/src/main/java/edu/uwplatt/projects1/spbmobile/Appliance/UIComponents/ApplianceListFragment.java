@@ -25,17 +25,17 @@ public class ApplianceListFragment extends Fragment {
     /**
      * The required default constructor.
      */
-    //TODO: Find out if we need this
+    //TODO: Find out if we need this: I don't think we do since we don't have any other constructors
     public ApplianceListFragment() {
     }
 
     /**
      * This method will create fragment for the list of Appliance.
      *
-     * @param inflater           the inflater to inflate the view.
-     * @param container          the container to throw the fragment in.
-     * @param savedInstanceState The saved instance (if available).
-     * @return The view after inflation.
+     * @param inflater           the LayoutInflater used to inflate the view.
+     * @param container          the ViewGroup to throw the fragment in.
+     * @param savedInstanceState the Bundle (if available).
+     * @return the View after inflation.
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,7 +49,7 @@ public class ApplianceListFragment extends Fragment {
     }
 
     /**
-     * This method will load up the Appliances and create the views.
+     * This method will load up the Appliances and create the Views.
      */
     @Override
     public void onStart() {
@@ -66,7 +66,7 @@ public class ApplianceListFragment extends Fragment {
     }
 
     /**
-     * This method is used to respond to an item being clicked.
+     * This method is used to respond to an Appliance being clicked.
      *
      * @param listView the ListView to attach the onClickListener to.
      */

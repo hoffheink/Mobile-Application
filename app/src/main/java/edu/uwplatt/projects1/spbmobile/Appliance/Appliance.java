@@ -1,7 +1,6 @@
 package edu.uwplatt.projects1.spbmobile.Appliance;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,7 +20,7 @@ public class Appliance {
     private String status;
     public Command[] commands;
     @NonNull
-    private ApplianceType applianceType = ApplianceType.Unknown;
+    private ApplianceTypes applianceType = ApplianceTypes.Unknown;
 
     private static Gson applianceGson = constructApplianceGson();
 
@@ -35,10 +34,7 @@ public class Appliance {
         return new GsonBuilder().registerTypeAdapter(Range.class, new RangeTypeAdapter()).create();
     }
 
-    /**
-     * Appliance types
-     */
-    public enum ApplianceType {
+    public enum ApplianceTypes {
         CoffeeMaker,
         Test,
         Unknown
@@ -47,12 +43,12 @@ public class Appliance {
     /**
      * Constructor.
      *
-     * @param inName the Appliances name.
-     * @param inId   the Appliances id.
+     * @param name the Appliances name.
+     * @param id   the Appliances id.
      */
-    public Appliance(String inName, String inId) {
-        name = inName;
-        id = inId;
+    public Appliance(@NonNull String name, @NonNull String id) {
+        this.name = name;
+        this.id = id;
         status = "OK";
         loadCommands();
     }
@@ -68,7 +64,7 @@ public class Appliance {
     /**
      * Gets the name.
      *
-     * @return name.
+     * @return the name.
      */
     public String getName() {
         return name;
@@ -77,17 +73,17 @@ public class Appliance {
     /**
      * Sets the name.
      *
-     * @param inName the new name.
+     * @param name the new name.
      */
-    public Appliance setName(String inName) {
-        name = inName;
+    public Appliance setName(@NonNull String name) {
+        this.name = name;
         return this;
     }
 
     /**
      * Gets the id.
      *
-     * @return id.
+     * @return the id.
      */
     public String getId() {
         return id;
@@ -96,17 +92,17 @@ public class Appliance {
     /**
      * Sets the id.
      *
-     * @param inId the new id.
+     * @param id the new id.
      */
-    public Appliance setId(String inId) {
-        id = inId;
+    public Appliance setId(@NonNull String id) {
+        this.id = id;
         return this;
     }
 
     /**
      * Gets the status.
      *
-     * @return status.
+     * @return the status.
      */
     @NonNull
     public String getStatus() {
@@ -116,29 +112,29 @@ public class Appliance {
     /**
      * Sets the status.
      *
-     * @param inStatus the new status.
+     * @param status the new status.
      */
-    public Appliance setStatus(@NonNull String inStatus) {
-        status = inStatus;
+    public Appliance setStatus(@NonNull String status) {
+        this.status = status;
         return this;
     }
 
     /**
-     * Gets the appliance type.
+     * Gets the ApplianceTypes.
      *
-     * @return appliance type.
+     * @return the ApplianceTypes.
      */
     @NonNull
-    public ApplianceType getApplianceType() {
+    public ApplianceTypes getApplianceType() {
         return applianceType;
     }
 
     /**
      * Sets the appliance type.
      *
-     * @param inApplianceType the new appliance type.
+     * @param applianceType the new appliance type.
      */
-    public void setApplianceType(@NonNull ApplianceType inApplianceType) {
-        applianceType = inApplianceType;
+    public void setApplianceType(@NonNull ApplianceTypes applianceType) {
+        this.applianceType = applianceType;
     }
 }

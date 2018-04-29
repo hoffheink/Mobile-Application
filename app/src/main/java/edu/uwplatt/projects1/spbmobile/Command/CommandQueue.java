@@ -11,6 +11,9 @@ import java.util.Queue;
  */
 public class CommandQueue {
 
+    @SerializedName("commandQueue")
+    private Queue<CommandModel> commandModelQueue = new PriorityQueue<>();
+
     /**
      * The default constructor.
      */
@@ -18,18 +21,30 @@ public class CommandQueue {
     }
 
     /**
-     * This constructor takes in the Command and the Date for execution.
+     * This constructor takes in the Command.
+     *
      * @param command the Command to be modeled.
-     * @param date    the Date for execution.
      */
-    CommandQueue(Command command, Date date) {
-        addCommand(command, date);
+    CommandQueue(Command command) {
+        addCommand(command);
     }
 
-    @SerializedName("commandQueue")
-    private Queue<CommandModel> commandModelQueue = new PriorityQueue<>();
-
+    /**
+     * This method adds a Command to the queue.
+     *
+     * @param command the Command to be added to the queue.
+     * @param date    the Date the Command was created.
+     */
     public void addCommand(Command command, Date date) {
         commandModelQueue.add(new CommandModel(command, date));
+    }
+
+    /**
+     * This method adds a Command to the queue.
+     *
+     * @param command the Command to be added to the queue.
+     */
+    private void addCommand(Command command) {
+        commandModelQueue.add(new CommandModel(command, new Date()));
     }
 }

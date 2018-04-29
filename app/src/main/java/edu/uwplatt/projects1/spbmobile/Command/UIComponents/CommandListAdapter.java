@@ -20,7 +20,7 @@ public class CommandListAdapter extends ArrayAdapter<Command> {
     /**
      * This is the constructor for the CommandListAdapter.
      *
-     * @param context  The context for the adapter.
+     * @param context  the Application Context.
      * @param resource the resource used for drawing.
      */
     CommandListAdapter(@NonNull Context context, int resource) {
@@ -31,10 +31,10 @@ public class CommandListAdapter extends ArrayAdapter<Command> {
     /**
      * This method gets the view for the Command view.
      *
-     * @param position    Its index.
-     * @param convertView The area to put the info.
-     * @param container   The container the convertView will go into.
-     * @return The View of the Command.
+     * @param position    the index of the Command.
+     * @param convertView the View to put the info.
+     * @param container   the ViewGroup the convertView will go into.
+     * @return the View of the Command.
      */
     @NonNull
     @Override

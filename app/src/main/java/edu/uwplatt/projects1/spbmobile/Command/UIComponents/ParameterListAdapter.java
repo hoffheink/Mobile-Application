@@ -25,6 +25,12 @@ import edu.uwplatt.projects1.spbmobile.R;
  * This class is used to load the Parameter from the current Command.
  */
 public class ParameterListAdapter extends ArrayAdapter<Parameter> {
+    /**
+     * This constructor creates a ParameterListAdapter.
+     *
+     * @param context  the Application Context.
+     * @param resource the resource used for drawing.
+     */
     ParameterListAdapter(@NonNull Context context, int resource) {
         super(context, resource);
         addAll(Command.currentCommand.parameters);
@@ -111,27 +117,28 @@ public class ParameterListAdapter extends ArrayAdapter<Parameter> {
     }
 
     /**
-     * This method will get a View that is a duration picker.
+     * This method will get a View that is a DurationPicker.
      *
-     * @param max       The maximum number of seconds for the duration.
-     * @param container The container the View will be put into.
-     * @return The View that represents a duration picker.
+     * @param max       the maximum number of seconds for the duration.
+     * @param container the ViewGroup the DurationPicker will be put into.
+     * @return the View that represents a DurationPicker.
      */
     private View getDurationPicker(final int max, @NonNull ViewGroup container) {
         return (new DurationPicker(max)).getView(container, getContext());
     }
 
     /**
-     * This method gets the view for the Command view.
+     * This method gets the View for the Parameter View.
      *
-     * @param position    Its index.
-     * @param convertView The area to put the info.
-     * @param container   The container the convertView will go into.
-     * @return The View of the Command.
+     * @param position    the index of the Parameter.
+     * @param convertView the ViewGroup to put the Parameter View.
+     * @param container   the ViewGroup the convertView will go into.
+     * @return the View of the Parameter.
      */
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup container) {
+        //TODO: Refactor this method!
         final Parameter parameter = getItem(position);
         LayoutInflater layoutInflater;
         if (convertView == null) {
