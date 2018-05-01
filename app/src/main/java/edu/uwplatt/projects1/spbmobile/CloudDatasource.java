@@ -13,23 +13,22 @@ import com.amazonaws.services.iot.AWSIot;
 import com.amazonaws.services.iot.AWSIotClient;
 import com.amazonaws.services.iot.model.ListPrincipalPoliciesRequest;
 import com.amazonaws.services.iot.model.ListThingsRequest;
-import com.amazonaws.services.iot.model.Policy;
 import com.amazonaws.services.iot.model.ThingAttribute;
-import com.amazonaws.services.lambda.AWSLambdaClient;
-import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+import edu.uwplatt.projects1.spbmobile.Lambda.LambdaPlatform;
 
-
-public class CloudDatasource {
+/**
+ * Centralizes data and method invokers to communicate with the cloud.
+ */
+public class CloudDatasource
+{
     private static final String US_EAST_1_IdentityPoolID = "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
     private static final String US_EAST_2_IdentityPoolID = "us-east-2:1641195a-2e43-4f91-bca0-5e8e6edd6878";
+
     @SuppressLint("StaticFieldLeak")
     private static CloudDatasource ourInstance;
     @SuppressLint("StaticFieldLeak")
@@ -40,13 +39,55 @@ public class CloudDatasource {
     @SuppressWarnings("all")
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
+    private String subscriptionArn;
 
+    /**
+     * Sets the subscription authentication role number to the value of the string provided.
+     * @param str the subscription authentication role number.
+     */
+    public void setSubscriptionArn(String str)
+    {
+        subscriptionArn = str;
+    }
+
+    /**
+     * Returns the subscription authentication role number as a string.
+     * @return a string of the subscription authentication role number.
+     * @throws Exception an exception if no subscription authentication role number has been set.
+     */
+    public String getSubscriptionArn() throws Exception
+    {
+        if (subscriptionArn != null)
+            return subscriptionArn;
+        else
+            throw new Exception("No subscriptionArn");
+    }
+
+    /**
+     * Get the cognito credentials.
+     * @return the cognito credentials as a CognitoCachingCredentialsProvider object.
+     */
     public CognitoCachingCredentialsProvider getCognitoCachingCredentialsProvider()
     {
         return credentialsProvider;
     }
 
-    public enum RegionEnum {
+    /**
+     * Calls the lambda invoker to invoke a provided function and give it a provided message.
+     * @param lambdaFunction a string that contains the lambda functions ARN.
+     * @param message the formatted payload to send to the lambda function.
+     * @return the response provided by the lambda invoker.
+     */
+    public AsyncTaskResult<String> invokeLambda(String lambdaFunction, String message)
+    {
+        LambdaPlatform lambdaPlatform = new LambdaPlatform();
+        AsyncTaskResult<String> response = lambdaPlatform.invokeLambdaFunction(lambdaFunction, message, credentialsProvider);
+        return response;
+    }
+
+
+    public enum RegionEnum
+    {
         US_EAST_1,
         US_EAST_2
     }
@@ -119,18 +160,14 @@ public class CloudDatasource {
                 ListThingsRequest listThingsRequest = new ListThingsRequest();
                 listThingsRequest.setRequestCredentials(credentials);
 
-                try {
-                    /*List<String> thingNames = new ArrayList<>();
-                    for (Policy policy : awsIot.listPrincipalPolicies(listPrincipalPoliciesRequest).getPolicies()) {
-                        String policyName = policy.getPolicyName().replace("app-", "");
-                        thingNames.add(policyName);
-                    }*/
-
-                    for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
-                        //if (thingNames.contains(o.getThingName())) {
+                try
+                {
+                    for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings())
+                    {
                         Appliance appliance = new Appliance(o.getThingName(), o.getVersion().toString());
                         String thingType = o.getThingTypeName();
-                        if (thingType != null) {
+                        if (thingType != null)
+                        {
                             switch (o.getThingTypeName()) {
                                 case "coffee-maker":
                                     appliance.setApplianceType(Appliance.ApplianceType.CoffeeMaker);
@@ -164,22 +201,6 @@ public class CloudDatasource {
         }
     }
 
-    public String invoke(GoogleSignInAccount account, InvokeRequest request) {
-        try {
-            String functionName = request.getFunctionName();
-            String newFunctionName = "arn:aws:lambda:" + ourRegion.toString().toLowerCase().replace("_", "-") + ":955967187114:function:" + functionName;
-            Log.i("invoke", "functionName: " + newFunctionName);
-            request.setFunctionName(newFunctionName);
-            addLoginsFromAccount(account);
-            return new LambdaInvoker(request).execute().get();
-        } catch (InterruptedException e) {
-            Log.e("invoke", "InterruptedException: " + e.getMessage(), e);
-        } catch (ExecutionException e) {
-            Log.e("invoke", "ExecutionException: " + e.getMessage(), e);
-        }
-        return null;
-    }
-
     private static void addLoginsFromAccount(GoogleSignInAccount account) {
         HashMap<String, String> logins = new HashMap<>();
 
@@ -187,48 +208,5 @@ public class CloudDatasource {
         Log.i("addLoginsFromAccount", "accountID: " + accountID);
         logins.put("accounts.google.com", accountID);
         ourInstance.credentialsProvider.setLogins(logins);
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private class LambdaInvoker extends AsyncTask<Void, Void, String> {
-
-        private final InvokeRequest invokeRequest;
-
-        LambdaInvoker(InvokeRequest request) {
-            invokeRequest = request;
-        }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            AWSLambdaClient client = new AWSLambdaClient(credentialsProvider);
-            switch (ourRegion) {
-                case US_EAST_1:
-                    client.setRegion(Region.getRegion(Regions.US_EAST_1));
-                    break;
-                case US_EAST_2:
-                    client.setRegion(Region.getRegion(Regions.US_EAST_2));
-                    break;
-            }
-            try {
-                ByteBuffer buffer = client.invoke(invokeRequest).getPayload();
-                String response = byteBufferToString(buffer, Charset.forName("UTF-8"));
-                Log.i("LambdaInvoker", response, null);
-                return response;
-            } catch (Exception e) {
-                Log.e("LambdaInvoker", "Failed to invoke AWS: " + e.getMessage(), e);
-                return null;
-            }
-        }
-    }
-
-    private static String byteBufferToString(ByteBuffer buffer, Charset charset) {
-        byte[] bytes;
-        if (buffer.hasArray()) {
-            bytes = buffer.array();
-        } else {
-            bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-        }
-        return new String(bytes, charset);
     }
 }

@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,20 +26,30 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Scanner;
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceFragment;
+import edu.uwplatt.projects1.spbmobile.Lambda.FirebaseTokenLambdaFormat;
+import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunction;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener
 {
     private static MainActivity ourInstance;
-    private static boolean visible;
+    //private static boolean visible;
 
     public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
     public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_1;
 
+    /**
+     * Returns the current instance of the running main activity.
+     * @return the current instance of the running main activity.
+     */
     public static MainActivity getOurInstance()
     {
         return ourInstance;
@@ -64,7 +75,7 @@ public class MainActivity extends AppCompatActivity
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        visible = true;
+        //visible = true;
         ourInstance = this;
     }
 
@@ -87,11 +98,13 @@ public class MainActivity extends AppCompatActivity
         int i = 7;
     }
 
-    private void updateAccountInformation() {
+    private void updateAccountInformation()
+    {
         account = GoogleSignIn.getLastSignedInAccount(this);
         if (account == null)
             showWelcomeScreen();
-        else {
+        else
+            {
             CloudDatasource.getInstance(this, account, region).loadAppliances(); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
@@ -203,12 +216,46 @@ public class MainActivity extends AppCompatActivity
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RC_WELCOME_SCREEN && resultCode == RESULT_OK) {
+        if (requestCode == RC_WELCOME_SCREEN && resultCode == RESULT_OK)
+        {
             updateAccountInformation();
+            updateSubscriptionArn();
+        }
+    }
+
+    /**
+     * This attempts to read from a file to find the subscriptionArn, if no subscriptionArn
+     * is found, it attempts to generate one and save it to a text file.
+     */
+    private void updateSubscriptionArn()
+    {
+        try
+        {
+            File file = new File("subArn.txt");
+            Scanner scanner = new Scanner(file);
+            String str = scanner.nextLine();
+            String[] subArn = str.split(" ");
+            if (subArn.length < 2)
+            {
+                com.google.gson.Gson gson = new Gson();
+                FirebaseTokenLambdaFormat firebaseTokenLambdaFormat = new FirebaseTokenLambdaFormat(FirebaseInstanceId.getInstance().getToken());
+                String pay = gson.toJson(firebaseTokenLambdaFormat);
+                AsyncTaskResult<String> arn = CloudDatasource.getInstance(getApplicationContext(), account, region).invokeLambda(LambdaFunction.NOTIFICATION_INIT, pay);
+                CloudDatasource.getInstance(getApplicationContext(), account, region);
+                FileWriter fileWriter = new FileWriter(file, false);
+                fileWriter.write("subscriptionArn " + CloudDatasource.getInstance(getApplicationContext(), account, region).getSubscriptionArn());
+            }
+            else
+                CloudDatasource.getInstance(getApplicationContext(), account, region).setSubscriptionArn(subArn[1]);
+        }
+        catch (Exception e)
+        {
+            Log.e("MainActivity", "TextFileFail", e);
         }
     }
 
     //New Code
+    /*
     @Override
     public void onResume()
     {
@@ -225,16 +272,22 @@ public class MainActivity extends AppCompatActivity
         visible = false;
         setVisible(false);
     }
+    */
 
-
+    /**
+     * Creates a snackbar object that contains a provided message.
+     * @param message the message to be displayed in the snackbar.
+     */
     public void createSnackbar(String message)
     {
         Snackbar snackbar = Snackbar.make(findViewById(R.id.drawer_layout), message, Snackbar.LENGTH_LONG);
         snackbar.show();
     }
 
+    /*
     public boolean isVisible()
     {
         return visible;
     }
+    */
 }

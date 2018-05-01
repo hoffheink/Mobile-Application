@@ -43,11 +43,14 @@ import java.util.Scanner;
 import java.util.Set;
 import static edu.uwplatt.projects1.spbmobile.MainActivity.region;
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
+import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunction;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
 
-public class RegisterApplianceFragment extends Fragment {
+public class RegisterApplianceFragment extends Fragment
+{
 
     public static final String NETWORK_PREFIX = "Mon";
     public static final String SSID_KEY = "SSID";
@@ -192,23 +195,33 @@ public class RegisterApplianceFragment extends Fragment {
 
         @Override
         public void run() {
-            try {
-                InvokeRequest invokeRequest = new InvokeRequest();
-                invokeRequest.setFunctionName("iot-app-register-device");
+            try
+            {
                 String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
                 Log.i("RegisterDeviceWithAWS", "jsonRequestParameters: " + jsonRequestParameters);
-                invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
-
-                String response = CloudDatasource.getInstance(context, account, region).invoke(account, invokeRequest);
+                AsyncTaskResult<String> response = CloudDatasource.getInstance(context, account, region).invokeLambda(LambdaFunction.REGISTER_DEVICE, jsonRequestParameters);
                 Log.i("RegisterDeviceWithAWS", "response: " + response);
+                //InvokeRequest invokeRequest = new InvokeRequest();
+                //invokeRequest.setFunctionName("iot-app-register-device");
+                //String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
 
-                if (response != null) {
-                    if (!response.contains("errorMessage")) {
+                //invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
+
+                //String response = CloudDatasource.getInstance(context, account, region).invoke(account, invokeRequest);
+
+
+                if (response != null)
+                {
+                    if (!response.getResult().contains("errorMessage"))
+                    {
                         appliance = new Appliance(deviceName, deviceName);
                     }
-                } else
+                }
+                else
                     Log.w("RegisterDeviceWithAWS", "Failed to register:");
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Log.e("RegisterDeviceWithAWS", e.getMessage(), e);
             }
         }
