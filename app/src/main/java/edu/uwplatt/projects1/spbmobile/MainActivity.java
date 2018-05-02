@@ -1,6 +1,7 @@
 package edu.uwplatt.projects1.spbmobile;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -40,7 +41,7 @@ import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunction;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener
 {
     private static MainActivity ourInstance;
-    //private static boolean visible;
+    private static boolean visible;
 
     public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
@@ -75,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //visible = true;
+        visible = true;
         ourInstance = this;
     }
 
@@ -88,7 +89,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onStart() {
+    public void onStart()
+    {
+        visible = true;
         super.onStart();
 
         Appliance.setVersionNumber(getString(R.string.appVersion));
@@ -111,6 +114,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ((TextView) header.findViewById(R.id.user_name)).setText(account.getDisplayName());
             ((TextView) header.findViewById(R.id.user_email)).setText(account.getEmail());
         }
+
+        SimpleStorageSystem simpleStorageSystem = new SimpleStorageSystem();
+        simpleStorageSystem.saveSubArn(getApplicationContext(), account, region);
     }
 
     @Override
@@ -215,65 +221,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
         if (requestCode == RC_WELCOME_SCREEN && resultCode == RESULT_OK)
         {
             updateAccountInformation();
-            updateSubscriptionArn();
         }
     }
 
-    /**
-     * This attempts to read from a file to find the subscriptionArn, if no subscriptionArn
-     * is found, it attempts to generate one and save it to a text file.
-     */
-    private void updateSubscriptionArn()
-    {
-        try
-        {
-            File file = new File("subArn.txt");
-            Scanner scanner = new Scanner(file);
-            String str = scanner.nextLine();
-            String[] subArn = str.split(" ");
-            if (subArn.length < 2)
-            {
-                com.google.gson.Gson gson = new Gson();
-                FirebaseTokenLambdaFormat firebaseTokenLambdaFormat = new FirebaseTokenLambdaFormat(FirebaseInstanceId.getInstance().getToken());
-                String pay = gson.toJson(firebaseTokenLambdaFormat);
-                AsyncTaskResult<String> arn = CloudDatasource.getInstance(getApplicationContext(), account, region).invokeLambda(LambdaFunction.NOTIFICATION_INIT, pay);
-                CloudDatasource.getInstance(getApplicationContext(), account, region);
-                FileWriter fileWriter = new FileWriter(file, false);
-                fileWriter.write("subscriptionArn " + CloudDatasource.getInstance(getApplicationContext(), account, region).getSubscriptionArn());
-            }
-            else
-                CloudDatasource.getInstance(getApplicationContext(), account, region).setSubscriptionArn(subArn[1]);
-        }
-        catch (Exception e)
-        {
-            Log.e("MainActivity", "TextFileFail", e);
-        }
-    }
 
-    //New Code
-    /*
     @Override
-    public void onResume()
+    protected void onResume()
     {
         super.onResume();
         visible = true;
-        setVisible(true);
     }
 
-
     @Override
-    public void onPause()
+    protected void onPause()
     {
         super.onPause();
         visible = false;
-        setVisible(false);
     }
-    */
 
+    @Override
+    protected void  onStop()
+    {
+        super.onStop();
+        visible = false;
+    }
     /**
      * Creates a snackbar object that contains a provided message.
      * @param message the message to be displayed in the snackbar.
@@ -284,10 +260,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         snackbar.show();
     }
 
-    /*
     public boolean isVisible()
     {
         return visible;
     }
-    */
 }

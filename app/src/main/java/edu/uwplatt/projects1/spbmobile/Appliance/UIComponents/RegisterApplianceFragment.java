@@ -31,6 +31,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -197,9 +200,11 @@ public class RegisterApplianceFragment extends Fragment
         public void run() {
             try
             {
-                String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
-                Log.i("RegisterDeviceWithAWS", "jsonRequestParameters: " + jsonRequestParameters);
-                AsyncTaskResult<String> response = CloudDatasource.getInstance(context, account, region).invokeLambda(LambdaFunction.REGISTER_DEVICE, jsonRequestParameters);
+                Gson gson = new Gson();
+                RegisterDeviceFormat registerDeviceFormat = new RegisterDeviceFormat(deviceName, token, FirebaseInstanceId.getInstance().getToken(), CloudDatasource.getInstance(context, account, region).getSubscriptionArn());
+                //String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
+                Log.i("RegisterDeviceWithAWS", "jsonRequestParameters: " + gson.toJson(registerDeviceFormat));
+                AsyncTaskResult<String> response = CloudDatasource.getInstance(context, account, region).invokeLambda(LambdaFunction.REGISTER_DEVICE, gson.toJson(registerDeviceFormat));
                 Log.i("RegisterDeviceWithAWS", "response: " + response);
                 //InvokeRequest invokeRequest = new InvokeRequest();
                 //invokeRequest.setFunctionName("iot-app-register-device");
