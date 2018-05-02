@@ -183,7 +183,8 @@ public class RegisterApplianceFragment extends Fragment
         }
     }
 
-    public class RegisterDeviceWithAWS implements Runnable {
+    public class RegisterDeviceWithAWS implements Runnable
+    {
         private final String token;
         private final String deviceName;
         private final GoogleSignInAccount account;
