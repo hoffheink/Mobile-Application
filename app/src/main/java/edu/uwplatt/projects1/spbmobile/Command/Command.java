@@ -1,13 +1,11 @@
 package edu.uwplatt.projects1.spbmobile.Command;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
-import java.util.HashMap;
+import android.util.Log;
+
+import java.util.UUID;
+
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
-import edu.uwplatt.projects1.spbmobile.CloudDatasource;
-import edu.uwplatt.projects1.spbmobile.GoogleProvider;
-import edu.uwplatt.projects1.spbmobile.MainActivity;
-import edu.uwplatt.projects1.spbmobile.R;
 import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
 
 /**
@@ -15,34 +13,53 @@ import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
  */
 public class Command {
     public static Command currentCommand;
+    UUID guid;
     public String humanName;
+    boolean priority;
     public Parameter[] parameters;
+    State[] states;
+    String cmdName;
 
-    static boolean onOff = true;
-
-    public static void executeCurrentCommand(@NonNull Context context)
-    {
-        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, GoogleProvider.getAccount(), MainActivity.region).getCognitoCachingCredentialsProvider()).getShadow(Appliance.currentAppliance.getName());
-        HashMap<String, String> losMap = new HashMap<>();
-        losMap.put("ledOn", String.valueOf(onOff));
-        losMap.put("KyleSaysHi", String.valueOf(onOff));
-
-        AwsIotShadowClient.getInstance(CloudDatasource.getInstance(context, GoogleProvider.getAccount(),
-                MainActivity.region).getCognitoCachingCredentialsProvider()).updateCommandShadow(Appliance.currentAppliance.getName(),
-                Appliance.currentAppliance.getApplianceType().toString(),
-                context.getString(R.string.appVersion), losMap); //Todo: Change from hardcode
-
-
-        onOff = !onOff;
+    /**
+     * This constructor will create a Command with the Guid passed in.
+     *
+     * @param guid the Guid to be used.
+     */
+    public Command(UUID guid) {
+        this.guid = guid;
     }
 
     /**
-     * Sets the parameters on the current command.
-     * @param machineName this is the name that the argument should be sent as.
-     * @param value the value being inputted.
+     * This method will execute the current Command.
+     *
+     * @param shadowClient the AwsIotShadowClient used to execute the Command on.
+     * @param appVersion   the appVersion used to execute the command with.
+     * @throws Exception just a general thrower.
      */
-    public static void setParameterOnCurrentCommand(String machineName, Object value)
-    {
+    public static void executeCurrentCommand(@NonNull AwsIotShadowClient shadowClient,
+                                             String appVersion) throws Exception {
+        if (currentCommand == null) {
+            Log.d("executeCurrentCommand",
+                    "someone tried to execute the current command when current command was " +
+                            "null.");
+        } else {
+            CommandQueue commandQueue = new CommandQueue(currentCommand);
+            shadowClient.updateCommandShadow(
+                    Appliance.currentAppliance.getName(),
+                    Appliance.currentAppliance.getApplianceType().toString(),
+                    appVersion,
+                    commandQueue);
+        }
+
+    }
+
+    /**
+     * Sets the Parameter on the current Command.
+     *
+     * @param machineName the name that the argument should be sent as.
+     * @param value       the value being inputted.
+     */
+    public static void setParameterOnCurrentCommand(String machineName, Object value) {
         if (currentCommand != null)
             for (int i = 0; i < currentCommand.parameters.length; i++)
                 if (currentCommand.parameters[i].machineName.equals(machineName))

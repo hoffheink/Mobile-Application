@@ -1,16 +1,18 @@
 package edu.uwplatt.projects1.spbmobile;
 
 import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
+import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
@@ -88,36 +90,53 @@ public class WelcomeScreenActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             // The Task returned from this call is always completed, no need to attach
             // a listener.
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            handleSignInResult(task);
+            try {
+                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                handleSignInResult(task);
+            } catch (Exception e) {
+                Log.e("onActivityResult", e.getMessage(), e);
+            }
         }
+        if (resultCode == 7) {
+            Log.e("gf", "penis");
+        }
+
     }
 
     /**
      * Handles the sign in result from teh google sign in activity.
      *
-     * @param completedTask the completed task
+     * @param signInTask the task
      */
-    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+    private void handleSignInResult(Task<GoogleSignInAccount> signInTask) {
         try {
-            GoogleProvider.getInstance(this, this).setGoogleAccount(completedTask.getResult(ApiException.class));
-            Log.i("handleSignInResult", GoogleProvider.getInstance(this, this).getAccount().getIdToken());
+            GoogleProvider.getInstance(this, this)
+                    .setGoogleAccount(signInTask.getResult(ApiException.class));
+            Log.i("handleSignInResult", GoogleProvider.getInstance(this, this)
+                    .getAccount().getIdToken());
         } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            // Used when logging with a Log.d method.
-            Log.e("handleSignInResult", "signInResult:failed code=" + e.getStatusCode(), e);
+
+            Toast.makeText(this, "Failed to sign in\nPlease try again\nReason:\n" +
+                            GoogleSignInStatusCodes.getStatusCodeString(e.getStatusCode()),
+                    Toast.LENGTH_LONG).show();
+            Log.e("handleSignInResult", GoogleSignInStatusCodes
+                    .getStatusCodeString(e.getStatusCode()), e);
         }
+        android.app.FragmentManager fragmentManager = getFragmentManager();
+        while (fragmentManager.getBackStackEntryCount() != 0)
+            fragmentManager.popBackStack();
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
         finish();
     }
 
     private void signIn() {
-        Intent signInIntent = GoogleProvider.getInstance(this, this).generateSignInIntent();
+        Intent signInIntent = GoogleProvider.getInstance(this, this)
+                .generateSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 }

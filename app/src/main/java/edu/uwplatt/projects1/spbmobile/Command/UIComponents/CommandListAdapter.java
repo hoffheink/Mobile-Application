@@ -17,22 +17,38 @@ import edu.uwplatt.projects1.spbmobile.R;
  */
 public class CommandListAdapter extends ArrayAdapter<Command> {
 
+    /**
+     * This is the constructor for the CommandListAdapter.
+     *
+     * @param context  the Application Context.
+     * @param resource the resource used for drawing.
+     */
     CommandListAdapter(@NonNull Context context, int resource) {
         super(context, resource);
         addAll(Appliance.currentAppliance.commands);
     }
 
+    /**
+     * This method gets the view for the Command view.
+     *
+     * @param position    the index of the Command.
+     * @param convertView the View to put the info.
+     * @param container   the ViewGroup the convertView will go into.
+     * @return the View of the Command.
+     */
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup container) {
         Command command = getItem(position);
 
         if (convertView == null) {
-            LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = (LayoutInflater) getContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             if (layoutInflater == null) {
                 throw new NullPointerException("Layout Inflater was null");
             }
-            convertView = layoutInflater.inflate(R.layout.command_list_item, container, false);
+            convertView = layoutInflater.inflate(R.layout.command_list_item, container,
+                    false);
         }
 
         if (command != null)

@@ -14,22 +14,23 @@ public class Event {
     }
 
     /**
-     * Constructor
+     * This constructor will create an Event.
      *
-     * @param inId       id of the device.
-     * @param inStatus   status of the device.
-     * @param inPriority event priority.
+     * @param id       the id of the Appliance.
+     * @param status   the status of the Appliance.
+     * @param priority the event's priority.
      */
-    public Event(String inId, String inStatus, Priorities inPriority) {
-        id = inId;
-        status = inStatus;
-        priority = inPriority;
+    //Todo: Is this needed, it doesn't appear to be used.
+    public Event(String id, String status, Priorities priority) {
+        this.id = id;
+        this.status = status;
+        this.priority = priority;
     }
 
     /**
      * Gets the id.
      *
-     * @return id
+     * @return the id.
      */
     public String getId() {
         return id;
@@ -37,33 +38,35 @@ public class Event {
 
     /**
      * Sets the id.
+     *
+     * @param id the new id.
      */
-    public void setId(String inID) {
-        id = inID;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
      * Gets the status.
      *
-     * @return status
+     * @return the status.
      */
     public String getStatus() {
         return status;
     }
 
     /**
-     * Sets the status
+     * Sets the status.
      *
-     * @param inStatus status
+     * @param status the new status.
      */
-    public void setStatus(String inStatus) {
-        status = inStatus;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     /**
-     * Gets the id.
+     * Gets the priority.
      *
-     * @return priority
+     * @return the priority.
      */
     public Priorities getPriority() {
         return priority;
@@ -72,9 +75,9 @@ public class Event {
     /**
      * Sets the priority.
      *
-     * @param inPriority priority.
+     * @param priority the new priority.
      */
-    public void setPriority(Priorities inPriority) {
-        priority = inPriority;
+    public void setPriority(Priorities priority) {
+        this.priority = priority;
     }
 }
