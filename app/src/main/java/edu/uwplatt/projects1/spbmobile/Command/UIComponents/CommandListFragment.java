@@ -20,11 +20,14 @@ import android.support.v4.app.Fragment;
  */
 public class CommandListFragment extends Fragment {
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
+    /**
+     * This method will create fragment for the list of Command.
+     *
+     * @param inflater           the LayoutInflater used to inflate the view.
+     * @param container          the ViewGroup to throw the fragment in.
+     * @param savedInstanceState the Bundle (if available).
+     * @return the View after inflation.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -32,10 +35,12 @@ public class CommandListFragment extends Fragment {
         if (container != null) {
             container.removeAllViews();
         }
-
         return inflater.inflate(R.layout.fragment_command_list, container, false);
     }
 
+    /**
+     * This method will load up the Commands and create the Views.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -50,6 +55,11 @@ public class CommandListFragment extends Fragment {
         }
     }
 
+    /**
+     * This method is used to respond to a Command being clicked.
+     *
+     * @param listView the ListView to attach the onClickListener to.
+     */
     private void setOnClickListener(final ListView listView) {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -57,7 +67,8 @@ public class CommandListFragment extends Fragment {
                 Log.d("onItemClick", "Item clicked in CommandListFragment");
                 Command.currentCommand = (Command) listView.getItemAtPosition(i);
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.content_main, new ParameterListFragment(), "parameterListFragment");
+                fragmentTransaction.replace(R.id.content_main, new ParameterListFragment(),
+                        "parameterListFragment");
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }

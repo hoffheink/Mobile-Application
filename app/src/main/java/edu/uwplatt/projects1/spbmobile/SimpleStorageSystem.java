@@ -56,6 +56,9 @@ public class SimpleStorageSystem
             Log.d(TAG, "File path: " + context.getFilesDir().getPath().toString());
             Log.d(TAG, "Firebase Token: " + FirebaseInstanceId.getInstance().getToken());
             Log.d(TAG, "SubscriptionArn: " + CloudDatasource.getInstance(context, account, region).getSubscriptionArn());
+            com.google.gson.Gson gson = new Gson();
+            FirebaseTokenLambdaFormat firebaseTokenLambdaFormat = new FirebaseTokenLambdaFormat(FirebaseInstanceId.getInstance().getToken());
+            CloudDatasource.getInstance(context, account, region).invokeLambda(LambdaFunction.REMOVE_NOTIFICATION, gson.toJson(firebaseTokenLambdaFormat));
         }
         catch (Exception e)
         {

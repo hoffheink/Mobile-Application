@@ -13,10 +13,8 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
-import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListAdapter;
 import edu.uwplatt.projects1.spbmobile.Command.UIComponents.CommandListFragment;
 import edu.uwplatt.projects1.spbmobile.R;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,15 +22,21 @@ import edu.uwplatt.projects1.spbmobile.R;
  * handle interaction events.
  */
 public class ApplianceListFragment extends Fragment {
-
+    /**
+     * The required default constructor.
+     */
+    //TODO: Find out if we need this: I don't think we do since we don't have any other constructors
     public ApplianceListFragment() {
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
+    /**
+     * This method will create fragment for the list of Appliance.
+     *
+     * @param inflater           the LayoutInflater used to inflate the view.
+     * @param container          the ViewGroup to throw the fragment in.
+     * @param savedInstanceState the Bundle (if available).
+     * @return the View after inflation.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,6 +48,9 @@ public class ApplianceListFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_appliance_list, container, false);
     }
 
+    /**
+     * This method will load up the Appliances and create the Views.
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -58,6 +65,11 @@ public class ApplianceListFragment extends Fragment {
         }
     }
 
+    /**
+     * This method is used to respond to an Appliance being clicked.
+     *
+     * @param listView the ListView to attach the onClickListener to.
+     */
     private void setOnClickListener(final ListView listView) {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -70,7 +82,8 @@ public class ApplianceListFragment extends Fragment {
 
                 FragmentManager fragmentManager = getFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.content_main, commandListFragment, "newFragTag");
+                fragmentTransaction.replace(R.id.content_main, commandListFragment,
+                        "newFragTag");
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }
