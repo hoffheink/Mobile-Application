@@ -29,26 +29,23 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-import static edu.uwplatt.projects1.spbmobile.MainActivity.region;
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunction;
+import edu.uwplatt.projects1.spbmobile.GoogleProvider;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
 
@@ -149,7 +146,7 @@ public class RegisterApplianceFragment extends Fragment
         public void run() {
             sendNetworkInfo(networkName, networkPassword);
             if (appliance != null) {
-                CloudDatasource.getInstance(getContext(), MainActivity.account, region).loadAppliances(); //Reloading the appliance list
+                CloudDatasource.getInstance(getContext(), GoogleProvider.getAccount(), MainActivity.region).loadAppliances(); //Reloading the appliance list
             }
         }
     }
@@ -165,7 +162,10 @@ public class RegisterApplianceFragment extends Fragment
             Scanner inputScanner = new Scanner(connection.getInputStream());
             token = inputScanner.next();
             Log.i("sendNetworkInfo", "Token is: " + token);
-            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(MainActivity.account, thingName, token, getContext());
+
+            //TODO: Fix this damn name!
+            RegisterDeviceWithAWS registrationTask = new RegisterDeviceWithAWS(GoogleProvider.getAccount(), thingName, token, getContext());
+
             for (int count = 0; appliance == null && count < 10; count++) {
                 registrationTask.run();
                 Thread.sleep(5000);
@@ -198,14 +198,15 @@ public class RegisterApplianceFragment extends Fragment
         }
 
         @Override
-        public void run() {
+        public void run()
+        {
             try
             {
                 Gson gson = new Gson();
-                RegisterDeviceFormat registerDeviceFormat = new RegisterDeviceFormat(deviceName, token, FirebaseInstanceId.getInstance().getToken(), CloudDatasource.getInstance(context, account, region).getSubscriptionArn());
+                RegisterDeviceFormat registerDeviceFormat = new RegisterDeviceFormat(deviceName, token, FirebaseInstanceId.getInstance().getToken(), CloudDatasource.getInstance(context, account, MainActivity.region).getSubscriptionArn());
                 //String jsonRequestParameters = "{\"thingId\":\"" + deviceName + "\",\"thingPin\":\"" + token + "\"}";
                 Log.i("RegisterDeviceWithAWS", "jsonRequestParameters: " + gson.toJson(registerDeviceFormat));
-                AsyncTaskResult<String> response = CloudDatasource.getInstance(context, account, region).invokeLambda(LambdaFunction.REGISTER_DEVICE, gson.toJson(registerDeviceFormat));
+                AsyncTaskResult<String> response = CloudDatasource.getInstance(context, account, MainActivity.region).invokeLambda(LambdaFunction.REGISTER_DEVICE, gson.toJson(registerDeviceFormat));
                 Log.i("RegisterDeviceWithAWS", "response: " + response);
                 //InvokeRequest invokeRequest = new InvokeRequest();
                 //invokeRequest.setFunctionName("iot-app-register-device");

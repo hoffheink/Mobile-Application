@@ -1,14 +1,12 @@
 package edu.uwplatt.projects1.spbmobile;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,31 +17,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.gson.Gson;
-import java.io.File;
-import java.io.FileWriter;
-import java.util.Scanner;
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceFragment;
-import edu.uwplatt.projects1.spbmobile.Lambda.FirebaseTokenLambdaFormat;
-import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunction;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener
 {
     private static MainActivity ourInstance;
     private static boolean visible;
-
-    public static GoogleSignInAccount account;
     private static final int RC_WELCOME_SCREEN = 9002;
     public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_1;
 
@@ -103,20 +86,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void updateAccountInformation()
     {
-        account = GoogleSignIn.getLastSignedInAccount(this);
-        if (account == null)
+        GoogleProvider.setAccountToLastSignedIn(this);
+        if (GoogleProvider.getAccount() == null)
             showWelcomeScreen();
         else
             {
-            CloudDatasource.getInstance(this, account, region).loadAppliances(); //Loads appliance list
+            CloudDatasource.getInstance(this, GoogleProvider.getAccount(), region).loadAppliances(); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
-            ((TextView) header.findViewById(R.id.user_name)).setText(account.getDisplayName());
-            ((TextView) header.findViewById(R.id.user_email)).setText(account.getEmail());
+            ((TextView) header.findViewById(R.id.user_name)).setText(GoogleProvider.getDispName());
+            ((TextView) header.findViewById(R.id.user_email)).setText(GoogleProvider.getEmail());
         }
 
         SimpleStorageSystem simpleStorageSystem = new SimpleStorageSystem();
-        simpleStorageSystem.saveSubArn(getApplicationContext(), account, region);
+        simpleStorageSystem.saveSubArn(getApplicationContext(), GoogleProvider.getAccount(), region);
     }
 
     @Override
@@ -173,22 +156,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_invoke_aws) {
 
         } else if (id == R.id.nav_logout) {
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(getString(R.string.default_web_client_id))
-                    .requestEmail()
-                    .build();
-
-            // Build a GoogleSignInClient with the options specified by gso.
-            GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-            mGoogleSignInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-                    homeIntent.addCategory(Intent.CATEGORY_HOME);
-                    homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(homeIntent);
-                }
-            });
+            GoogleProvider.signOut(this);
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -197,13 +165,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void onClick(View v) {
-//        switch (v.getId()) {
-//            case R.id.sign_in_button_main:
-//                signIn();
-//                break;
-//        }
-    }
+    public void onClick(View v) { }
 
     /**
      * Checks if the appropriate version of google play services is installed.
