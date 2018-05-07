@@ -6,7 +6,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.util.Scanner;
 import edu.uwplatt.projects1.spbmobile.Lambda.FirebaseTokenLambdaFormat;
@@ -44,10 +43,8 @@ public class SimpleStorageSystem
                 com.google.gson.Gson gson = new Gson();
                 FirebaseTokenLambdaFormat firebaseTokenLambdaFormat = new FirebaseTokenLambdaFormat(FirebaseInstanceId.getInstance().getToken());
                 String pay = gson.toJson(firebaseTokenLambdaFormat);
-                //AsyncTaskResult<String> arn = CloudDatasource.getInstance(context, account, region).invokeLambda(LambdaFunction.NOTIFICATION_INIT, pay);
-                CloudDatasource.getInstance(context, account, region).setSubscriptionArn(removeWorthless(CloudDatasource.getInstance(context, account, region).invokeLambda(LambdaFunction.NOTIFICATION_INIT, pay)));
-
-
+                CloudDatasource.getInstance(context, account, region).setSubscriptionArn(
+                        removeDoubleQuotationMarks(CloudDatasource.getInstance(context, account, region).invokeLambda(LambdaFunction.NOTIFICATION_INIT, pay)));
 
                 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("subArn.txt", Context.MODE_PRIVATE));
                 outputStreamWriter.write("subscriptionArn " + CloudDatasource.getInstance(context, account, region).getSubscriptionArn());
@@ -55,6 +52,7 @@ public class SimpleStorageSystem
             }
             else
                 CloudDatasource.getInstance(context, account, region).setSubscriptionArn(subArnParse[1]);
+            Log.d(TAG,  CloudDatasource.getInstance(context, account, region).getCognitoCachingCredentialsProvider().toString());
             Log.d(TAG, "File path: " + context.getFilesDir().getPath().toString());
             Log.d(TAG, "Firebase Token: " + FirebaseInstanceId.getInstance().getToken());
             Log.d(TAG, "SubscriptionArn: " + CloudDatasource.getInstance(context, account, region).getSubscriptionArn());
@@ -65,7 +63,12 @@ public class SimpleStorageSystem
         }
     }
 
-    private String removeWorthless(AsyncTaskResult<String> arn)
+    /**
+     * Inspects the characters in a given string, and removes double quotation marks.
+     * @param arn a asyncTaskResult that provides the string to correct.
+     * @return a string of characters without quotation marks.
+     */
+    private String removeDoubleQuotationMarks(AsyncTaskResult<String> arn)
     {
         String str = "";
         for(int i = 0; i < arn.getResult().length(); i++)
