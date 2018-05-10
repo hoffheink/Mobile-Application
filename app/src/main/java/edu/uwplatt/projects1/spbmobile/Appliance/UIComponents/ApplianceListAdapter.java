@@ -6,11 +6,7 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -92,21 +88,7 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
                     R.drawable.connection);
             connectionIndicator.setImageDrawable(connectionUnconnected);
         }
-        convertView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-            @Override
-            public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
-                MenuInflater menuInflater = new MenuInflater(getContext());
-                menuInflater.inflate(R.menu.appliance_context_menu, contextMenu);
-            }
-        });
 
-        convertView.setOnContextClickListener(new View.OnContextClickListener() {
-            @Override
-            public boolean onContextClick(View view) {
-                Log.d("", "trying to get this to appear");
-                return false;
-            }
-        });
         return convertView;
     }
 }
