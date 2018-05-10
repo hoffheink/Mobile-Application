@@ -2,9 +2,15 @@ package edu.uwplatt.projects1.spbmobile.Appliance.UIComponents;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -39,9 +45,10 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
      * @param container   the ViewGroup the convertView will go into.
      * @return the View of the Appliance.
      */
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @NonNull
     @Override
-    public View getView(int position, View convertView, @NonNull ViewGroup container) {
+    public View getView(int position, View convertView, @NonNull final ViewGroup container) {
         final Appliance appliance = getItem(position);
 
         if (convertView == null) {
@@ -53,6 +60,7 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
             convertView = layoutInflater.inflate(R.layout.appliance_list_item, container,
                     false);
         }
+
 
         ImageView applianceType = (convertView.findViewById(R.id.appliance_type));
         Drawable drawable;
@@ -84,6 +92,21 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
                     R.drawable.connection);
             connectionIndicator.setImageDrawable(connectionUnconnected);
         }
+        convertView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+            @Override
+            public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+                MenuInflater menuInflater = new MenuInflater(getContext());
+                menuInflater.inflate(R.menu.appliance_context_menu, contextMenu);
+            }
+        });
+
+        convertView.setOnContextClickListener(new View.OnContextClickListener() {
+            @Override
+            public boolean onContextClick(View view) {
+                Log.d("", "trying to get this to appear");
+                return false;
+            }
+        });
         return convertView;
     }
 }

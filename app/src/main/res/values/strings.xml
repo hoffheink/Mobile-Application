@@ -24,4 +24,5 @@
     <string name="seconds">Seconds</string>
     <string name="appliance_status">Appliance Status</string>
     <string name="appliance_name">Appliance Name</string>
+    <string name="remove_appliance">Remove Appliance</string>
 </resources>

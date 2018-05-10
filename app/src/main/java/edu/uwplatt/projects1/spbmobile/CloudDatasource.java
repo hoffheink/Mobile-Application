@@ -43,16 +43,17 @@ public class CloudDatasource
     @SuppressWarnings("all")
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
-    private String subscriptionArn;
+    //private String subscriptionArn;
+    public static String subscriptionArn;
 
     /**
      * Sets the subscription authentication role number to the value of the string provided.
      * @param str the subscription authentication role number.
      */
-    public void setSubscriptionArn(String str)
+    /*public void setSubscriptionArn(String str)
     {
         subscriptionArn = str;
-    }
+    }*/
 
     /**
      * Returns the subscription authentication role number as a string.

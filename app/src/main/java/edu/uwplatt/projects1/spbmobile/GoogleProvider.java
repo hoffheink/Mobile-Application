@@ -81,6 +81,11 @@ public class GoogleProvider {
      * @param account the GoogleSignInAccount that is logged in.
      */
     void setGoogleAccount(GoogleSignInAccount account) {
+        if (account != null)
+        {
+            SimpleStorageSystem simpleStorageSystem = new SimpleStorageSystem();
+            simpleStorageSystem.saveSubArn(ourContext, account, MainActivity.region);
+        }
         GoogleProvider.account = account;
     }
 

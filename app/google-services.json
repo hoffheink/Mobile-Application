@@ -1,9 +1,7 @@
 {
   "project_info": {
     "project_number": "968907067223",
-    "firebase_url": "https://spbmobile-188503.firebaseio.com",
-    "project_id": "spbmobile-188503",
-    "storage_bucket": "spbmobile-188503.appspot.com"
+    "project_id": "spbmobile-188503"
   },
   "client": [
     {
@@ -14,10 +12,6 @@
         }
       },
       "oauth_client": [
-        {
-          "client_id": "968907067223-fk5peh85umelf94c5m2320aghfvef66o.apps.googleusercontent.com",
-          "client_type": 3
-        },
         {
           "client_id": "968907067223-pi8qejnm2obnpv914up57b178qrv58nf.apps.googleusercontent.com",
           "client_type": 3
@@ -41,16 +35,11 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "968907067223-fk5peh85umelf94c5m2320aghfvef66o.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 2
+          "status": 1
         }
       }
     }
