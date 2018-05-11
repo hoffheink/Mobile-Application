@@ -74,11 +74,12 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService {
      * @return the formatted string.
      */
     private String formatMessage(NotificationPayload payload) {
-        StringBuilder str = new StringBuilder("Device Name: " + payload.getDeviceName() + "\n");
-        LinkedHashMap<String, String> reportedChanges = payload.getReportedChanges();
-        for (Map.Entry<String, String> entry : reportedChanges.entrySet())
-            str.append("The ").append(entry.getKey()).append(" is currently ")
-                    .append(entry.getValue()).append("\n");
+        //StringBuilder str = new StringBuilder("Device Name: " + payload.getDeviceName() + "\n");
+        StringBuilder str = new StringBuilder(payload.getDeviceName() + ": " + payload.getRawNotification());
+        //LinkedHashMap<String, String> reportedChanges = payload.getReportedChanges();
+        //for (Map.Entry<String, String> entry : reportedChanges.entrySet())
+        //    str.append("The ").append(entry.getKey()).append(" is currently ")
+        //            .append(entry.getValue()).append("\n");
         return str.toString();
     }
 }

@@ -7,13 +7,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.Command.Command;
+import edu.uwplatt.projects1.spbmobile.GoogleProvider;
+import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
+import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
 
 import android.support.v4.app.Fragment;
+import android.widget.Toast;
+
+import com.amazonaws.auth.AWSSessionCredentials;
 
 /**
  * This class is used to display the list of Commands to the user.
@@ -51,21 +60,46 @@ public class CommandListFragment extends Fragment {
             if (listView != null) {
                 listView.setAdapter(commandListAdapter);
                 setOnClickListener(listView);
+                final ImageButton executeButton =
+                        view.findViewById(R.id.command_remove_appliance_imageButton);
+                if (executeButton != null) {
+                    setRemoveButtonOnClickListener(executeButton);
+                }
             }
         }
     }
+
+    private void setRemoveButtonOnClickListener(ImageButton removeButton) {
+        removeButton.setOnClickListener(removeButtonExecute);
+    }
+
+    private View.OnClickListener removeButtonExecute = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            try {
+                GoogleProvider googleProvider = GoogleProvider.getInstance(getContext(),
+                        getActivity());
+                Appliance.currentAppliance.RemoveCurrentAppliance(googleProvider.getAccount(),
+                        getContext());
+            } catch (Exception e) {
+                Log.e("removeButtonExecute", e.getMessage(), e);
+            }
+        }
+    };
 
     /**
      * This method is used to respond to a Command being clicked.
      *
      * @param listView the ListView to attach the onClickListener to.
      */
+
     private void setOnClickListener(final ListView listView) {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.d("onItemClick", "Item clicked in CommandListFragment");
                 Command.currentCommand = (Command) listView.getItemAtPosition(i);
+                Command.currentCommand.resetGUID();
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.content_main, new ParameterListFragment(),
                         "parameterListFragment");

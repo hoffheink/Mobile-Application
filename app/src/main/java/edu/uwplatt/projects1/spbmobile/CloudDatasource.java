@@ -13,7 +13,9 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.iot.AWSIot;
 import com.amazonaws.services.iot.AWSIotClient;
 import com.amazonaws.services.iot.model.ListPrincipalPoliciesRequest;
+import com.amazonaws.services.iot.model.ListPrincipalPoliciesResult;
 import com.amazonaws.services.iot.model.ListThingsRequest;
+import com.amazonaws.services.iot.model.Policy;
 import com.amazonaws.services.iot.model.ThingAttribute;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
@@ -43,19 +45,20 @@ public class CloudDatasource {
     @SuppressWarnings("all")
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
+    @NonNull
     static String subscriptionArn;
 
     /**
      * Returns the subscription authentication role number as a string.
      *
      * @return a string of the subscription authentication role number.
-     * @throws Exception an exception if no subscription authentication role number has been set.
      */
-    public String getSubscriptionArn() throws Exception {
-        if (subscriptionArn != null)
-            return subscriptionArn;
-        else
-            throw new Exception("No subscriptionArn");
+    public static String getSubscriptionArn() {
+        return subscriptionArn;
+    }
+
+    public static void setSubscriptionArn(String subscriptionArn) {
+        CloudDatasource.subscriptionArn = subscriptionArn;
     }
 
     /**
@@ -110,6 +113,17 @@ public class CloudDatasource {
             Log.e("getInstance", "Unable to load credentials:" + e.getMessage(), e);
         }
         return ourInstance;
+    }
+
+    public static String getIdentityPool(RegionEnum region) throws Exception {
+        switch (region) {
+            case US_EAST_1:
+                return US_EAST_1_IdentityPoolID;
+            case US_EAST_2:
+                return US_EAST_2_IdentityPoolID;
+            default:
+                throw new Exception("poop");
+        }
     }
 
     /**
@@ -228,22 +242,31 @@ public class CloudDatasource {
                 listThingsRequest.setRequestCredentials(credentials);
 
                 try {
+
+                    ListPrincipalPoliciesResult result = awsIot.listPrincipalPolicies((listPrincipalPoliciesRequest));
+                    List<String> thingNames = new ArrayList<>();
+                    for (Policy policy : result.getPolicies()) {
+                        thingNames.add(policy.getPolicyName().replace("app-", ""));
+                    }
+
                     for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
-                        Appliance appliance = new Appliance(o.getThingName(),
-                                o.getVersion().toString());
-                        String thingType = o.getThingTypeName();
-                        if (thingType != null) {
-                            switch (o.getThingTypeName()) {
-                                case "coffee-maker":
-                                    appliance.setApplianceType(Appliance.ApplianceTypes
-                                            .CoffeeMaker);
-                                    break;
-                                case "test":
-                                    appliance.setApplianceType(Appliance.ApplianceTypes.Test);
-                                    break;
+                        if (thingNames.contains(o.getThingName())) {
+                            Appliance appliance = new Appliance(o.getThingName(),
+                                    o.getVersion().toString());
+                            String thingType = o.getThingTypeName();
+                            if (thingType != null) {
+                                switch (o.getThingTypeName()) {
+                                    case "coffee-maker":
+                                        appliance.setApplianceType(Appliance.ApplianceTypes
+                                                .CoffeeMaker);
+                                        break;
+                                    case "test":
+                                        appliance.setApplianceType(Appliance.ApplianceTypes.Test);
+                                        break;
+                                }
                             }
+                            newApplianceList.add(appliance);
                         }
-                        newApplianceList.add(appliance);
                     }
                 } catch (Exception e) {
                     Log.e("GetAppliancesRunnable", e.getMessage(), e);

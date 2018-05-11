@@ -1,11 +1,13 @@
 package edu.uwplatt.projects1.spbmobile.Appliance;
 
+import com.google.firebase.iid.FirebaseInstanceId;
+
 class RemoveDeviceFormat {
     private final String thingId;
-    private final String subscriptionArn;
+    private final String deviceToken;
 
-    RemoveDeviceFormat(String thingId, String subscriptionArn) {
+    RemoveDeviceFormat(String thingId) {
         this.thingId = thingId;
-        this.subscriptionArn = subscriptionArn;
+        this.deviceToken = FirebaseInstanceId.getInstance().getToken();
     }
 }

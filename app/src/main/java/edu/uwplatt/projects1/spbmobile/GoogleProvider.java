@@ -6,13 +6,23 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.regions.Regions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
+
+import edu.uwplatt.projects1.spbmobile.Lambda.FirebaseTokenLambdaFormat;
+import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunctionNames;
+import edu.uwplatt.projects1.spbmobile.Lambda.LambdaPlatform;
 
 /**
  * Maintains data objects and methods for using Google play services as an identity provider.
@@ -81,10 +91,16 @@ public class GoogleProvider {
      * @param account the GoogleSignInAccount that is logged in.
      */
     void setGoogleAccount(GoogleSignInAccount account) {
-        if (account != null)
-        {
+        if (account != null) {
             SimpleStorageSystem simpleStorageSystem = new SimpleStorageSystem();
             simpleStorageSystem.saveSubArn(ourContext, account, MainActivity.region);
+
+            Gson gson = new Gson();
+            CognitoSyncFormat cognitoSyncFormat = new CognitoSyncFormat(account.getEmail());
+
+            LambdaPlatform lambdaPlatform = new LambdaPlatform();
+            AsyncTaskResult<String> response = lambdaPlatform.invokeLambdaFunction(LambdaFunctionNames.REMOVE_NOTIFICATION, gson.toJson(cognitoSyncFormat), CloudDatasource.getInstance(ourContext, account, MainActivity.region).getCognitoCachingCredentialsProvider());
+            Log.d("CognitoSync: ", response.getResult());
         }
         GoogleProvider.account = account;
     }

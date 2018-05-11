@@ -51,8 +51,7 @@ class SimpleStorageSystem {
 
                 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context
                         .openFileOutput("subArn.txt", Context.MODE_PRIVATE));
-                outputStreamWriter.write("subscriptionArn " + CloudDatasource.getInstance(
-                        context, account, region).getSubscriptionArn());
+                outputStreamWriter.write("subscriptionArn " + CloudDatasource.subscriptionArn);
                 outputStreamWriter.close();
             } else
                 CloudDatasource.subscriptionArn = subArnParse[1];
@@ -60,8 +59,7 @@ class SimpleStorageSystem {
                     .getCognitoCachingCredentialsProvider().toString());
             Log.d(TAG, "File path: " + context.getFilesDir().getPath());
             Log.d(TAG, "Firebase Token: " + FirebaseInstanceId.getInstance().getToken());
-            Log.d(TAG, "SubscriptionArn: " + CloudDatasource.getInstance(context, account,
-                    region).getSubscriptionArn());
+            Log.d(TAG, "SubscriptionArn: " + CloudDatasource.subscriptionArn);
             com.google.gson.Gson gson = new Gson();
             FirebaseTokenLambdaFormat firebaseTokenLambdaFormat = new FirebaseTokenLambdaFormat(
                     FirebaseInstanceId.getInstance().getToken());

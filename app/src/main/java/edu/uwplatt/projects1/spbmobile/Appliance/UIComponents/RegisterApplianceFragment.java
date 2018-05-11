@@ -270,10 +270,10 @@ public class RegisterApplianceFragment extends Fragment {
         public void run() {
             try {
                 Gson gson = new Gson();
-                RegisterDeviceFormat registerDeviceFormat = new RegisterDeviceFormat(applianceName, token, FirebaseInstanceId.getInstance().getToken(), CloudDatasource.getInstance(context, account, MainActivity.region).getSubscriptionArn());
+                RegisterDeviceFormat registerDeviceFormat = new RegisterDeviceFormat(applianceName, token, FirebaseInstanceId.getInstance().getToken(), CloudDatasource.getSubscriptionArn());
                 Log.i("RegisterDeviceWithAWS", "jsonRequestParameters: " + gson.toJson(registerDeviceFormat));
-                AsyncTaskResult<String> response = CloudDatasource.getInstance(context, account, MainActivity.region).invokeLambda(LambdaFunctionNames.REGISTER_DEVICE, gson.toJson(registerDeviceFormat));
-                String result = response.getResult();
+                AsyncTaskResult response = CloudDatasource.getInstance(context, account, MainActivity.region).invokeLambda(LambdaFunctionNames.REGISTER_DEVICE, gson.toJson(registerDeviceFormat));
+                String result = response.getResult().toString();
                 if (result != null) {
                     if (!result.contains("errorMessage"))
                         appliance = new Appliance(applianceName, applianceName);
