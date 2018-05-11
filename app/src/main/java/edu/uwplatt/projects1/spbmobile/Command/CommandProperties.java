@@ -14,13 +14,13 @@ class CommandProperties {
      *
      * @return the random UUID.
      */
-    private static UUID getRandomUUID() {
+    public static UUID getRandomUUID() {
         return UUID.randomUUID();
     }
 
     private int priority;
     private UUID guid;
-    private String timestamp;
+    private long timestamp;
 
     /**
      * This constructor creates a Command.
@@ -34,7 +34,7 @@ class CommandProperties {
         else
             priority = 0;
         guid = getRandomUUID();
-        timestamp = Time.getUTCTime(date);
+        timestamp = date.getTime();//Time.getUTCTime(date);
     }
 
     /**

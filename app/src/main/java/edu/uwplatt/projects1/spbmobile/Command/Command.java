@@ -13,12 +13,17 @@ import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
  */
 public class Command {
     public static Command currentCommand;
-    UUID guid;
+    UUID guid = CommandProperties.getRandomUUID();
     public String humanName;
     boolean priority;
     public Parameter[] parameters;
     State[] states;
     String cmdName;
+
+    public void resetGUID()
+    {
+        guid = CommandProperties.getRandomUUID();
+    }
 
     /**
      * This constructor will create a Command with the Guid passed in.

@@ -1,13 +1,19 @@
 package edu.uwplatt.projects1.spbmobile.Appliance;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.Command.Range;
 import edu.uwplatt.projects1.spbmobile.JsonHelpers.RangeTypeAdapter;
+import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunctionNames;
+import edu.uwplatt.projects1.spbmobile.MainActivity;
 
 /**
  * This class represents an Appliance.
@@ -57,7 +63,7 @@ public class Appliance {
      * This method loads the commands into an Appliance.
      */
     private void loadCommands() {
-        String inputText = "[ { \"cmdName\": \"EchoCommand\", \"humanName\": \"Echo Command\", \"priority\": false, \"parameters\": [ { \"machineName\": \"echoText\", \"humanName\": \"Echo Text\", \"description\": \"Text that the device sends back to cloud.\", \"type\": \"string\", \"enumerations\": [], \"range\": {}, \"units\": \"\" } ], \"status\": { \"states\": [ { \"value\": 4, \"text\": \"Echoing\" } ] } }, { \"cmdName\": \"bakeCommand\", \"humanName\": \"Bake Command\", \"priority\": false, \"parameters\": [ { \"machineName\": \"temperature\", \"humanName\": \"Temperature\", \"description\": \"Temperature to bake at.\", \"type\": \"int\", \"enumerations\": [], \"range\": { \"min\": 100, \"max\": 600, \"step\": 5 }, \"units\": \"deg F\" }, { \"machineName\": \"mode\", \"humanName\": \"Oven Mode\", \"description\": \"\", \"priority\": false, \"type\": \"enum\", \"enumerations\": [ { \"value\": 1, \"name\": \"Bake\" }, { \"value\": 2, \"name\": \"Broil\" }, { \"value\": 3, \"name\": \"Bake (Convection)\" } ], \"range\": {}, \"units\": \"\" }, { \"machineName\": \"duration\", \"humanName\": \"Duration\", \"description\": \"Time to cook for.\", \"type\": \"duration\", \"enumerations\": [], \"range\": { \"min\": 0, \"max\": 86400, \"step\": 1 }, \"units\": \"\" } ], \"status\": { \"state\": [ { \"value\": 4, \"text\": \"Pre-Heating\" }, { \"value\": 5, \"text\": \"Bake\" }, { \"value\": 6, \"text\": \"Cooling\" } ], \"startTime\": 123 } }]";
+        String inputText = "[ { \"cmdName\": \"EchoCommand\", \"humanName\": \"Echo Command\", \"priority\": false, \"parameters\": [ { \"machineName\": \"echoText\", \"humanName\": \"Echo Text\", \"description\": \"Text that the device sends back to cloud.\", \"type\": \"string\", \"enumerations\": [], \"range\": {}, \"units\": \"\" } ], \"status\": { \"states\": [ { \"value\": 4, \"text\": \"Echoing\" } ] } }, { \"cmdName\": \"BakeCommand\", \"humanName\": \"Bake Command\", \"priority\": false, \"parameters\": [ { \"machineName\": \"temperature\", \"humanName\": \"Temperature\", \"description\": \"Temperature to bake at.\", \"type\": \"int\", \"enumerations\": [], \"range\": { \"min\": 100, \"max\": 600, \"step\": 5 }, \"units\": \"deg F\" }, { \"machineName\": \"mode\", \"humanName\": \"Oven Mode\", \"description\": \"\", \"priority\": false, \"type\": \"enum\", \"enumerations\": [ { \"value\": 1, \"name\": \"Bake\" }, { \"value\": 2, \"name\": \"Broil\" }, { \"value\": 3, \"name\": \"Toast\" } ], \"range\": {}, \"units\": \"\" }, { \"machineName\": \"duration\", \"humanName\": \"Duration\", \"description\": \"Time to cook for.\", \"type\": \"duration\", \"enumerations\": [], \"range\": { \"min\": 0, \"max\": 86400, \"step\": 1 }, \"units\": \"\" } ], \"status\": { \"state\": [ { \"value\": 4, \"text\": \"Pre-Heating\" }, { \"value\": 5, \"text\": \"Bake\" }, { \"value\": 6, \"text\": \"Cooling\" } ], \"startTime\": 123 } }]";
         commands = applianceGson.fromJson(inputText, Command[].class);
     }
 
@@ -136,5 +142,12 @@ public class Appliance {
      */
     public void setApplianceType(@NonNull ApplianceTypes applianceType) {
         this.applianceType = applianceType;
+    }
+
+    public boolean RemoveCurrentAppliance(GoogleSignInAccount inAccount, Context inContext) {
+        RemoveDeviceFormat removeDeviceFormat = new RemoveDeviceFormat(name);
+        String response = CloudDatasource.getInstance(inContext, inAccount, MainActivity.region).invokeLambda(
+                LambdaFunctionNames.REMOVE_DEVICE, new Gson().toJson(removeDeviceFormat)).getResult().toString();
+        return true;
     }
 }

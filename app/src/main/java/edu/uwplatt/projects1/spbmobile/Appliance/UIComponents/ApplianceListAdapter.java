@@ -84,6 +84,7 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
                     R.drawable.connection);
             connectionIndicator.setImageDrawable(connectionUnconnected);
         }
+
         return convertView;
     }
 }

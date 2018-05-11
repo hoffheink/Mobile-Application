@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -23,20 +24,29 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceFragment;
 
+
 /**
  * This class represents the main activity of the application.
  */
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-    protected DrawerLayout mDrawer;
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private static MainActivity ourInstance;
+    private static boolean visible;
     private static final int RC_WELCOME_SCREEN = 9002;
     public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_1;
 
     /**
-     * This method will set up all the needed components of the MainActivity.
+     * Returns the current instance of the running main activity.
      *
-     * @param savedInstanceState the Bundle (if available).
+     * @return the current instance of the running main activity.
      */
+    public static MainActivity getOurInstance() {
+        return ourInstance;
+    }
+
+    /* This method will set up all the needed components of the MainActivity.
+    *
+    * @param savedInstanceState the Bundle (if available).
+    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +67,8 @@ public class MainActivity extends AppCompatActivity
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mDrawer = drawer;
+        visible = true;
+        ourInstance = this;
     }
 
     /**
@@ -73,9 +84,11 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public void onStart() {
+        visible = true;
         super.onStart();
         updateAccountInformation();
     }
+
 
     /**
      * This method will update the account info and make a call to display the WelcomeScreenActivity
@@ -97,6 +110,9 @@ public class MainActivity extends AppCompatActivity
                     .setText(googleProvider.getDisplayName());
             ((TextView) header.findViewById(R.id.user_email)).setText(googleProvider.getEmail());
         }
+        //Might not be needed, but leaving commented code in the event that it is.
+        //new SimpleStorageSystem().saveSubArn(getApplicationContext(), googleProvider.getAccount(),
+        // region);
     }
 
     /**
@@ -189,6 +205,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
     /**
      * This method will handles the activity results.
      *
@@ -200,5 +217,38 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == RC_WELCOME_SCREEN && resultCode == RESULT_OK) {
             updateAccountInformation();
         }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        visible = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        visible = false;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        visible = false;
+    }
+
+    /**
+     * Creates a snackbar object that contains a provided message.
+     *
+     * @param message the message to be displayed in the snackbar.
+     */
+    public void createSnackbar(String message) {
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.drawer_layout), message, Snackbar.LENGTH_LONG);
+        snackbar.show();
+    }
+
+    public boolean isVisible() {
+        return visible;
     }
 }

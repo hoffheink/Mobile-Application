@@ -37,7 +37,7 @@ public class ShadowParam {
     private static class UpdateCommandStructure {
         private final String mobileDeviceType;
         private final String mobileDeviceVersion;
-        private final String utcSendTime;
+        private final long utcSendTime;
         private final Desired state;
 
         /**
@@ -52,7 +52,8 @@ public class ShadowParam {
             state = command;
             mobileDeviceType = type;
             mobileDeviceVersion = version;
-            utcSendTime = Time.getUTCTime(date);
+
+            utcSendTime = date.getTime();//Time.getUTCTime(date);
         }
     }
 

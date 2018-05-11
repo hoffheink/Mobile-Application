@@ -29,12 +29,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,11 +43,12 @@ import java.util.Scanner;
 import java.util.Set;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.GoogleProvider;
+import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunctionNames;
+import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
-
-import static edu.uwplatt.projects1.spbmobile.MainActivity.region;
 
 /**
  * This class is used to register an Appliance with the cloud side.
@@ -231,59 +232,56 @@ public class RegisterApplianceFragment extends Fragment {
                     goHome();
                 }
             } catch (Exception e) {
-                Log.e("sendNetworkInfoRegister", e.getMessage(), e);
+                Log.e("sendNetworkInfoRegister", "Error:" + e.getMessage(), e);
             }
+        }
+    }
+
+    /**
+     * This class is used to register the device with AWS.
+     */
+    public class RegisterDeviceWithAWS implements Runnable {
+        private final String token;
+        private final String applianceName;
+        private final GoogleSignInAccount account;
+        private final Context context;
+
+        /**
+         * This constructor will create the runnable.
+         *
+         * @param account       the GoogleSignInAccount used to register the Appliance.
+         * @param applianceName the Appliance name.
+         * @param token         the token used to register the Appliance.
+         * @param context       the Application Context.
+         */
+        //TODO: Refactor this so that it takes in a CloudDatasource rather than creating one every time.
+        RegisterDeviceWithAWS(GoogleSignInAccount account, String applianceName, String token,
+                              Context context) {
+            this.account = account;
+            this.applianceName = applianceName;
+            this.token = token;
+            this.context = context;
         }
 
         /**
-         * This class is used to register the device with AWS.
+         * This method actually registers the device with AWS.
          */
-        public class RegisterDeviceWithAWS implements Runnable {
-            private final String token;
-            private final String applianceName;
-            private final GoogleSignInAccount account;
-            private final Context context;
-
-            /**
-             * This constructor will create the runnable.
-             *
-             * @param account       the GoogleSignInAccount used to register the Appliance.
-             * @param applianceName the Appliance name.
-             * @param token         the token used to register the Appliance.
-             * @param context       the Application Context.
-             */
-            //TODO: Refactor this so that it takes in a CloudDatasource rather than creating one every time.
-            RegisterDeviceWithAWS(GoogleSignInAccount account, String applianceName, String token,
-                                  Context context) {
-                this.account = account;
-                this.applianceName = applianceName;
-                this.token = token;
-                this.context = context;
-            }
-
-            /**
-             * This method actually registers the device with AWS.
-             */
-            @Override
-            public void run() {
-                try {
-                    InvokeRequest invokeRequest = new InvokeRequest();
-                    invokeRequest.setFunctionName("iot-app-register-device");
-                    //TODO: Refactor this to be better.
-                    String jsonRequestParameters = "{\"thingId\":\"" + applianceName +
-                            "\",\"thingPin\":\"" + token + "\"}";
-                    invokeRequest.setPayload(ByteBuffer.wrap(jsonRequestParameters.getBytes()));
-                    String response = CloudDatasource.getInstance(context, account, region)
-                            .invokeLambda(account, invokeRequest);
-                    if (response != null) {
-                        if (!response.contains("errorMessage")) {
-                            appliance = new Appliance(applianceName, applianceName);
-                        }
-                    } else
-                        Log.w("RegisterDeviceWithAWS", "Failed to register:");
-                } catch (Exception e) {
-                    Log.e("RegisterDeviceWithAWS", e.getMessage(), e);
-                }
+        @Override
+        public void run() {
+            try {
+                Gson gson = new Gson();
+                RegisterDeviceFormat registerDeviceFormat = new RegisterDeviceFormat(applianceName, token, FirebaseInstanceId.getInstance().getToken(), CloudDatasource.getSubscriptionArn());
+                Log.i("RegisterDeviceWithAWS", "jsonRequestParameters: " + gson.toJson(registerDeviceFormat));
+                AsyncTaskResult response = CloudDatasource.getInstance(context, account, MainActivity.region).invokeLambda(LambdaFunctionNames.REGISTER_DEVICE, gson.toJson(registerDeviceFormat));
+                String result = response.getResult().toString();
+                if (result != null) {
+                    if (!result.contains("errorMessage"))
+                        appliance = new Appliance(applianceName, applianceName);
+                } else
+                    Log.w("RegisterDeviceWithAWS", "Failed to register");
+                Log.i("RegisterDeviceWithAWS", "response: " + result);
+            } catch (Exception e) {
+                Log.e("RegisterDeviceWithAWS", e.getMessage(), e);
             }
         }
     }
