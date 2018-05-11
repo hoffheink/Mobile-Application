@@ -14,7 +14,7 @@ import com.google.gson.Gson;
 import java.util.List;
 
 import edu.uwplatt.projects1.spbmobile.Lambda.FirebaseTokenLambdaFormat;
-import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunction;
+import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunctionNames;
 import edu.uwplatt.projects1.spbmobile.Lambda.LambdaPlatform;
 
 class ListenActivities extends Thread
@@ -50,7 +50,7 @@ class ListenActivities extends Thread
                 FirebaseTokenLambdaFormat uninstallMessageFormat = new FirebaseTokenLambdaFormat(FirebaseInstanceId.getInstance().getToken());
                 CognitoCachingCredentialsProvider credentialsProvider = new CognitoCachingCredentialsProvider(context, "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b", Regions.US_EAST_1); //Hard coded in.
                 LambdaPlatform lambdaPlatform = new LambdaPlatform();
-                AsyncTaskResult<String> response = lambdaPlatform.invokeLambdaFunction(LambdaFunction.REMOVE_NOTIFICATION, gson.toJson(uninstallMessageFormat), credentialsProvider);
+                AsyncTaskResult<String> response = lambdaPlatform.invokeLambdaFunction(LambdaFunctionNames.REMOVE_NOTIFICATION, gson.toJson(uninstallMessageFormat), credentialsProvider);
                 Log.d("Uninstall: ", response.getResult());
 
                 exit = true;

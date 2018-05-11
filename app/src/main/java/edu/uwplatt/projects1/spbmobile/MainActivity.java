@@ -17,8 +17,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceFragment;
 
@@ -26,8 +28,7 @@ import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceF
 /**
  * This class represents the main activity of the application.
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
-{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static MainActivity ourInstance;
     private static boolean visible;
     private static final int RC_WELCOME_SCREEN = 9002;
@@ -35,20 +36,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /**
      * Returns the current instance of the running main activity.
+     *
      * @return the current instance of the running main activity.
      */
-    public static MainActivity getOurInstance()
-    {
+    public static MainActivity getOurInstance() {
         return ourInstance;
     }
 
-     /* This method will set up all the needed components of the MainActivity.
-     *
-     * @param savedInstanceState the Bundle (if available).
-     */
+    /* This method will set up all the needed components of the MainActivity.
+    *
+    * @param savedInstanceState the Bundle (if available).
+    */
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.register_appliance_toolbar);
@@ -83,8 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * This method will load up the account information.
      */
     @Override
-    public void onStart()
-    {
+    public void onStart() {
         visible = true;
         super.onStart();
         updateAccountInformation();
@@ -111,9 +110,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .setText(googleProvider.getDisplayName());
             ((TextView) header.findViewById(R.id.user_email)).setText(googleProvider.getEmail());
         }
-
-        SimpleStorageSystem simpleStorageSystem = new SimpleStorageSystem();
-        simpleStorageSystem.saveSubArn(getApplicationContext(), googleProvider.getAccount(), region);
+        //Might not be needed, but leaving commented code in the event that it is.
+        //new SimpleStorageSystem().saveSubArn(getApplicationContext(), googleProvider.getAccount(),
+        // region);
     }
 
     /**
@@ -214,47 +213,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * @param resultCode  the resultCode.
      * @param data        the Intent of the request.
      */
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        if (requestCode == RC_WELCOME_SCREEN && resultCode == RESULT_OK)
-        {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == RC_WELCOME_SCREEN && resultCode == RESULT_OK) {
             updateAccountInformation();
         }
     }
 
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         visible = true;
     }
 
     @Override
-    protected void onPause()
-    {
+    protected void onPause() {
         super.onPause();
         visible = false;
     }
 
     @Override
-    protected void  onStop()
-    {
+    protected void onStop() {
         super.onStop();
         visible = false;
     }
+
     /**
      * Creates a snackbar object that contains a provided message.
+     *
      * @param message the message to be displayed in the snackbar.
      */
-    public void createSnackbar(String message)
-    {
+    public void createSnackbar(String message) {
         Snackbar snackbar = Snackbar.make(findViewById(R.id.drawer_layout), message, Snackbar.LENGTH_LONG);
         snackbar.show();
     }
 
-    public boolean isVisible()
-    {
+    public boolean isVisible() {
         return visible;
     }
 }

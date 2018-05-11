@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
+
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Region;
@@ -15,19 +16,18 @@ import com.amazonaws.services.iot.model.ListPrincipalPoliciesRequest;
 import com.amazonaws.services.iot.model.ListThingsRequest;
 import com.amazonaws.services.iot.model.ThingAttribute;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.Lambda.LambdaPlatform;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 /**
  * This class represents a link to our cloud datasource.
  */
-public class CloudDatasource
-{
+public class CloudDatasource {
     private static final String US_EAST_1_IdentityPoolID =
             "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
     private static final String US_EAST_2_IdentityPoolID =
@@ -43,25 +43,15 @@ public class CloudDatasource
     @SuppressWarnings("all")
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
-    //private String subscriptionArn;
-    public static String subscriptionArn;
-
-    /**
-     * Sets the subscription authentication role number to the value of the string provided.
-     * @param str the subscription authentication role number.
-     */
-    /*public void setSubscriptionArn(String str)
-    {
-        subscriptionArn = str;
-    }*/
+    static String subscriptionArn;
 
     /**
      * Returns the subscription authentication role number as a string.
+     *
      * @return a string of the subscription authentication role number.
      * @throws Exception an exception if no subscription authentication role number has been set.
      */
-    public String getSubscriptionArn() throws Exception
-    {
+    public String getSubscriptionArn() throws Exception {
         if (subscriptionArn != null)
             return subscriptionArn;
         else
@@ -70,28 +60,26 @@ public class CloudDatasource
 
     /**
      * Get the cognito credentials.
+     *
      * @return the cognito credentials as a CognitoCachingCredentialsProvider object.
      */
-    public CognitoCachingCredentialsProvider getCognitoCachingCredentialsProvider()
-    {
+    CognitoCachingCredentialsProvider getCognitoCachingCredentialsProvider() {
         return credentialsProvider;
     }
 
     /**
      * Calls the lambda invoker to invoke a provided function and give it a provided message.
+     *
      * @param lambdaFunction a string that contains the lambda functions ARN.
-     * @param message the formatted payload to send to the lambda function.
+     * @param message        the formatted payload to send to the lambda function.
      * @return the response provided by the lambda invoker.
      */
-    public AsyncTaskResult<String> invokeLambda(String lambdaFunction, String message)
-    {
+    public AsyncTaskResult invokeLambda(String lambdaFunction, String message) {
         LambdaPlatform lambdaPlatform = new LambdaPlatform();
-        AsyncTaskResult<String> response = lambdaPlatform.invokeLambdaFunction(lambdaFunction, message, credentialsProvider);
-        return response;
+        return lambdaPlatform.invokeLambdaFunction(lambdaFunction, message, credentialsProvider);
     }
 
-    public enum RegionEnum
-    {
+    public enum RegionEnum {
         US_EAST_1,
         US_EAST_2
     }
@@ -182,7 +170,6 @@ public class CloudDatasource
                 credentials = null;
             }
         }
-
     }
 
     /**
@@ -240,19 +227,12 @@ public class CloudDatasource
                 ListThingsRequest listThingsRequest = new ListThingsRequest();
                 listThingsRequest.setRequestCredentials(credentials);
 
-
-                //Todo: Check this with someone
-                try
-                {
-
-
+                try {
                     for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
-                        //if (thingNames.contains(o.getThingName())) {
                         Appliance appliance = new Appliance(o.getThingName(),
                                 o.getVersion().toString());
                         String thingType = o.getThingTypeName();
-                        if (thingType != null)
-                        {
+                        if (thingType != null) {
                             switch (o.getThingTypeName()) {
                                 case "coffee-maker":
                                     appliance.setApplianceType(Appliance.ApplianceTypes
@@ -298,7 +278,6 @@ public class CloudDatasource
     }
 
 
-
     /**
      * This method is used to add logins to the credentialsProvider from a GoogleSignInAccount.
      *
@@ -311,20 +290,5 @@ public class CloudDatasource
         Log.i("addLoginsFromAccount", "accountID: " + accountID);
         logins.put("accounts.google.com", accountID);
         ourInstance.credentialsProvider.setLogins(logins);
-    }
-
-
-    /**
-     * Not documenting due to future removal
-     */
-    private static String byteBufferToString(ByteBuffer buffer, Charset charset) {
-        byte[] bytes;
-        if (buffer.hasArray()) {
-            bytes = buffer.array();
-        } else {
-            bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-        }
-        return new String(bytes, charset);
     }
 }

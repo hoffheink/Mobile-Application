@@ -1,13 +1,19 @@
 package edu.uwplatt.projects1.spbmobile.Appliance;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.Command.Range;
 import edu.uwplatt.projects1.spbmobile.JsonHelpers.RangeTypeAdapter;
+import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunctionNames;
+import edu.uwplatt.projects1.spbmobile.MainActivity;
 
 /**
  * This class represents an Appliance.
@@ -136,5 +142,13 @@ public class Appliance {
      */
     public void setApplianceType(@NonNull ApplianceTypes applianceType) {
         this.applianceType = applianceType;
+    }
+
+    public static void RemoveAppliance(GoogleSignInAccount inAccount, Context inContext,
+                                       String thingId) {
+        RemoveDeviceFormat removeDeviceFormat = new RemoveDeviceFormat(thingId,
+                FirebaseInstanceId.getInstance().getToken());
+        CloudDatasource.getInstance(inContext, inAccount, MainActivity.region).invokeLambda(
+                LambdaFunctionNames.REMOVE_DEVICE, new Gson().toJson(removeDeviceFormat));
     }
 }

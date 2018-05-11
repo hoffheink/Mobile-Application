@@ -12,12 +12,12 @@ import java.io.OutputStreamWriter;
 import java.util.Scanner;
 
 import edu.uwplatt.projects1.spbmobile.Lambda.FirebaseTokenLambdaFormat;
-import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunction;
+import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunctionNames;
 
 /**
  * This class is used to oversee methods for the "long-term" storage of data.
  */
-public class SimpleStorageSystem {
+class SimpleStorageSystem {
     private static final String TAG = "SimpleStorageSystem";
 
     /**
@@ -28,9 +28,10 @@ public class SimpleStorageSystem {
      * @param account
      * @param region
      */
-    public void saveSubArn(Context context, GoogleSignInAccount account, CloudDatasource.RegionEnum region) {
+    void saveSubArn(Context context, GoogleSignInAccount account,
+                    CloudDatasource.RegionEnum region) {
         try {
-            String filePath = context.getFilesDir().getPath().toString() + "/subArn.txt";
+            String filePath = context.getFilesDir().getPath() + "/subArn.txt";
             String tempStr = "";
             File f = new File(filePath);
             f.createNewFile();
@@ -45,8 +46,8 @@ public class SimpleStorageSystem {
                 String pay = gson.toJson(firebaseTokenLambdaFormat);
 
                 CloudDatasource.subscriptionArn = CloudDatasource.getInstance(context, account,
-                        region).invokeLambda(LambdaFunction.NOTIFICATION_INIT, pay).getResult()
-                        .replace("\"", "");
+                        region).invokeLambda(LambdaFunctionNames.NOTIFICATION_INIT, pay).getResult()
+                        .toString().replace("\"", "");
 
                 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context
                         .openFileOutput("subArn.txt", Context.MODE_PRIVATE));
@@ -54,32 +55,21 @@ public class SimpleStorageSystem {
                         context, account, region).getSubscriptionArn());
                 outputStreamWriter.close();
             } else
-                //CloudDatasource.getInstance(context, account, region).setSubscriptionArn(subArnParse[1]);
                 CloudDatasource.subscriptionArn = subArnParse[1];
-            Log.d(TAG, CloudDatasource.getInstance(context, account, region).getCognitoCachingCredentialsProvider().toString());
-            Log.d(TAG, "File path: " + context.getFilesDir().getPath().toString());
+            Log.d(TAG, CloudDatasource.getInstance(context, account, region)
+                    .getCognitoCachingCredentialsProvider().toString());
+            Log.d(TAG, "File path: " + context.getFilesDir().getPath());
             Log.d(TAG, "Firebase Token: " + FirebaseInstanceId.getInstance().getToken());
-            Log.d(TAG, "SubscriptionArn: " + CloudDatasource.getInstance(context, account, region).getSubscriptionArn());
+            Log.d(TAG, "SubscriptionArn: " + CloudDatasource.getInstance(context, account,
+                    region).getSubscriptionArn());
             com.google.gson.Gson gson = new Gson();
-            FirebaseTokenLambdaFormat firebaseTokenLambdaFormat = new FirebaseTokenLambdaFormat(FirebaseInstanceId.getInstance().getToken());
-            CloudDatasource.getInstance(context, account, region).invokeLambda(LambdaFunction.REMOVE_NOTIFICATION, gson.toJson(firebaseTokenLambdaFormat));
+            FirebaseTokenLambdaFormat firebaseTokenLambdaFormat = new FirebaseTokenLambdaFormat(
+                    FirebaseInstanceId.getInstance().getToken());
+            CloudDatasource.getInstance(context, account, region).invokeLambda(
+                    LambdaFunctionNames.REMOVE_NOTIFICATION,
+                    gson.toJson(firebaseTokenLambdaFormat));
         } catch (Exception e) {
             Log.e(TAG, "SaveSubArn", e);
         }
-    }
-
-    /**
-     * Inspects the characters in a given string, and removes double quotation marks.
-     *
-     * @param arn a asyncTaskResult that provides the string to correct.
-     * @return a string of characters without quotation marks.
-     */
-    private String removeDoubleQuotationMarks(AsyncTaskResult<String> arn) {
-        //String str = "";
-        return arn.getResult().replace("\"", "");
-        /*for (int i = 0; i < arn.getResult().length(); i++)
-            if (arn.getResult().charAt(i) != '\"' && arn.getResult().charAt(i) != '\"')
-                str += arn.getResult().charAt(i);
-        return str;*/
     }
 }

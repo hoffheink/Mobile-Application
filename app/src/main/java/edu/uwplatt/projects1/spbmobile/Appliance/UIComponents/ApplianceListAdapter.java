@@ -2,9 +2,7 @@ package edu.uwplatt.projects1.spbmobile.Appliance.UIComponents;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,10 +39,9 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
      * @param container   the ViewGroup the convertView will go into.
      * @return the View of the Appliance.
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @NonNull
     @Override
-    public View getView(int position, View convertView, @NonNull final ViewGroup container) {
+    public View getView(int position, View convertView, @NonNull ViewGroup container) {
         final Appliance appliance = getItem(position);
 
         if (convertView == null) {
@@ -56,7 +53,6 @@ public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
             convertView = layoutInflater.inflate(R.layout.appliance_list_item, container,
                     false);
         }
-
 
         ImageView applianceType = (convertView.findViewById(R.id.appliance_type));
         Drawable drawable;

@@ -1,17 +1,17 @@
 package edu.uwplatt.projects1.spbmobile.Command;
 
-
 import android.support.annotation.NonNull;
 import android.util.Log;
+
 import java.util.UUID;
+
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
 import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
 
 /**
  * This class is used to model Commands.
  */
-public class Command
-{
+public class Command {
     public static Command currentCommand;
     UUID guid;
     public String humanName;
