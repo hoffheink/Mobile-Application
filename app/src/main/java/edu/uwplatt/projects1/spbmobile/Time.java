@@ -17,7 +17,7 @@ public class Time {
      * @param date the Date.
      * @return the formatted time String.
      */
-    public static String getUTCTime(@NonNull Date date) {
+    static String getUTCTime(@NonNull Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T' HH:mm:ss.SSS",
                 Locale.US);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));

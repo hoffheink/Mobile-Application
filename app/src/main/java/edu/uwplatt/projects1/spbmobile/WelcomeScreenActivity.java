@@ -101,10 +101,6 @@ public class WelcomeScreenActivity extends AppCompatActivity {
                 Log.e("onActivityResult", e.getMessage(), e);
             }
         }
-        if (resultCode == 7) {
-            Log.e("gf", "penis");
-        }
-
     }
 
     /**

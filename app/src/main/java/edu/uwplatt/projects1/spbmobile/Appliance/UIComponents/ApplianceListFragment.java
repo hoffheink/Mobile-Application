@@ -23,13 +23,6 @@ import edu.uwplatt.projects1.spbmobile.R;
  */
 public class ApplianceListFragment extends Fragment {
     /**
-     * The required default constructor.
-     */
-    //TODO: Find out if we need this: I don't think we do since we don't have any other constructors
-    public ApplianceListFragment() {
-    }
-
-    /**
      * This method will create fragment for the list of Appliance.
      *
      * @param inflater           the LayoutInflater used to inflate the view.

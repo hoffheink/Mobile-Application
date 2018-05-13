@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
 import java.util.Date;
 
 import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
+import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.Command.CommandQueue;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 
@@ -57,15 +58,8 @@ public class AwsIotShadowClient {
      *
      * @return the customer specific endpoint as a string.
      */
-    private static String getCustomerEndpoint() throws Exception {
-        switch (MainActivity.region) {
-            case US_EAST_1:
-                return "a121odz0gmuc20.iot.us-east-1.amazonaws.com";
-            case US_EAST_2:
-                return "a121odz0gmuc20.iot.us-east-2.amazonaws.com";
-            default:
-                throw new Exception("Region " + MainActivity.region.toString());
-        }
+    private static String getCustomerEndpoint() {
+        return "a121odz0gmuc20.iot." + CloudDatasource.regionString + ".amazonaws.com";
     }
 
     /**

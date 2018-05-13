@@ -30,6 +30,10 @@ import edu.uwplatt.projects1.spbmobile.Lambda.LambdaPlatform;
  * This class represents a link to our cloud datasource.
  */
 public class CloudDatasource {
+    private static final Regions ourRegions = Regions.US_EAST_1;
+    public static final String regionString = ourRegions.toString().toLowerCase()
+            .replace("_", "-");
+    public static final Region ourRegion = Region.getRegion(ourRegions);
     private static final String US_EAST_1_IdentityPoolID =
             "us-east-1:273c20ea-e478-4c5d-8adf-8f46402a066b";
     private static final String US_EAST_2_IdentityPoolID =
@@ -39,26 +43,21 @@ public class CloudDatasource {
     private static CloudDatasource ourInstance;
     @SuppressLint("StaticFieldLeak")
     private static Context ourContext;
-    @SuppressLint("StaticFieldLeak")
-    private static RegionEnum ourRegion;
 
     @SuppressWarnings("all")
     @NonNull
     private CognitoCachingCredentialsProvider credentialsProvider;
     @NonNull
-    static String subscriptionArn;
+    static String subscriptionArn = "";
 
     /**
      * Returns the subscription authentication role number as a string.
      *
      * @return a string of the subscription authentication role number.
      */
+    @NonNull
     public static String getSubscriptionArn() {
         return subscriptionArn;
-    }
-
-    public static void setSubscriptionArn(String subscriptionArn) {
-        CloudDatasource.subscriptionArn = subscriptionArn;
     }
 
     /**
@@ -82,11 +81,6 @@ public class CloudDatasource {
         return lambdaPlatform.invokeLambdaFunction(lambdaFunction, message, credentialsProvider);
     }
 
-    public enum RegionEnum {
-        US_EAST_1,
-        US_EAST_2
-    }
-
     public static List<Appliance> applianceList = new ArrayList<>();
 
     /**
@@ -94,16 +88,13 @@ public class CloudDatasource {
      *
      * @param context the Application Context for the CloudDatasource.
      * @param account the GoogleSignInAccount for the CloudDatasource.
-     * @param region  the RegionEnum for the CloudDatasource.
      * @return the CloudDatasource.
      */
     public static CloudDatasource getInstance(@NonNull Context context,
-                                              @NonNull GoogleSignInAccount account,
-                                              RegionEnum region) {
-        if (ourInstance == null || !ourContext.equals(context) || !ourRegion.equals(region)) {
-            ourInstance = new CloudDatasource(context, region);
+                                              @NonNull GoogleSignInAccount account) {
+        if (ourInstance == null || !ourContext.equals(context)) {
+            ourInstance = new CloudDatasource(context);
             ourContext = context;
-            ourRegion = region;
         }
         addLoginsFromAccount(account);
         GetCredentialProviderTask getCredentialProviderTask = new GetCredentialProviderTask();
@@ -115,14 +106,14 @@ public class CloudDatasource {
         return ourInstance;
     }
 
-    public static String getIdentityPool(RegionEnum region) throws Exception {
-        switch (region) {
+    private static String getIdentityPool() {
+        switch (ourRegions) {
             case US_EAST_1:
                 return US_EAST_1_IdentityPoolID;
             case US_EAST_2:
                 return US_EAST_2_IdentityPoolID;
             default:
-                throw new Exception("poop");
+                return "";
         }
     }
 
@@ -130,19 +121,10 @@ public class CloudDatasource {
      * This constructor will create a CloudDatasource.
      *
      * @param context the Application Context used to get the CognitoCachingCredentialsProvider.
-     * @param region  the RegionEnum used to get the CognitoCachingCredentialsProvider.
      */
-    private CloudDatasource(@NonNull Context context, @NonNull RegionEnum region) {
-        switch (region) {
-            case US_EAST_1:
-                credentialsProvider = new CognitoCachingCredentialsProvider(context,
-                        US_EAST_1_IdentityPoolID, Regions.US_EAST_1);
-                break;
-            case US_EAST_2:
-                credentialsProvider = new CognitoCachingCredentialsProvider(context,
-                        US_EAST_2_IdentityPoolID, Regions.US_EAST_2);
-                break;
-        }
+    private CloudDatasource(@NonNull Context context) {
+        credentialsProvider = new CognitoCachingCredentialsProvider(context,
+                getIdentityPool(), ourRegions);
     }
 
     /**
@@ -214,8 +196,7 @@ public class CloudDatasource {
          */
         @Override
         public void run() {
-            //TODO: refactor this method!
-            ArrayList<Appliance> newApplianceList = new ArrayList<>();
+            ArrayList<Appliance> applianceList = new ArrayList<>();
             AWSSessionCredentials credentials = null;
             try {
                 credentials = ourInstance.getCredentials();
@@ -223,56 +204,58 @@ public class CloudDatasource {
             }
             if (credentials != null) {
                 AWSIot awsIot = new AWSIotClient(ourInstance.credentialsProvider);
-                switch (ourRegion) {
-                    case US_EAST_1:
-                        awsIot.setRegion(Region.getRegion(Regions.US_EAST_1));
-                        break;
-                    case US_EAST_2:
-                        awsIot.setRegion(Region.getRegion(Regions.US_EAST_2));
-                        break;
-                }
-                ListPrincipalPoliciesRequest listPrincipalPoliciesRequest =
-                        new ListPrincipalPoliciesRequest();
-                listPrincipalPoliciesRequest
-                        .setPrincipal(ourInstance.credentialsProvider.getIdentityId());
+                awsIot.setRegion(ourRegion);
+
                 Log.i("GetAppliancesRunnable", "CognitoID: "
                         + ourInstance.credentialsProvider.getIdentityId());
 
                 ListThingsRequest listThingsRequest = new ListThingsRequest();
                 listThingsRequest.setRequestCredentials(credentials);
-
                 try {
 
-                    ListPrincipalPoliciesResult result = awsIot.listPrincipalPolicies((listPrincipalPoliciesRequest));
-                    List<String> thingNames = new ArrayList<>();
-                    for (Policy policy : result.getPolicies()) {
-                        thingNames.add(policy.getPolicyName().replace("app-", ""));
-                    }
+                    List<String> thingNames = getThingNames(awsIot);
 
-                    for (ThingAttribute o : awsIot.listThings(listThingsRequest).getThings()) {
-                        if (thingNames.contains(o.getThingName())) {
-                            Appliance appliance = new Appliance(o.getThingName(),
-                                    o.getVersion().toString());
-                            String thingType = o.getThingTypeName();
-                            if (thingType != null) {
-                                switch (o.getThingTypeName()) {
-                                    case "coffee-maker":
-                                        appliance.setApplianceType(Appliance.ApplianceTypes
-                                                .CoffeeMaker);
-                                        break;
-                                    case "test":
-                                        appliance.setApplianceType(Appliance.ApplianceTypes.Test);
-                                        break;
-                                }
-                            }
-                            newApplianceList.add(appliance);
-                        }
+                    for (ThingAttribute thingAttribute : awsIot.listThings(listThingsRequest)
+                            .getThings()) {
+                        if (thingNames.contains(thingAttribute.getThingName()))
+                            applianceList.add(createAppliance(thingAttribute));
                     }
                 } catch (Exception e) {
                     Log.e("GetAppliancesRunnable", e.getMessage(), e);
                 }
             }
-            applianceList = newApplianceList;
+            CloudDatasource.applianceList = applianceList;
+        }
+
+        private List<String> getThingNames(AWSIot awsIot) {
+            ListPrincipalPoliciesRequest listPrincipalPoliciesRequest =
+                    new ListPrincipalPoliciesRequest();
+            listPrincipalPoliciesRequest.setPrincipal(ourInstance.credentialsProvider
+                    .getIdentityId());
+            ListPrincipalPoliciesResult result = awsIot.listPrincipalPolicies(
+                    listPrincipalPoliciesRequest);
+            List<String> thingNames = new ArrayList<>();
+            for (Policy policy : result.getPolicies())
+                thingNames.add(policy.getPolicyName().replace("app-", ""));
+            return thingNames;
+        }
+
+        private Appliance createAppliance(ThingAttribute o) {
+            Appliance appliance = new Appliance(o.getThingName(),
+                    o.getVersion().toString());
+            String thingType = o.getThingTypeName();
+            if (thingType != null) {
+                switch (o.getThingTypeName()) {
+                    case "coffee-maker":
+                        appliance.setApplianceType(Appliance.ApplianceTypes
+                                .CoffeeMaker);
+                        break;
+                    case "test":
+                        appliance.setApplianceType(Appliance.ApplianceTypes.Test);
+                        break;
+                }
+            }
+            return appliance;
         }
     }
 

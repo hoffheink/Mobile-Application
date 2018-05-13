@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static MainActivity ourInstance;
     private static boolean visible;
     private static final int RC_WELCOME_SCREEN = 9002;
-    public static final CloudDatasource.RegionEnum region = CloudDatasource.RegionEnum.US_EAST_1;
 
     /**
      * Returns the current instance of the running main activity.
@@ -43,10 +42,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return ourInstance;
     }
 
-    /* This method will set up all the needed components of the MainActivity.
-    *
-    * @param savedInstanceState the Bundle (if available).
-    */
+    /**
+     * This method will set up all the needed components of the MainActivity.
+     *
+     * @param savedInstanceState the Bundle (if available).
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,17 +102,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (googleProvider.getAccount() == null)
             showWelcomeScreen();
         else {
-            CloudDatasource.getInstance(this, googleProvider.getAccount(), region)
-                    .loadAppliances(); //Loads appliance list
+            CloudDatasource.getInstance(this, googleProvider.getAccount()).loadAppliances(); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
             ((TextView) header.findViewById(R.id.user_name))
                     .setText(googleProvider.getDisplayName());
             ((TextView) header.findViewById(R.id.user_email)).setText(googleProvider.getEmail());
         }
-        //Might not be needed, but leaving commented code in the event that it is.
-        //new SimpleStorageSystem().saveSubArn(getApplicationContext(), googleProvider.getAccount(),
-        // region);
     }
 
     /**
@@ -244,7 +240,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * @param message the message to be displayed in the snackbar.
      */
     public void createSnackbar(String message) {
-        Snackbar snackbar = Snackbar.make(findViewById(R.id.drawer_layout), message, Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar.make(findViewById(R.id.drawer_layout), message,
+                Snackbar.LENGTH_LONG);
         snackbar.show();
     }
 

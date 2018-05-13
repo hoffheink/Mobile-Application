@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.GET_TASKS"/>
 
     <application
         android:allowBackup="true"
@@ -39,13 +38,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.uwplatt.projects1.spbmobile.MainActivity" />
         </activity>
-
-        <receiver android:name=".UninstallHand">
-            <intent-filter android:priority="0">
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
-                <data android:scheme="package" />
-            </intent-filter>
-        </receiver>
 
         <service
             android:name="edu.uwplatt.projects1.spbmobile.Firebase.FirebaseInstanceService">
