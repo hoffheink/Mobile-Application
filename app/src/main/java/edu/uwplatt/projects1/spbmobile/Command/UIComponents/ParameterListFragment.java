@@ -16,7 +16,6 @@ import com.amazonaws.auth.AWSSessionCredentials;
 import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.GoogleProvider;
-import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
 import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
 
@@ -24,14 +23,6 @@ import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
  * This class is used to display the list of Parameters to the user.
  */
 public class ParameterListFragment extends Fragment {
-
-    /**
-     * The required default constructor.
-     */
-    //TODO: Find out if we need this: I don't think we do since we don't have any other constructors
-    public ParameterListFragment() {
-    }
-
     /**
      * This method will create fragment for the list of Parameters.
      *
@@ -67,7 +58,7 @@ public class ParameterListFragment extends Fragment {
                 GoogleProvider googleProvider = GoogleProvider.getInstance(getContext(),
                         getActivity());
                 CloudDatasource datasource = CloudDatasource.getInstance(getContext(),
-                        googleProvider.getAccount(), MainActivity.region);
+                        googleProvider.getAccount());
                 AWSSessionCredentials credentials = datasource.getCredentials();
                 AwsIotShadowClient client = AwsIotShadowClient.getInstance(credentials);
                 Command.executeCurrentCommand(client,

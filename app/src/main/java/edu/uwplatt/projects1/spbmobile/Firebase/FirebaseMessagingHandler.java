@@ -13,11 +13,12 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 /**
  * Handles firebase push notifications.
@@ -74,12 +75,6 @@ public class FirebaseMessagingHandler extends FirebaseMessagingService {
      * @return the formatted string.
      */
     private String formatMessage(NotificationPayload payload) {
-        //StringBuilder str = new StringBuilder("Device Name: " + payload.getDeviceName() + "\n");
-        StringBuilder str = new StringBuilder(payload.getDeviceName() + ": " + payload.getRawNotification());
-        //LinkedHashMap<String, String> reportedChanges = payload.getReportedChanges();
-        //for (Map.Entry<String, String> entry : reportedChanges.entrySet())
-        //    str.append("The ").append(entry.getKey()).append(" is currently ")
-        //            .append(entry.getValue()).append("\n");
-        return str.toString();
+        return payload.getDeviceName() + ": " + payload.getRawNotification();
     }
 }

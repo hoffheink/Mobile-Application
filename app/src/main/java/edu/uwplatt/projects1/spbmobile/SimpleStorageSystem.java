@@ -3,7 +3,6 @@ package edu.uwplatt.projects1.spbmobile;
 import android.content.Context;
 import android.util.Log;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 
@@ -25,11 +24,8 @@ class SimpleStorageSystem {
      * is found, it attempts to generate one and save it to a text file.
      *
      * @param context
-     * @param account
-     * @param region
      */
-    void saveSubArn(Context context, GoogleSignInAccount account,
-                    CloudDatasource.RegionEnum region) {
+    void saveSubArn(Context context, CloudDatasource cloudDatasource) {
         try {
             String filePath = context.getFilesDir().getPath() + "/subArn.txt";
             String tempStr = "";
@@ -45,8 +41,8 @@ class SimpleStorageSystem {
                         new FirebaseTokenLambdaFormat(FirebaseInstanceId.getInstance().getToken());
                 String pay = gson.toJson(firebaseTokenLambdaFormat);
 
-                CloudDatasource.subscriptionArn = CloudDatasource.getInstance(context, account,
-                        region).invokeLambda(LambdaFunctionNames.NOTIFICATION_INIT, pay).getResult()
+                CloudDatasource.subscriptionArn = cloudDatasource
+                        .invokeLambda(LambdaFunctionNames.NOTIFICATION_INIT, pay).getResult()
                         .toString().replace("\"", "");
 
                 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context
@@ -55,16 +51,14 @@ class SimpleStorageSystem {
                 outputStreamWriter.close();
             } else
                 CloudDatasource.subscriptionArn = subArnParse[1];
-            Log.d(TAG, CloudDatasource.getInstance(context, account, region)
-                    .getCognitoCachingCredentialsProvider().toString());
+            Log.d(TAG, cloudDatasource.getCognitoCachingCredentialsProvider().toString());
             Log.d(TAG, "File path: " + context.getFilesDir().getPath());
             Log.d(TAG, "Firebase Token: " + FirebaseInstanceId.getInstance().getToken());
             Log.d(TAG, "SubscriptionArn: " + CloudDatasource.subscriptionArn);
             com.google.gson.Gson gson = new Gson();
             FirebaseTokenLambdaFormat firebaseTokenLambdaFormat = new FirebaseTokenLambdaFormat(
                     FirebaseInstanceId.getInstance().getToken());
-            CloudDatasource.getInstance(context, account, region).invokeLambda(
-                    LambdaFunctionNames.REMOVE_NOTIFICATION,
+            cloudDatasource.invokeLambda(LambdaFunctionNames.REMOVE_NOTIFICATION,
                     gson.toJson(firebaseTokenLambdaFormat));
         } catch (Exception e) {
             Log.e(TAG, "SaveSubArn", e);

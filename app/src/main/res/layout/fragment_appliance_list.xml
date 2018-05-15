@@ -1,11 +1,22 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+
+
+<!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment">
+    tools:context="edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment">-->
 
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipeRefreshApplianceList"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"    >
     <ListView
         android:id="@+id/appliance_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-</FrameLayout>
+</android.support.v4.widget.SwipeRefreshLayout>
+
+
+    <!--</FrameLayout>-->

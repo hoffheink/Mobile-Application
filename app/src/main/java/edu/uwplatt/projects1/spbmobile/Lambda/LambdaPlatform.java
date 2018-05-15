@@ -6,8 +6,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.AWSLambdaClient;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 
@@ -15,7 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
 import edu.uwplatt.projects1.spbmobile.AsyncTaskResult;
-import edu.uwplatt.projects1.spbmobile.MainActivity;
+import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 
 public class LambdaPlatform {
     private static final String TAG = LambdaPlatform.class.getCanonicalName();
@@ -54,26 +52,14 @@ public class LambdaPlatform {
 
         @NonNull
         private String createFunctionName(String functionName) {
-            return "arn:aws:lambda:" + MainActivity.region.toString().toLowerCase()
-                    .replace("_", "-") + ":955967187114:function:" + functionName;
-        }
-
-        private Regions getRegion() throws Exception {
-            switch (MainActivity.region) {
-                case US_EAST_1:
-                    return Regions.US_EAST_1;
-                case US_EAST_2:
-                    return Regions.US_EAST_2;
-                default:
-                    throw new Exception("Cannot resolve region: " + MainActivity.region.toString());
-            }
+            return "arn:aws:lambda:" + CloudDatasource.regionString + ":955967187114:function:" + functionName;
         }
 
         @Override
         protected AsyncTaskResult<String> doInBackground(Void... voids) {
             try {
                 AWSLambdaClient awsLambdaClient = new AWSLambdaClient(credentialsProvider);
-                awsLambdaClient.setRegion(Region.getRegion(getRegion()));
+                awsLambdaClient.setRegion(CloudDatasource.ourRegion);
                 ByteBuffer buffer = awsLambdaClient.invoke(invokeRequest).getPayload();
                 return new AsyncTaskResult<>(byteBufferToString(buffer,
                         Charset.forName(CHARACTER_SET)));

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -13,7 +12,6 @@ import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.Command.Range;
 import edu.uwplatt.projects1.spbmobile.JsonHelpers.RangeTypeAdapter;
 import edu.uwplatt.projects1.spbmobile.Lambda.LambdaFunctionNames;
-import edu.uwplatt.projects1.spbmobile.MainActivity;
 
 /**
  * This class represents an Appliance.
@@ -146,7 +144,7 @@ public class Appliance {
 
     public boolean RemoveCurrentAppliance(GoogleSignInAccount inAccount, Context inContext) {
         RemoveDeviceFormat removeDeviceFormat = new RemoveDeviceFormat(name);
-        String response = CloudDatasource.getInstance(inContext, inAccount, MainActivity.region).invokeLambda(
+        String response = CloudDatasource.getInstance(inContext, inAccount).invokeLambda(
                 LambdaFunctionNames.REMOVE_DEVICE, new Gson().toJson(removeDeviceFormat)).getResult().toString();
         return true;
     }

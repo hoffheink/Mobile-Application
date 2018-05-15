@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import edu.uwplatt.projects1.spbmobile.R;
  * This class is used to convert a list of Appliances to an ArrayAdapter of Appliances.
  */
 public class ApplianceListAdapter extends ArrayAdapter<Appliance> {
+
 
     /**
      * This is the constructor for the ApplianceListAdapter.

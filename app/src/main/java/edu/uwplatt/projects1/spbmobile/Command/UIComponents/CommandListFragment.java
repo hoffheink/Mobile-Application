@@ -1,6 +1,8 @@
 package edu.uwplatt.projects1.spbmobile.Command.UIComponents;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,17 +14,9 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
-import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.Command.Command;
 import edu.uwplatt.projects1.spbmobile.GoogleProvider;
-import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
-import edu.uwplatt.projects1.spbmobile.Shadow.AwsIotShadowClient;
-
-import android.support.v4.app.Fragment;
-import android.widget.Toast;
-
-import com.amazonaws.auth.AWSSessionCredentials;
 
 /**
  * This class is used to display the list of Commands to the user.
@@ -81,6 +75,8 @@ public class CommandListFragment extends Fragment {
                         getActivity());
                 Appliance.currentAppliance.RemoveCurrentAppliance(googleProvider.getAccount(),
                         getContext());
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.popBackStack();
             } catch (Exception e) {
                 Log.e("removeButtonExecute", e.getMessage(), e);
             }
