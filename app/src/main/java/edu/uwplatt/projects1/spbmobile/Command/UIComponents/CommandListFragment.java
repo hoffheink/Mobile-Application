@@ -2,6 +2,7 @@ package edu.uwplatt.projects1.spbmobile.Command.UIComponents;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -74,6 +75,8 @@ public class CommandListFragment extends Fragment {
                         getActivity());
                 Appliance.currentAppliance.RemoveCurrentAppliance(googleProvider.getAccount(),
                         getContext());
+                FragmentManager fragmentManager = getFragmentManager();
+                fragmentManager.popBackStack();
             } catch (Exception e) {
                 Log.e("removeButtonExecute", e.getMessage(), e);
             }

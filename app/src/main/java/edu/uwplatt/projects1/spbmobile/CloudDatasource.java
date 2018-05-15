@@ -1,6 +1,7 @@
 package edu.uwplatt.projects1.spbmobile;
 
 import android.annotation.SuppressLint;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListAdapter;
 import edu.uwplatt.projects1.spbmobile.Lambda.LambdaPlatform;
 
 /**
@@ -130,10 +132,18 @@ public class CloudDatasource {
     /**
      * This method will load the list of Appliances.
      */
-    void loadAppliances() {
+    public void loadAppliances(boolean wait) {
         Runnable getAppliancesRunnable = new GetAppliancesRunnable();
         Thread thread = new Thread(getAppliancesRunnable);
         thread.start();
+        if (wait)
+        {
+            try {
+                thread.join();
+            } catch (InterruptedException ignored) {
+
+            }
+        }
     }
 
     /**
@@ -190,7 +200,7 @@ public class CloudDatasource {
     /**
      * This class is used to get Appliances.
      */
-    private static class GetAppliancesRunnable implements Runnable {
+    private class GetAppliancesRunnable implements Runnable {
         /**
          * This method will actually get the Appliances.
          */
@@ -224,7 +234,13 @@ public class CloudDatasource {
                     Log.e("GetAppliancesRunnable", e.getMessage(), e);
                 }
             }
+            boolean updateDisplay = CloudDatasource.applianceList.size() != applianceList.size();
             CloudDatasource.applianceList = applianceList;
+            if (updateDisplay)
+            {
+                //ApplianceListAdapter.instance.notifyDataSetChanged();
+            }
+
         }
 
         private List<String> getThingNames(AWSIot awsIot) {

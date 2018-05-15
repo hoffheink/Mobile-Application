@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +14,9 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.Appliance;
+import edu.uwplatt.projects1.spbmobile.CloudDatasource;
 import edu.uwplatt.projects1.spbmobile.Command.UIComponents.CommandListFragment;
+import edu.uwplatt.projects1.spbmobile.GoogleProvider;
 import edu.uwplatt.projects1.spbmobile.R;
 
 /**
@@ -22,6 +25,7 @@ import edu.uwplatt.projects1.spbmobile.R;
  * handle interaction events.
  */
 public class ApplianceListFragment extends Fragment {
+
     /**
      * This method will create fragment for the list of Appliance.
      *
@@ -37,9 +41,9 @@ public class ApplianceListFragment extends Fragment {
         if (container != null) {
             container.removeAllViews();
         }
-
         return inflater.inflate(R.layout.fragment_appliance_list, container, false);
     }
+
 
     /**
      * This method will load up the Appliances and create the Views.
@@ -52,6 +56,16 @@ public class ApplianceListFragment extends Fragment {
         if (view != null) {
             final ListView listView = view.findViewById(R.id.appliance_list);
             if (listView != null) {
+                final SwipeRefreshLayout refreshLayout = view.findViewById(R.id.swipeRefreshApplianceList);
+                refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        CloudDatasource.getInstance(getContext(), GoogleProvider.getInstance(getContext(), getActivity()).getAccount()).loadAppliances(true);
+                        listView.setAdapter(new ApplianceListAdapter(getContext(), R.id.appliance_list));
+                        Log.d("onRefresh", "Refreshing");
+                        refreshLayout.setRefreshing(false);
+                    }
+                });
                 listView.setAdapter(applianceAdapter);
                 setOnClickListener(listView);
             }

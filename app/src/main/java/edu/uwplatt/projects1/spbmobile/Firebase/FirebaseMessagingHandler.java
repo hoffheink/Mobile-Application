@@ -18,6 +18,8 @@ import java.util.Map;
 import edu.uwplatt.projects1.spbmobile.MainActivity;
 import edu.uwplatt.projects1.spbmobile.R;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
+
 /**
  * Handles firebase push notifications.
  */

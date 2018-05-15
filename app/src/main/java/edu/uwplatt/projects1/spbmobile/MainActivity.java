@@ -1,5 +1,6 @@
 package edu.uwplatt.projects1.spbmobile;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +21,9 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.ApplianceListFragment;
 import edu.uwplatt.projects1.spbmobile.Appliance.UIComponents.RegisterApplianceFragment;
@@ -87,8 +91,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         visible = true;
         super.onStart();
         updateAccountInformation();
+        //new Timer().scheduleAtFixedRate(new UpdateAppliancesTask(this), 0, 5000);
     }
 
+
+    private class UpdateAppliancesTask extends TimerTask {
+        private final Activity activity;
+
+        public UpdateAppliancesTask(final Activity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void run() {
+            CloudDatasource.getInstance(getApplicationContext(), GoogleProvider.getInstance(getApplicationContext(), activity).getAccount()).loadAppliances(false);
+        }
+    }
 
     /**
      * This method will update the account info and make a call to display the WelcomeScreenActivity
@@ -102,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (googleProvider.getAccount() == null)
             showWelcomeScreen();
         else {
-            CloudDatasource.getInstance(this, googleProvider.getAccount()).loadAppliances(); //Loads appliance list
+            CloudDatasource.getInstance(this, googleProvider.getAccount()).loadAppliances(false); //Loads appliance list
             NavigationView navigationView = findViewById(R.id.nav_view);
             View header = navigationView.getHeaderView(0);
             ((TextView) header.findViewById(R.id.user_name))
